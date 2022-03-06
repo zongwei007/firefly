@@ -1,0 +1,39 @@
+.container {
+  padding: 25px 40px;
+  margin: 0 auto;
+}
+
+.header {
+  position: relative;
+}
+
+.weather {
+  position: absolute;
+  right: 20px;
+  top: 30px;
+}
+
+.apps,
+.bookmarks {
+  margin: 2rem 0;
+}
+
+.apps > h2, .bookmarks > h2 {
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 1200px) {
+  .container {
+    width: 90%;
+  }
+}
+
+@media (min-width: 1201px) {
+  .container {
+    width: 90%;
+    padding: 50px 250px;
+  }
+}

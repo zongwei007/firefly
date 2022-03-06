@@ -36,3 +36,9 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# idea
+.idea
+
+# mdi icon
+public/assets/mdi

@@ -1,0 +1,49 @@
+.group {
+  display: inline-block;
+  width: 23.99%;
+}
+
+.group h3 {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.group h3.groupTitle {
+  color: var(--color-accent);
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.group span {
+  display: inline;
+  vertical-align: middle;
+}
+
+.list {
+  list-style: none;
+  margin: 5px 0;
+}
+
+.list a.bookmark {
+  line-height: 2;
+  transition: all 0.25s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.list .bookmark img {
+  display: inline-block;
+  color: var(--color-primary);
+  vertical-align: middle;
+  /* https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-element */
+  filter: invert(100%) sepia(0%) saturate(2%) hue-rotate(309deg) brightness(109%) contrast(101%);
+}
+
+.list .bookmark span {
+  margin-left: 4px;
+}

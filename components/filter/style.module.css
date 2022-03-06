@@ -1,0 +1,24 @@
+.input {
+  width: 100%;
+  padding: 10px 0;
+  color: var(--color-primary);
+  font-size: 20px;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid var(--color-accent);
+  opacity: 0.5;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.label {
+  text-align: right;
+  width: 100%;
+  display: block;
+  opacity: 0;
+}
+
+.input:focus + .label {
+  opacity: 1;
+  transition: all 0.2s;
+}

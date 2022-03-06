@@ -1,0 +1,5 @@
+.clock p {
+  font-weight: 300;
+  text-transform: uppercase;
+  height: 30px;
+}

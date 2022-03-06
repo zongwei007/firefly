@@ -1,0 +1,57 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  --color-background: #1a1a1a;
+  --color-primary: #fffdea;
+  --color-accent: #5c5c5c;
+}
+
+body {
+  background: var(--color-background);
+  font-family: -apple-system, Roboto, sans-serif;
+  font-size: 14px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+div,
+p,
+a,
+span {
+  color: var(--color-primary);
+}
+
+h1 {
+  font-weight: 700;
+  font-size: 4em;
+  display: inline-block;
+}
+
+a {
+  text-decoration: none;
+}
+
+.no-select {
+  user-select: none;
+}
+
+.clearfix::after {
+  content: '';
+  clear: both;
+  display: table;
+}
+
+.pull-left {
+  float: left;
+}
+
+.pull-right {
+  float: right;
+}
