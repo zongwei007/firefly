@@ -23,9 +23,16 @@ const BookmarkCollection: FC<BookmarkCollectionProps> = ({ className }) => {
               return (
                 <li key={`${i}_${link.name}`}>
                   <a href={link.link} target="_blank" rel="noopener noreferrer" className={styles.bookmark}>
-                    {link.icon ? (
-                      <Image className={styles.icon} src={link.icon ? `/assets/mdi/${link.icon}.svg` : ''} width={20} height={20} />
-                    ) : null}
+                    <Image
+                      className={styles.icon}
+                      src={
+                        link.icon
+                          ? `/assets/mdi/${link.icon}.svg`
+                          : `/api/favicon?host=${encodeURI(new URL(link.link).origin)}`
+                      }
+                      width={20}
+                      height={20}
+                    />
                     <span>{link.name}</span>
                   </a>
                 </li>
