@@ -8,7 +8,7 @@ import Clock from './clock/Clock';
 import Filter from './filter/Filter';
 import Weather from './weather/Weather';
 
-export type HomeProps = { timestamp: number; weather: WeatherResponse };
+export type HomeProps = { timestamp: number };
 
 const Home: NextPage<HomeProps> = props => {
   return (
@@ -16,7 +16,7 @@ const Home: NextPage<HomeProps> = props => {
       <Filter />
       <header className={styles.header}>
         <Clock defaultValue={props.timestamp} />
-        <Weather className={styles.weather} defaultValue={props.weather} />
+        <Weather className={styles.weather} />
       </header>
       <main>
         <AppCollection className={styles.apps} />

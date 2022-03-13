@@ -1,30 +1,28 @@
-import { useState } from 'react';
 import type { FC } from 'react';
 import classNames from 'classnames';
-import { useInterval } from 'react-use';
 import Image from 'next/image';
 import styles from './style.module.css';
+import useSWR from 'swr';
 
 type WeatherProps = {
   className?: string;
-  defaultValue: WeatherResponse;
 };
 
-let lastRequestAt = Date.now();
-
-const Weather: FC<WeatherProps> = ({ className, defaultValue }) => {
-  const [weather, setWeather] = useState(defaultValue);
-
-  useInterval(() => {
-    if (Date.now() - lastRequestAt > 1000 * 60 * 60) {
-      fetch('/api/weather')
-        .then(resp => resp.json())
-        .then(weather => {
-          setWeather(weather);
-          lastRequestAt = Date.now();
-        });
+const Weather: FC<WeatherProps> = ({ className }) => {
+  const { data: weather, error } = useSWR(
+    `/api/weather?${new URLSearchParams([
+      ['province', '北京'],
+      ['city', '北京市'],
+      ['county', '昌平区'],
+    ])}`,
+    {
+      refreshInterval: 60 * 60 * 1000,
     }
-  }, 1000 * 60 * 10);
+  );
+
+  if (!weather && !error) {
+    return null;
+  }
 
   return (
     <div className={classNames(className, styles.weather, 'clearfix')}>
@@ -47,7 +45,7 @@ const Weather: FC<WeatherProps> = ({ className, defaultValue }) => {
 };
 
 function mappingIcon(weather: WeatherResponse['current']) {
-  return ICON_MAPPING[weather.weatherCode];
+  return ICON_MAPPING[weather.weatherCode] || 'day';
 }
 
 const ICON_MAPPING: Record<string, string> = {

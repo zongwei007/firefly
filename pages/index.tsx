@@ -2,17 +2,13 @@ import type { HomeProps } from 'layouts/home/Home';
 import Home from 'layouts/home/Home';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { query as queryWeather } from 'services/weather';
 import { withUserProps } from 'infrastructure/auth';
 
 export const getServerSideProps = withUserProps(
   async () => {
-    const weather = await queryWeather('北京', '北京市', '昌平区');
-
     return {
       props: {
         timestamp: Date.now(),
-        weather,
       },
     };
   },
