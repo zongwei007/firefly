@@ -1,7 +1,7 @@
 declare interface IToken {
   username: string;
-  timestamp: Date;
-  expires: Date;
+  timestamp: number;
+  expires: number;
 }
 
 declare type AuthenticationContext<Required extends boolean = true> = Required extends true

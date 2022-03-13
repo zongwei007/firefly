@@ -6,15 +6,17 @@ declare type Bookmark = {
   category?: string;
 };
 
+declare type AppCollectionData = {
+  links: Array<Bookmark>;
+  lastModifiedAt?: string;
+};
+
 declare type Category = AppCollectionData & {
   id: string;
   title: string;
 };
 
-declare type AppCollectionData = {
-  links: Array<Bookmark>;
-};
-
 declare type BookmarkCollectionData = {
   categories: Array<Category>;
+  lastModifiedAt?: string;
 };

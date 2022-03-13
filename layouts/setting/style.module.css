@@ -1,0 +1,15 @@
+.settings {
+}
+
+.settings h1 {
+  font-size: 30px;
+}
+
+.settings h2 {
+  margin-bottom: 10px;
+}
+
+.settings main {
+  margin: 20px 0;
+  position: relative;
+}

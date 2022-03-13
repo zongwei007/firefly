@@ -1,0 +1,23 @@
+.status dl {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  width: 35rem;
+}
+
+.status dt {
+  width: 10rem;
+}
+
+.status dd {
+  width: 25rem;
+}
+
+.status dt,
+.status dd {
+  line-height: 2;
+}
+
+.logout {
+  margin-top: 1rem;
+}

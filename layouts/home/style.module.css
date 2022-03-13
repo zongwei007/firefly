@@ -3,6 +3,19 @@
   margin: 0 auto;
 }
 
+@media (max-width: 1200px) {
+  .container {
+    width: 90%;
+  }
+}
+
+@media (min-width: 1201px) {
+  .container {
+    width: 90%;
+    padding: 50px 250px;
+  }
+}
+
 .header {
   position: relative;
 }
@@ -18,22 +31,30 @@
   margin: 2rem 0;
 }
 
-.apps > h2, .bookmarks > h2 {
+.apps > h2,
+.bookmarks > h2 {
   text-transform: uppercase;
   font-weight: 900;
   font-size: 20px;
   margin-bottom: 16px;
 }
 
-@media (max-width: 1200px) {
-  .container {
-    width: 90%;
-  }
+.toolbar {
+  width: 38px;
+  height: 80px;
+  position: fixed;
+  bottom: var(--spacing-ui);
+  left: var(--spacing-ui);
+  display: block;
+  justify-content: center;
+  align-items: center;
+  visibility: visible;
 }
 
-@media (min-width: 1201px) {
-  .container {
-    width: 90%;
-    padding: 50px 250px;
-  }
+.toolbar .icon img {
+  filter: invert(20%);
+}
+
+.toolbar .icon:hover img {
+  filter: invert(40%);
 }

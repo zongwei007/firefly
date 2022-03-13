@@ -1,13 +1,18 @@
 import type { NextPage } from 'next';
 import styles from './style.module.css';
-import classNames from 'classnames';
-import { AppCollection, BookmarkCollection, Clock, Filter, Weather } from 'components';
+import { Icon } from 'components';
+import Link from 'next/link';
+import AppCollection from './app/AppCollection';
+import BookmarkCollection from './bookmark/BookmarkCollection';
+import Clock from './clock/Clock';
+import Filter from './filter/Filter';
+import Weather from './weather/Weather';
 
 export type HomeProps = { timestamp: number; weather: WeatherResponse };
 
 const Home: NextPage<HomeProps> = props => {
   return (
-    <div className={classNames('page-container', 'no-select')}>
+    <div className="no-select">
       <Filter />
       <header className={styles.header}>
         <Clock defaultValue={props.timestamp} />
@@ -16,6 +21,18 @@ const Home: NextPage<HomeProps> = props => {
       <main>
         <AppCollection className={styles.apps} />
         <BookmarkCollection className={styles.bookmarks} />
+        <div className={styles.toolbar}>
+          <Link href="/settings" shallow={true}>
+            <a className={styles.icon}>
+              <Icon type="cog-outline" width={35} height={35} />
+            </a>
+          </Link>
+          <Link href="/help" shallow={true}>
+            <a className={styles.icon}>
+              <Icon type="help-circle-outline" width={35} height={35} />
+            </a>
+          </Link>
+        </div>
       </main>
     </div>
   );

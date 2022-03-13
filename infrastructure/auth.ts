@@ -121,10 +121,10 @@ export function parse(tokenValue?: string): IToken | null {
     throw new ForbiddenException('Invalid token');
   }
 
-  const timestamp = new Date(parseInt(timestampValue));
-  const expires = new Date(parseInt(expiresValue));
+  const timestamp = parseInt(timestampValue);
+  const expires = parseInt(expiresValue);
 
-  if (expires.getTime() < Date.now()) {
+  if (expires < Date.now()) {
     return null;
   }
 

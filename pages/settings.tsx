@@ -1,37 +1,31 @@
-import type { HomeProps } from 'layouts/home/Home';
-import Home from 'layouts/home/Home';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { query as queryWeather } from 'services/weather';
 import { withUserProps } from 'infrastructure/auth';
+import SettingPanel from 'layouts/setting/SettingPanel';
+import type { SettingPanelProps } from 'layouts/setting/SettingPanel';
 
 export const getServerSideProps = withUserProps(
-  async () => {
-    const weather = await queryWeather('北京', '北京市', '昌平区');
-
+  async ({ user }) => {
     return {
-      props: {
-        timestamp: Date.now(),
-        weather,
-      },
+      props: { user },
     };
   },
   { required: true }
 );
 
-const Index: NextPage<HomeProps> = props => {
+const Settings: NextPage<SettingPanelProps> = props => {
   return (
     <>
       <Head>
-        <title>Firefly</title>
+        <title>设置 - Firefly</title>
         <meta name="description" content="Firefly - 自托管导航页" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="page-container">
-        <Home {...props} />
+        <SettingPanel {...props} />
       </div>
     </>
   );
 };
 
-export default Index;
+export default Settings;

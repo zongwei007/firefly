@@ -9,8 +9,11 @@ body {
   --color-primary: #fffdea;
   --color-accent: #5c5c5c;
   --color-error: #ff3333;
+  --color-active: #3434ff;
 
   --border-radius: 4px;
+  --spacing-ui: 10px;
+
   /* https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-element */
   --svg-icon-filter: invert(100%) sepia(0%) saturate(2%) hue-rotate(309deg) brightness(109%) contrast(101%);
 }
@@ -37,6 +40,10 @@ h1 {
   font-weight: 700;
   font-size: 4em;
   display: inline-block;
+}
+
+hr {
+  margin: 1rem 0;
 }
 
 a {

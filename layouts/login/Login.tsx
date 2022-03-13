@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import type { FC } from 'react';
 import styles from './style.module.css';
 import classNames from 'classnames';
+import { Button } from 'components';
 
 type LoginFormProps = {
   className?: string;
@@ -63,9 +64,9 @@ const Login: FC<LoginFormProps> = ({ className, redirectTo = '/' }) => {
       </div>
       <div className={styles.formGroup}>
         {error && <summary className={styles.errorMessage}>{error}</summary>}
-        <button className={styles.submit} type="submit">
+        <Button className={styles.submit} type="submit">
           登录
-        </button>
+        </Button>
       </div>
     </form>
   );

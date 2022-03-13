@@ -3,7 +3,7 @@ import styles from './style.module.css';
 import { Icon } from 'components';
 
 const Spinner: FC<{ loading?: boolean }> = props => {
-  if (!props.loading) {
+  if (props.loading === false) {
     return null;
   }
 

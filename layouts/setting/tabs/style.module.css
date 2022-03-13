@@ -1,0 +1,31 @@
+.tabs {
+  position: absolute;
+  left: 0;
+  width: 100px;
+  list-style: none;
+}
+
+.tab {
+  padding-left: 7px;
+  border-left: 3px solid var(--color-primary);
+  display: block;
+  height: 40px;
+  line-height: 40px;
+  transition: all 0.3s;
+}
+
+.tab.active {
+  border-left-color: var(--color-active);
+}
+
+.tabs:hover .tab {
+  border-color: transparent;
+}
+
+.tabs:hover .tab:hover {
+  border-color: var(--color-active);
+}
+
+.panel {
+  margin-left: 110px;
+}
