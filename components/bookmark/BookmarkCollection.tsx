@@ -1,8 +1,7 @@
 import { useBookmarks } from 'hooks';
 import classNames from 'classnames';
 import type { FC } from 'react';
-import Image from 'next/image';
-import { Spinner } from 'components';
+import { FaviconIcon, Spinner } from 'components';
 
 import styles from './style.module.css';
 
@@ -25,16 +24,7 @@ const BookmarkCollection: FC<BookmarkCollectionProps> = ({ className }) => {
               return (
                 <li key={`${i}_${link.name}`}>
                   <a href={link.link} target="_blank" rel="noopener noreferrer" className={styles.bookmark}>
-                    <Image
-                      className={styles.icon}
-                      src={
-                        link.icon
-                          ? `/assets/mdi/${link.icon}.svg`
-                          : `/api/favicon?host=${encodeURI(new URL(link.link).origin)}`
-                      }
-                      width={20}
-                      height={20}
-                    />
+                    <FaviconIcon icon={link.icon} link={link.link} className={styles.icon} width={20} height={20} />
                     <span>{link.name}</span>
                   </a>
                 </li>

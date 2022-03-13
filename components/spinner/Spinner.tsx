@@ -1,6 +1,6 @@
 import type { FC } from 'react';
-import Image from 'next/image';
 import styles from './style.module.css';
+import { Icon } from 'components';
 
 const Spinner: FC<{ loading?: boolean }> = props => {
   if (!props.loading) {
@@ -9,7 +9,7 @@ const Spinner: FC<{ loading?: boolean }> = props => {
 
   return (
     <div className={styles.container}>
-      <Image className={styles.icon} src="/assets/mdi/loading.svg" alt="正在加载..." width={64} height={64} />
+      <Icon type="loading" className={styles.icon} width={64} height={64} />
     </div>
   );
 };
