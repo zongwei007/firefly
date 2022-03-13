@@ -1,6 +1,6 @@
 import { v2 as webdav } from 'webdav-server';
 
-import { read, write, HOST, PASSWORD, USERNAME, DIRECTORY, AUTH_TYPE } from '../storage';
+import { AUTH_TYPE, HOST, PASSWORD, read, USERNAME, write } from '../storage';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';

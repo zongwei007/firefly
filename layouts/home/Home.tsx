@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import styles from './Home.module.css';
+import styles from './style.module.css';
 import classNames from 'classnames';
 import type { PropsWithChildren } from 'react';
 import { AppCollection, BookmarkCollection, Clock, Filter, Weather } from 'components';
@@ -11,7 +11,7 @@ export type HomeProps = PropsWithChildren<{
 
 const Home: NextPage<HomeProps> = props => {
   return (
-    <div className={classNames(styles.container, 'no-select')}>
+    <div className={classNames('page-container', 'no-select')}>
       <Filter />
       <header className={styles.header}>
         <Clock defaultValue={props.timestamp} />

@@ -1,7 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { parse } from 'node-html-parser';
+import { withUserApi } from 'infrastructure/auth';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<Buffer | string>) {
+async function handler(req: NextApiRequest, res: NextApiResponse<Buffer | string>) {
   let { host } = req.query;
 
   if (!host) {
@@ -86,3 +87,5 @@ function resolveIconUrl(html: string): string | null {
 
   return icons.get(matchSize) || null;
 }
+
+export default withUserApi(handler);

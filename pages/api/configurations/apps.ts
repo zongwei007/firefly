@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { read as readStorage } from 'services/storage';
+import { read as readStorage } from 'infrastructure/storage';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<AppCollectionData | ErrorResponse>) {
   try {
