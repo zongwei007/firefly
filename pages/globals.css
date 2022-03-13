@@ -11,6 +11,8 @@ body {
   --color-error: #ff3333;
 
   --border-radius: 4px;
+  /* https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-element */
+  --svg-icon-filter: invert(100%) sepia(0%) saturate(2%) hue-rotate(309deg) brightness(109%) contrast(101%);
 }
 
 body {

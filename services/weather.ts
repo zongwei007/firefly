@@ -5,8 +5,10 @@ export async function query(province: string, city: string, county?: string): Pr
   params.append('source', 'pc');
   params.append('weather_type', 'observe|forecast_24h');
   params.append('province', province);
-  params.append('city', city);
 
+  if (city) {
+    params.append('city', city);
+  }
   if (county) {
     params.append('county', county);
   }

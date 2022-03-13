@@ -1,7 +1,8 @@
-import { useGlobalState } from 'hooks';
+import { useBookmarks } from 'hooks';
 import classNames from 'classnames';
 import type { FC } from 'react';
 import Image from 'next/image';
+import { Spinner } from 'components';
 
 import styles from './style.module.css';
 
@@ -10,12 +11,13 @@ type BookmarkCollectionProps = {
 };
 
 const BookmarkCollection: FC<BookmarkCollectionProps> = ({ className }) => {
-  const { bookmarks } = useGlobalState();
+  const { data, isLoading } = useBookmarks();
 
   return (
     <div className={className}>
       <h2>书签</h2>
-      {bookmarks.categories.map(category => (
+      <Spinner loading={isLoading} />
+      {data?.categories.map(category => (
         <div key={category.id} className={classNames(styles.group, 'pull-left')}>
           <h3 className={styles.groupTitle}>{category.title}</h3>
           <ul className={styles.list}>

@@ -3,21 +3,19 @@ import Home from 'layouts/home/Home';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { query as queryWeather } from 'services/weather';
-import * as storage from 'infrastructure/storage';
-import { useGlobalStorage } from 'hooks';
 import { withUserProps } from 'infrastructure/auth';
+import { SWRConfig } from 'swr';
+
+const SWR_CONFIG = {
+  fetcher: (resource: RequestInfo, init: RequestInit) => fetch(resource, init).then(resp => resp.json()),
+};
 
 export const getServerSideProps = withUserProps(
   async () => {
-    const apps = await storage.read<AppCollectionData>('apps.yml');
-    const bookmarks = await storage.read<AppCollectionData>('bookmarks.yml');
-
     const weather = await queryWeather('北京', '北京市', '昌平区');
 
     return {
       props: {
-        apps,
-        bookmarks,
         timestamp: Date.now(),
         weather,
       },
@@ -26,9 +24,7 @@ export const getServerSideProps = withUserProps(
   { required: true }
 );
 
-const Index: NextPage<HomeProps & GlobalState> = ({ apps, bookmarks, ...rest }) => {
-  const [Provider] = useGlobalStorage({ apps, bookmarks });
-
+const Index: NextPage<HomeProps> = props => {
   return (
     <>
       <Head>
@@ -36,9 +32,9 @@ const Index: NextPage<HomeProps & GlobalState> = ({ apps, bookmarks, ...rest }) 
         <meta name="description" content="Firefly - 自托管导航页" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Provider>
-        <Home {...rest} />
-      </Provider>
+      <SWRConfig value={SWR_CONFIG}>
+        <Home {...props} />
+      </SWRConfig>
     </>
   );
 };

@@ -1,13 +1,9 @@
 import type { NextPage } from 'next';
 import styles from './style.module.css';
 import classNames from 'classnames';
-import type { PropsWithChildren } from 'react';
 import { AppCollection, BookmarkCollection, Clock, Filter, Weather } from 'components';
 
-export type HomeProps = PropsWithChildren<{
-  timestamp: number;
-  weather: WeatherResponse;
-}>;
+export type HomeProps = { timestamp: number; weather: WeatherResponse };
 
 const Home: NextPage<HomeProps> = props => {
   return (

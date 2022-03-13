@@ -1,7 +1,8 @@
 import type { FC } from 'react';
-import { useGlobalState } from 'hooks';
+import { useApps } from 'hooks';
 import classNames from 'classnames';
 import Image from 'next/image';
+import { Spinner } from 'components';
 
 import styles from './style.module.css';
 
@@ -10,13 +11,14 @@ type AppCollectionProps = {
 };
 
 const AppCollection: FC<AppCollectionProps> = ({ className }) => {
-  const { apps } = useGlobalState();
+  const { data, isLoading } = useApps();
 
   return (
     <div className={className}>
       <h2>应用</h2>
       <div className={classNames('clearfix', styles.apps)}>
-        {apps.links.map((link, i) => (
+        <Spinner loading={isLoading} />
+        {data?.links.map((link, i) => (
           <div className={styles.app} key={`${i}_${link.name}`}>
             <a className={styles.link} href={link.link} target="_blank" rel="noreferrer noopener" title={link.name}>
               <div className={styles.icon}>

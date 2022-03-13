@@ -29,7 +29,12 @@ const Weather: FC<WeatherProps> = ({ className, defaultValue }) => {
   return (
     <div className={classNames(className, styles.weather, 'clearfix')}>
       <div className="pull-left">
-        <Image src={`/assets/weather/${mappingIcon(weather.current)}.svg`} width={64} height={64} />
+        <Image
+          src={`/assets/weather/${mappingIcon(weather.current)}.svg`}
+          width={64}
+          height={64}
+          title={weather.current.weather}
+        />
       </div>
       <div className={classNames('pull-right', styles.weatherValue)}>
         <p>{weather.current.degree}℃</p>
@@ -48,8 +53,9 @@ function mappingIcon(weather: WeatherResponse['current']) {
 const ICON_MAPPING: Record<string, string> = {
   '00': 'day',
   '01': 'cloudy',
-  '02': 'cloudy-day-1',
+  '02': 'cloudy-day-2',
   '07': 'rainy-4',
+  '53': 'cloudy-day-1',
 };
 
 export default Weather;
