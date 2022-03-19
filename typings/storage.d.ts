@@ -1,22 +1,30 @@
-declare type Bookmark = {
+declare interface IBookmark {
   name: string;
   link: string;
   icon: string;
   desc?: string;
   category?: string;
-};
+}
 
-declare type AppCollectionData = {
-  links: Array<Bookmark>;
+declare interface IAppCollection {
+  links: Array<IBookmark>;
   lastModifiedAt?: string;
-};
+}
 
-declare type Category = AppCollectionData & {
+declare interface ICategory extends IAppCollection {
   id: string;
   title: string;
-};
+}
 
-declare type BookmarkCollectionData = {
-  categories: Array<Category>;
+declare interface IBookmarkCollection {
+  categories: Array<ICategory>;
   lastModifiedAt?: string;
-};
+}
+
+declare interface ISetting {
+  lastModifiedAt?: string;
+  weather: {
+    enable: boolean;
+    location: string;
+  };
+}

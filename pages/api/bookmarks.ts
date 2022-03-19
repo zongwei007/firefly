@@ -3,7 +3,7 @@ import * as bookmarkService from 'services/bookmark';
 import { UnknownException } from 'infrastructure/exception';
 import { withUserApi } from 'infrastructure/auth';
 
-async function handler(req: NextApiRequest, res: NextApiResponse<AppCollectionData | ErrorResponse>) {
+async function handler(req: NextApiRequest, res: NextApiResponse<IAppCollection | ErrorResponse>) {
   try {
     const config = await bookmarkService.list();
 

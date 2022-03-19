@@ -8,7 +8,7 @@ import { useRouter } from 'next/router';
 type TabProps = {
   id: string;
   label: ReactNode;
-  children: ReactElement;
+  children: ReactElement | null;
   defaultActive?: boolean;
 };
 
@@ -40,9 +40,7 @@ const TabContainer: FC<TabsProps> = ({ className, tag: Tag = 'div', tabs }) => {
           </li>
         ))}
       </ul>
-      <div className={styles.panel}>
-        {activeTab?.children}
-      </div>
+      <div className={styles.panel}>{activeTab?.children}</div>
     </Tag>
   );
 };

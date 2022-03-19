@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 
 export function useApps() {
-  const { data, error } = useSWR<AppCollectionData>('/api/apps', {
+  const { data, error } = useSWR<IAppCollection>('/api/apps', {
     revalidateIfStale: false,
     revalidateOnFocus: false,
   });

@@ -2,25 +2,12 @@ import type { FC } from 'react';
 import classNames from 'classnames';
 import Image from 'next/image';
 import styles from './style.module.css';
-import useSWR from 'swr';
+import { useWeather } from 'hooks';
 
-type WeatherProps = {
-  className?: string;
-};
+const Weather: FC<{ className?: string }> = ({ className }) => {
+  const { data: weather } = useWeather();
 
-const Weather: FC<WeatherProps> = ({ className }) => {
-  const { data: weather, error } = useSWR(
-    `/api/weather?${new URLSearchParams([
-      ['province', '北京'],
-      ['city', '北京市'],
-      ['county', '昌平区'],
-    ])}`,
-    {
-      refreshInterval: 60 * 60 * 1000,
-    }
-  );
-
-  if (!weather && !error) {
+  if (!weather) {
     return null;
   }
 
@@ -44,7 +31,7 @@ const Weather: FC<WeatherProps> = ({ className }) => {
   );
 };
 
-function mappingIcon(weather: WeatherResponse['current']) {
+function mappingIcon(weather: IWeather['current']) {
   return ICON_MAPPING[weather.weatherCode] || 'day';
 }
 

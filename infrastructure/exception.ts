@@ -9,6 +9,12 @@ export class Exception extends Error {
   }
 }
 
+export class UnsupportedMethodException extends Exception {
+  constructor(method = 'GET') {
+    super(`Method ${method} is unsupported`);
+  }
+}
+
 export class UnauthenticatedException extends Exception {
   constructor() {
     super('unauthenticated', 401, 401);

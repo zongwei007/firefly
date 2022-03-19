@@ -1,6 +1,3 @@
-.settings {
-}
-
 .settings h1 {
   font-size: 30px;
 }
@@ -12,4 +9,8 @@
 .settings main {
   margin: 20px 0;
   position: relative;
+}
+
+.settings .submit {
+  margin-top: 1rem;
 }

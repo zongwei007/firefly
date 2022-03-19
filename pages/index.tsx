@@ -21,6 +21,9 @@ const Index: NextPage<HomeProps> = props => {
       <Head>
         <title>Firefly</title>
         <meta name="description" content="Firefly - 自托管导航页" />
+        <link rel="preload" href="/api/apps" as="fetch" />
+        <link rel="preload" href="/api/bookmarks" as="fetch" />
+        <link rel="preload" href="/api/settings" as="fetch" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="page-container">

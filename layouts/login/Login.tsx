@@ -37,7 +37,7 @@ const Login: FC<LoginFormProps> = ({ className, redirectTo = '/' }) => {
   return (
     <form className={classNames(styles.login, className)} onSubmit={handleSubmit}>
       <h2>登录</h2>
-      <div className={styles.formGroup}>
+      <div className="form-group">
         <label>用户名</label>
         <input
           type="text"
@@ -50,7 +50,7 @@ const Login: FC<LoginFormProps> = ({ className, redirectTo = '/' }) => {
           autoFocus
         />
       </div>
-      <div className={styles.formGroup}>
+      <div className="form-group">
         <label>密码</label>
         <input
           type="password"

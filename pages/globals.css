@@ -85,3 +85,14 @@ a {
 .pull-right {
   float: right;
 }
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  margin: 6px 0;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 10px;
+  background-color: var(--color-primary);
+  color: var(--color-background);
+}

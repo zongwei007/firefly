@@ -1,22 +1,24 @@
 import { query as queryWeather } from 'services/weather';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { withUserApi } from 'infrastructure/auth';
-import { UnknownException } from '../../infrastructure/exception';
+import { Exception, UnknownException } from '../../infrastructure/exception';
 
-async function handler(req: NextApiRequest, res: NextApiResponse<WeatherResponse | ErrorResponse>) {
-  const { province, city, county } = req.query;
+async function handler(req: NextApiRequest, res: NextApiResponse<IWeather | ErrorResponse>) {
+  const { location } = req.query;
+
+  if (!location || Array.isArray(location)) {
+    throw new Exception('无效的 location 参数');
+  }
+
+  const [province, city, county] = location.split(' ');
 
   try {
-    const resp = await queryWeather(first(province), first(city), first(county));
+    const resp = await queryWeather(province, city, county);
 
     res.status(200).json(resp);
   } catch (e: any) {
     throw new UnknownException(e.message);
   }
-}
-
-function first(value: string | string[]) {
-  return Array.isArray(value) ? value[0] : value;
 }
 
 export default withUserApi(handler);

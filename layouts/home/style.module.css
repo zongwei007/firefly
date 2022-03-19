@@ -44,7 +44,7 @@
   height: 80px;
   position: fixed;
   bottom: var(--spacing-ui);
-  left: var(--spacing-ui);
+  right: var(--spacing-ui);
   display: block;
   justify-content: center;
   align-items: center;

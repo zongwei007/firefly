@@ -1,6 +1,6 @@
 import { format, utcToZonedTime } from 'date-fns-tz';
 
-export async function query(province: string, city: string, county?: string): Promise<WeatherResponse> {
+export async function query(province: string, city: string, county?: string): Promise<IWeather> {
   const params = new URLSearchParams();
   params.append('source', 'pc');
   params.append('weather_type', 'observe|forecast_24h');
@@ -24,6 +24,10 @@ export async function query(province: string, city: string, county?: string): Pr
 
   if (status !== 200) {
     throw new Error(message);
+  }
+
+  if (!observe.degree) {
+    throw new Error(`无法获取 ${province}${city || ''}${county || ''} 的天气数据`);
   }
 
   const zonedTime = utcToZonedTime(Date.now(), 'Asia/Shanghai');

@@ -45,7 +45,7 @@ test('read', async () => {
   await fs.writeFile(apps, APPS_EXAMPLE);
 
   try {
-    const resp = await read<{ links: Array<Bookmark> }>('apps.yml');
+    const resp = await read<{ links: Array<IBookmark> }>('apps.yml');
 
     expect(resp).not.toBeNull();
     expect(resp!.links).toHaveLength(1);

@@ -1,4 +1,4 @@
-declare type WeatherResponse = {
+declare type IWeather = {
   current: {
     degree: number;
     precipitation: number;

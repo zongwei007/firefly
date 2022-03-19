@@ -27,11 +27,6 @@ const Home: NextPage<HomeProps> = props => {
               <Icon type="cog-outline" width={35} height={35} />
             </a>
           </Link>
-          <Link href="/help" shallow={true}>
-            <a className={styles.icon}>
-              <Icon type="help-circle-outline" width={35} height={35} />
-            </a>
-          </Link>
         </div>
       </main>
     </div>

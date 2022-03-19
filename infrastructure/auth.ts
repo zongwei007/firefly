@@ -23,7 +23,7 @@ export function withUserProps<T, Required extends boolean = true>(
     if (option?.required) {
       if (!user) {
         const search = new URLSearchParams();
-        search.append('redirectTo', context.req.url || '/');
+        search.append('redirectTo', '/');
 
         return {
           redirect: {
