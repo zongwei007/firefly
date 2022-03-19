@@ -1,8 +1,12 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
+import { ToastContainer } from 'react-toastify';
+
 import { withUserProps } from 'infrastructure/auth';
 import SettingPanel from 'layouts/setting/SettingPanel';
 import type { SettingPanelProps } from 'layouts/setting/SettingPanel';
+
+import 'react-toastify/dist/ReactToastify.css';
 
 export const getServerSideProps = withUserProps(
   async ({ user }) => {
@@ -27,6 +31,7 @@ const Settings: NextPage<SettingPanelProps> = props => {
       <div className="page-container">
         <SettingPanel {...props} />
       </div>
+      <ToastContainer theme="dark" autoClose={3000} />
     </>
   );
 };

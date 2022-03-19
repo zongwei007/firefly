@@ -1,6 +1,9 @@
+.groupContainer {
+  display: flex;
+}
+
 .group {
-  display: inline-block;
-  width: 23.99%;
+  flex: 1 1 auto;
 }
 
 .group h3 {

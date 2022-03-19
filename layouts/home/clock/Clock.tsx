@@ -6,19 +6,21 @@ import classNames from 'classnames';
 import { useIsomorphicLayoutEffect } from 'react-use';
 import { zhCN } from 'date-fns/locale';
 import styles from './style.module.css';
+import { useSettings } from 'hooks';
 
 type ClockProps = { className?: string; defaultValue: number; locale?: Locale };
 
 const Clock: FC<ClockProps> = ({ className, defaultValue, locale = zhCN }) => {
+  const { data: config } = useSettings();
   const timestamp = useTimestamp(defaultValue);
 
   return (
     <div className={classNames(className, styles.clock)}>
       <p>
         <span>{formatDateTime(timestamp, 'PPPP', { locale })}</span>
-        <span style={{ paddingLeft: '0.5rem' }}>{formatDateTime(timestamp, 'HH:mm:ss')}</span>
+        <span>{formatDateTime(timestamp, 'HH:mm:ss')}</span>
       </p>
-      <h1>你好</h1>
+      <h1>{config?.ui.clock.welcome}</h1>
     </div>
   );
 };

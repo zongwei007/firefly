@@ -8,14 +8,14 @@ import styles from './style.module.css';
 type FilterProps = DetailedHTMLProps<HTMLAttributes<HTMLFormElement>, HTMLFormElement>;
 
 const Filter: FC<FilterProps> = props => {
-  const settings = useSettings();
+  const { data: config } = useSettings();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useIsomorphicLayoutEffect(() => {
-    if (settings.data?.search.autoFocus) {
+    if (config?.search.autoFocus) {
       inputRef.current?.focus();
     }
-  }, [settings.data?.search.autoFocus]);
+  }, [config?.search.autoFocus]);
 
   return (
     <form {...props}>

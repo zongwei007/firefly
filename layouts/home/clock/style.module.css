@@ -3,3 +3,7 @@
   text-transform: uppercase;
   height: 30px;
 }
+
+.clock p:nth-child(2) {
+  padding-left: 0.5rem;
+}

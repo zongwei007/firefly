@@ -31,4 +31,20 @@ declare interface ISetting {
     enable: boolean;
     autoFocus: boolean;
   };
+  ui: {
+    title: string;
+    footer?: string;
+    clock: {
+      enable: boolean;
+      welcome: string;
+    };
+    app: {
+      enable: boolean;
+      target?: '_self' | '_blank' | string;
+    };
+    bookmark: {
+      enable: boolean;
+      target?: '_self' | '_blank' | string;
+    };
+  };
 }

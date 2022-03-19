@@ -1,11 +1,12 @@
 import type { FC, FormEventHandler } from 'react';
+import { toast } from 'react-toastify';
 import { Button } from 'components';
 import { useState, useCallback } from 'react';
 import styles from '../style.module.css';
 
 type SearchProps = {
   defaultValue: ISetting['search'];
-  onChange: (data: Pick<ISetting, 'search'>) => PromiseLike<void> | void;
+  onChange: (data: Pick<ISetting, 'search'>) => Promise<void>;
 };
 
 const Search: FC<SearchProps> = ({ defaultValue, onChange }) => {
@@ -13,9 +14,14 @@ const Search: FC<SearchProps> = ({ defaultValue, onChange }) => {
   const [autoFocus, setAutoFocus] = useState(defaultValue.autoFocus);
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = useCallback(
-    async event => {
+    event => {
       event.preventDefault();
-      await onChange({ search: { enable, autoFocus } });
+
+      return toast.promise(onChange({ search: { enable, autoFocus } }), {
+        pending: '正在保存',
+        success: '保存成功',
+        error: '保存失败',
+      });
     },
     [enable, autoFocus]
   );

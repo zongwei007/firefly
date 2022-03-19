@@ -8,6 +8,7 @@ import About from './about/About';
 import Theme from './theme/Theme';
 import Weather from './weather/Weather';
 import Search from './search/Search';
+import UserInterface from './interface/UserInterface';
 import { useApps, useBookmarks, useSettings } from 'hooks';
 import { Spinner } from 'components';
 
@@ -39,7 +40,11 @@ const SettingPanel: FC<SettingPanelProps> = ({ user }) => {
         label: '搜索',
         children: settings.data ? <Search defaultValue={settings.data!.search} onChange={handleSettingChange} /> : null,
       },
-      { id: 'ui', label: '界面', children: <div></div> },
+      {
+        id: 'ui',
+        label: '界面',
+        children: settings.data ? <UserInterface defaultValue={settings.data!.ui} onChange={handleSettingChange} /> : null,
+      },
       {
         id: 'about',
         label: '关于',

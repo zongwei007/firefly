@@ -50,6 +50,15 @@ a {
   text-decoration: none;
 }
 
+footer {
+  text-align: center;
+  opacity: 0.6;
+}
+
+footer:hover {
+  opacity: 1;
+}
+
 .page-container {
   padding: 25px 40px;
   margin: 0 auto;
@@ -87,6 +96,7 @@ a {
 }
 
 .form-group input,
+.form-group textarea,
 .form-group select {
   width: 100%;
   margin: 6px 0;
@@ -95,4 +105,12 @@ a {
   padding: 10px;
   background-color: var(--color-primary);
   color: var(--color-background);
+}
+
+.form-group .help-text {
+  font-size: 12px;
+  margin-bottom: 1rem;
+  text-decoration: underline;
+  font-style: italic;
+  opacity: 0.8;
 }

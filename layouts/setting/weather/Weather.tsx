@@ -1,12 +1,13 @@
 import type { FC, FocusEventHandler, FormEventHandler } from 'react';
-import { Button } from 'components';
 import { useState, useCallback } from 'react';
+import { toast } from 'react-toastify';
+import { Button } from 'components';
 import { queryWeather } from 'hooks';
 import styles from '../style.module.css';
 
 type WeatherProps = {
   defaultValue: ISetting['weather'];
-  onChange: (data: Pick<ISetting, 'weather'>) => PromiseLike<void> | void;
+  onChange: (data: Pick<ISetting, 'weather'>) => Promise<void>;
 };
 
 const Weather: FC<WeatherProps> = ({ defaultValue, onChange }) => {
@@ -29,9 +30,14 @@ const Weather: FC<WeatherProps> = ({ defaultValue, onChange }) => {
   }, []);
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = useCallback(
-    async event => {
+    event => {
       event.preventDefault();
-      await onChange({ weather: { enable, location } });
+
+      return toast.promise(onChange({ weather: { enable, location } }), {
+        pending: '正在保存',
+        success: '保存成功',
+        error: '保存失败',
+      });
     },
     [enable, location]
   );
@@ -55,7 +61,7 @@ const Weather: FC<WeatherProps> = ({ defaultValue, onChange }) => {
             onChange={event => setLocation(event.target.value)}
             onBlur={handleValidate}
           />
-          <div>{errorMessage}</div>
+          <p className="help-text">{errorMessage}</p>
         </div>
         <div className={styles.submit}>
           <Button type="submit" disabled={validating || !!errorMessage}>

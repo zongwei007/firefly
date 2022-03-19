@@ -7,20 +7,23 @@ import BookmarkCollection from './bookmark/BookmarkCollection';
 import Clock from './clock/Clock';
 import Filter from './filter/Filter';
 import Weather from './weather/Weather';
+import { useSettings } from 'hooks';
 
 export type HomeProps = { timestamp: number };
 
 const Home: NextPage<HomeProps> = props => {
+  const { data: config } = useSettings();
+
   return (
     <div className="no-select">
       <Filter />
       <header className={styles.header}>
-        <Clock defaultValue={props.timestamp} />
+        {config?.ui.clock.enable ? <Clock defaultValue={props.timestamp} /> : null}
         <Weather className={styles.weather} />
       </header>
       <main>
-        <AppCollection className={styles.apps} />
-        <BookmarkCollection className={styles.bookmarks} />
+        {config?.ui.app.enable ? <AppCollection className={styles.apps} /> : null}
+        {config?.ui.bookmark.enable ? <BookmarkCollection className={styles.bookmarks} /> : null}
         <div className={styles.toolbar}>
           <Link href="/settings" shallow={true}>
             <a className={styles.icon}>
@@ -29,6 +32,11 @@ const Home: NextPage<HomeProps> = props => {
           </Link>
         </div>
       </main>
+      {config?.ui.footer ? (
+        <footer>
+          <div dangerouslySetInnerHTML={{ __html: config.ui.footer }} />
+        </footer>
+      ) : null}
     </div>
   );
 };
