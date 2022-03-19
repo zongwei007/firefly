@@ -29,9 +29,11 @@ export async function read<T>(name: string): Promise<T | null> {
 
 export async function write(name: string, value: unknown) {
   const client = getWebdavClient();
+  const yaml = YAML.stringify(value);
+  const buffer = Buffer.from(yaml, 'utf-8');
 
   try {
-    await client.putFileContents(getWebdavFilePath(name), YAML.stringify(value), { overwrite: true });
+    await client.putFileContents(getWebdavFilePath(name), buffer, { overwrite: true, contentLength: buffer.length });
   } catch (e: any) {
     const root = process.env[DIRECTORY] || '/';
 
@@ -71,7 +73,7 @@ function getWebdavClient() {
 }
 
 function getWebdavFilePath(name: string) {
-  const root = process.env[DIRECTORY] || '/';
+  const root = process.env[DIRECTORY] || '';
 
   return `${root}/${name}`;
 }
