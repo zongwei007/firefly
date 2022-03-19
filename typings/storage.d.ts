@@ -27,4 +27,8 @@ declare interface ISetting {
     enable: boolean;
     location: string;
   };
+  search: {
+    enable: boolean;
+    autoFocus: boolean;
+  };
 }

@@ -1,18 +1,21 @@
+import type { DetailedHTMLProps, FC, HTMLAttributes } from 'react';
 import { useRef } from 'react';
 import { useIsomorphicLayoutEffect } from 'react-use';
-
-import type { DetailedHTMLProps, FC, HTMLAttributes } from 'react';
+import { useSettings } from 'hooks';
 
 import styles from './style.module.css';
 
 type FilterProps = DetailedHTMLProps<HTMLAttributes<HTMLFormElement>, HTMLFormElement>;
 
 const Filter: FC<FilterProps> = props => {
+  const settings = useSettings();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useIsomorphicLayoutEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    if (settings.data?.search.autoFocus) {
+      inputRef.current?.focus();
+    }
+  }, [settings.data?.search.autoFocus]);
 
   return (
     <form {...props}>
