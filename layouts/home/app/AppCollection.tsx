@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useApps } from 'hooks';
+import { useBookmarks } from 'hooks';
 import classNames from 'classnames';
 import { FaviconIcon, Spinner } from 'components';
 
@@ -10,14 +10,14 @@ type AppCollectionProps = {
 };
 
 const AppCollection: FC<AppCollectionProps> = ({ className }) => {
-  const { data, isLoading } = useApps();
+  const { data, isLoading } = useBookmarks();
 
   return (
     <div className={className}>
       <h2>应用</h2>
       <div className={classNames('clearfix', styles.apps)}>
         <Spinner loading={isLoading} />
-        {data?.links.map((link, i) => (
+        {data?.favorites.map((link, i) => (
           <div className={styles.app} key={`${i}_${link.name}`}>
             <a className={styles.link} href={link.link} target="_blank" rel="noreferrer noopener" title={link.name}>
               <div className={styles.icon}>

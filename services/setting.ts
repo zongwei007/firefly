@@ -6,7 +6,7 @@ const DEFAULTS: ISetting = {
   ui: {
     title: 'Firefly',
     clock: { enable: true, welcome: '你好' },
-    app: { enable: true },
+    favorite: { enable: true },
     bookmark: { enable: true },
   },
 };

@@ -7,7 +7,7 @@ import { Button } from 'components';
 const About: FC<{
   user: IToken;
   apps: IAppCollection;
-  bookmarks: IBookmarkCollection;
+  bookmarks: IBookmarkConfiguration;
   settings: ISetting;
 }> = ({ user, apps, bookmarks, settings }) => {
   return (

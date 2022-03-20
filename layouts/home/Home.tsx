@@ -22,7 +22,7 @@ const Home: NextPage<HomeProps> = props => {
         <Weather className={styles.weather} />
       </header>
       <main>
-        {config?.ui.app.enable ? <AppCollection className={styles.apps} /> : null}
+        {config?.ui.favorite.enable ? <AppCollection className={styles.apps} /> : null}
         {config?.ui.bookmark.enable ? <BookmarkCollection className={styles.bookmarks} /> : null}
         <div className={styles.toolbar}>
           <Link href="/settings" shallow={true}>

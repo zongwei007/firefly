@@ -13,19 +13,19 @@ const UserInterface: FC<UIProps> = ({ defaultValue, onChange }) => {
   const [title, setTitle] = useState(defaultValue.title);
   const [footer, setFooter] = useState(defaultValue.footer);
   const [clockCfg, setClockCfg] = useState(defaultValue.clock);
-  const [appCfg, setAppCfg] = useState(defaultValue.app);
+  const [favoriteCfg, setFavoriteCfg] = useState(defaultValue.favorite);
   const [bookmarkCfg, setBookmarkCfg] = useState(defaultValue.bookmark);
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = useCallback(
     event => {
       event.preventDefault();
-      return toast.promise(onChange({ ui: { title, footer, clock: clockCfg, app: appCfg, bookmark: bookmarkCfg } }), {
+      return toast.promise(onChange({ ui: { title, footer, clock: clockCfg, favorite: favoriteCfg, bookmark: bookmarkCfg } }), {
         pending: '正在保存',
         success: '保存成功',
         error: '保存失败',
       });
     },
-    [title, footer, clockCfg, appCfg, bookmarkCfg]
+    [title, footer, clockCfg, favoriteCfg, bookmarkCfg]
   );
 
   return (
@@ -76,17 +76,17 @@ const UserInterface: FC<UIProps> = ({ defaultValue, onChange }) => {
           </p>
         </div>
         <div className="form-group">
-          <label>显示应用模块</label>
+          <label>显示置顶书签</label>
           <select
-            defaultValue={String(appCfg.enable)}
-            onChange={event => setAppCfg({ ...appCfg, enable: event.target.value === 'true' })}>
+            defaultValue={String(favoriteCfg.enable)}
+            onChange={event => setFavoriteCfg({ ...favoriteCfg, enable: event.target.value === 'true' })}>
             <option value="true">是</option>
             <option value="false">否</option>
           </select>
         </div>
         <div className="form-group">
-          <label>在新窗口打开应用链接</label>
-          <select defaultValue={appCfg.target} onChange={event => setAppCfg({ ...appCfg, target: event.target.value })}>
+          <label>在新窗口打开置顶链接</label>
+          <select defaultValue={favoriteCfg.target} onChange={event => setFavoriteCfg({ ...favoriteCfg, target: event.target.value })}>
             <option value="_blank">是</option>
             <option value="_self">否</option>
           </select>

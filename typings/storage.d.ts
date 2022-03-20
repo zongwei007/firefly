@@ -1,24 +1,24 @@
+declare interface ICategory {
+  id: 'favorite' | string;
+  name: string;
+}
+
 declare interface IBookmark {
   name: string;
   link: string;
   icon: string;
   desc?: string;
-  category?: string;
+  category?: ICategory['id'];
 }
 
-declare interface IAppCollection {
-  links: Array<IBookmark>;
-  lastModifiedAt?: string;
-}
-
-declare interface ICategory extends IAppCollection {
-  id: string;
-  title: string;
-}
-
-declare interface IBookmarkCollection {
+declare interface IBookmarkConfiguration {
   categories: Array<ICategory>;
+  bookmarks: Array<IBookmark>;
   lastModifiedAt?: string;
+}
+
+declare interface IBookmarkCollection extends IBookmarkConfiguration {
+  favorites: Array<IBookmark>;
 }
 
 declare interface ISetting {
@@ -38,7 +38,7 @@ declare interface ISetting {
       enable: boolean;
       welcome: string;
     };
-    app: {
+    favorite: {
       enable: boolean;
       target?: '_self' | '_blank' | string;
     };
