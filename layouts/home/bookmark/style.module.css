@@ -1,51 +1,61 @@
-.groupContainer {
+.bookmarks {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
 }
 
-.group {
-  flex: 1 1 auto;
+.bookmark {
+  flex: 0 1 auto;
+  width: 20%;
+  padding: 0.5rem 1rem 0.5rem 0;
 }
 
-.group h3 {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.group h3.groupTitle {
-  color: var(--color-accent);
-  margin-bottom: 10px;
-  font-size: 16px;
-  font-weight: 400;
-  text-transform: uppercase;
-}
-
-.group span {
-  display: inline;
-  vertical-align: middle;
-}
-
-.list {
-  list-style: none;
-  margin: 5px 0;
-}
-
-.list a.bookmark {
-  line-height: 2;
-  transition: all 0.25s;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.bookmark .link {
   display: block;
+  padding: 0.4rem 0.5rem;
+  overflow: hidden;
+  position: relative;
+  background: var(--color-text-light);
+  border-radius: 4px;
+  height: 50px;
+  box-shadow: 0 2px 1px -1px rgb(0 0 0 / 4%), 0 1px 1px 0 rgb(0 0 0 / 2%);
 }
 
-.list .bookmark img {
-  display: inline-block;
-  color: var(--color-primary);
-  vertical-align: middle;
-  filter: var(--svg-icon-filter);
+.bookmark .link:hover {
+  box-shadow: var(--box-shadow);
 }
 
-.list .bookmark span {
-  margin-left: 4px;
+.bookmark .link:hover .title {
+  color: var(--color-dark-primary);
+}
+
+.bookmark .icon {
+  position: absolute;
+  top: 6px;
+}
+
+.bookmark .text {
+  margin-left: 40px;
+}
+
+.bookmark .text .title {
+  color: var(--color-text-primary);
+  font-size: 1em;
+  font-weight: 500;
+  margin-bottom: -4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-transform: uppercase;
+  text-overflow: ellipsis;
+}
+
+.bookmark .text .desc {
+  color: var(--color-text-secondary);
+  font-weight: 400;
+  font-size: 0.8em;
+  opacity: 1;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

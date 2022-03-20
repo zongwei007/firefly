@@ -1,12 +1,21 @@
 .btn {
   padding: 8px 15px;
-  border: 1px solid var(--color-accent);
-  background-color: var(--color-background);
-  color: var(--color-primary);
+  border: none;
   border-radius: var(--border-radius);
   cursor: pointer;
+  box-shadow: var(--box-shadow);
+}
+
+.btn[type='submit'] {
+  background-color: var(--color-dark-primary);
+  color: var(--color-text-light);
+}
+
+.btn[type='button'] {
+  background-color: var(--color-divider);
+  color: var(--color-text-primary);
 }
 
 .btn:hover {
-  filter: brightness(1.5);
+  filter: saturate(110%)  brightness(120%);
 }

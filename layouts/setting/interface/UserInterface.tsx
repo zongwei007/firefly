@@ -10,7 +10,6 @@ type UIProps = {
 };
 
 const UserInterface: FC<UIProps> = ({ defaultValue, onChange }) => {
-  const [title, setTitle] = useState(defaultValue.title);
   const [footer, setFooter] = useState(defaultValue.footer);
   const [clockCfg, setClockCfg] = useState(defaultValue.clock);
   const [favoriteCfg, setFavoriteCfg] = useState(defaultValue.favorite);
@@ -19,28 +18,22 @@ const UserInterface: FC<UIProps> = ({ defaultValue, onChange }) => {
   const handleSubmit: FormEventHandler<HTMLFormElement> = useCallback(
     event => {
       event.preventDefault();
-      return toast.promise(onChange({ ui: { title, footer, clock: clockCfg, favorite: favoriteCfg, bookmark: bookmarkCfg } }), {
-        pending: '正在保存',
-        success: '保存成功',
-        error: '保存失败',
-      });
+      return toast.promise(
+        onChange({ ui: { footer, clock: clockCfg, favorite: favoriteCfg, bookmark: bookmarkCfg } }),
+        {
+          pending: '正在保存',
+          success: '保存成功',
+          error: '保存失败',
+        }
+      );
     },
-    [title, footer, clockCfg, favoriteCfg, bookmarkCfg]
+    [footer, clockCfg, favoriteCfg, bookmarkCfg]
   );
 
   return (
     <div>
       <form onSubmit={handleSubmit}>
         <h2>界面设置</h2>
-        <div className="form-group">
-          <label>自定义标题</label>
-          <input
-            type="text"
-            defaultValue={title}
-            placeholder="请输入自定义标题"
-            onChange={event => setTitle(event.target.value)}
-          />
-        </div>
         <div className="form-group">
           <label>自定义页脚</label>
           <textarea
@@ -76,7 +69,7 @@ const UserInterface: FC<UIProps> = ({ defaultValue, onChange }) => {
           </p>
         </div>
         <div className="form-group">
-          <label>显示置顶书签</label>
+          <label>显示快速访问</label>
           <select
             defaultValue={String(favoriteCfg.enable)}
             onChange={event => setFavoriteCfg({ ...favoriteCfg, enable: event.target.value === 'true' })}>
@@ -85,14 +78,16 @@ const UserInterface: FC<UIProps> = ({ defaultValue, onChange }) => {
           </select>
         </div>
         <div className="form-group">
-          <label>在新窗口打开置顶链接</label>
-          <select defaultValue={favoriteCfg.target} onChange={event => setFavoriteCfg({ ...favoriteCfg, target: event.target.value })}>
+          <label>在新窗口打开快速访问链接</label>
+          <select
+            defaultValue={favoriteCfg.target}
+            onChange={event => setFavoriteCfg({ ...favoriteCfg, target: event.target.value })}>
             <option value="_blank">是</option>
             <option value="_self">否</option>
           </select>
         </div>
         <div className="form-group">
-          <label>显示书签模块</label>
+          <label>显示书签列表</label>
           <select
             defaultValue={String(bookmarkCfg.enable)}
             onChange={event => setBookmarkCfg({ ...bookmarkCfg, enable: event.target.value === 'true' })}>

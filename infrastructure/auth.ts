@@ -1,11 +1,8 @@
 import type { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'crypto';
-import { getCookies } from './cookie';
-import { ForbiddenException, UnauthenticatedException } from './exception';
-
-export const USERNAME = 'FIREFLY_USERNAME';
-export const PASSWORD = 'FIREFLY_PASSWORD';
-export const EXPIRE = 'FIREFLY_TOKEN_EXPIRE';
+import { getCookies } from 'infrastructure/cookie';
+import { ForbiddenException, UnauthenticatedException } from 'infrastructure/exception';
+import * as environment from 'infrastructure/environment';
 
 const ALGORITHM = 'aes-256-gcm';
 
@@ -66,26 +63,19 @@ export function getTokenConfig(): TokenConfig {
     return cfgCache;
   }
 
-  const username = process.env[USERNAME];
-  const password = process.env[PASSWORD];
-  const expire = parseInt(process.env[EXPIRE] || '86400');
-  const disabled = process.env.DISABLE_LOGIN === 'true';
-
-  if (!disabled && (!username || !password)) {
-    throw new Error(`Environment variable '${USERNAME}' and '${PASSWORD}' is required`);
-  }
+  const { firefly } = environment.get();
 
   const sha256 = crypto.createHash('sha256');
-  sha256.push(password || '', 'utf-8');
+  sha256.push(firefly.password || '', 'utf-8');
 
   const md5 = crypto.createHash('md5');
-  md5.push(password || '', 'utf-8');
+  md5.push(firefly.password || '', 'utf-8');
 
   return (cfgCache = {
-    disabled,
-    username,
-    password,
-    expire,
+    disabled: firefly.disableLogin,
+    username: firefly.username,
+    password: firefly.password,
+    expire: firefly.expire,
     securityKey: sha256.digest(),
     initVector: md5.digest(),
   });

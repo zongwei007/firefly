@@ -6,10 +6,9 @@ import { Button } from 'components';
 
 const About: FC<{
   user: IToken;
-  apps: IAppCollection;
   bookmarks: IBookmarkConfiguration;
   settings: ISetting;
-}> = ({ user, apps, bookmarks, settings }) => {
+}> = ({ user, bookmarks, settings }) => {
   return (
     <>
       <div className={styles.status}>
@@ -19,12 +18,10 @@ const About: FC<{
           <dd>{user.username}</dd>
           <dt>登录时间</dt>
           <dd>{format(user.timestamp, 'PPPPpp', { locale: zhCN })}</dd>
-          <dt>应用数量</dt>
-          <dd>{apps.links.length}</dd>
+          <dt>分类数量</dt>
+          <dd>{bookmarks.categories.length - 2}</dd>
           <dt>书签数量</dt>
-          <dd>{bookmarks.categories.reduce((memo, ele) => memo + ele.links.length, 0)}</dd>
-          <dt>应用版本</dt>
-          <dd>{apps.lastModifiedAt ? formatISODatetime(apps.lastModifiedAt) : '无'}</dd>
+          <dd>{bookmarks.bookmarks.length}</dd>
           <dt>书签版本</dt>
           <dd>{bookmarks.lastModifiedAt ? formatISODatetime(bookmarks.lastModifiedAt) : '无'}</dd>
           <dt>应用设置版本</dt>

@@ -1,13 +1,15 @@
+// noinspection HtmlUnknownTarget
+
 import type { NextPage } from 'next';
-import styles from './style.module.css';
 import { Icon } from 'components';
 import Link from 'next/link';
-import AppCollection from './app/AppCollection';
+import FavoriteCollection from './bookmark/FavoriteCollection';
 import BookmarkCollection from './bookmark/BookmarkCollection';
 import Clock from './clock/Clock';
 import Filter from './filter/Filter';
 import Weather from './weather/Weather';
 import { useSettings } from 'hooks';
+import styles from './style.module.css';
 
 export type HomeProps = { timestamp: number };
 
@@ -22,12 +24,12 @@ const Home: NextPage<HomeProps> = props => {
         <Weather className={styles.weather} />
       </header>
       <main>
-        {config?.ui.favorite.enable ? <AppCollection className={styles.apps} /> : null}
+        {config?.ui.favorite.enable ? <FavoriteCollection className={styles.favorites} /> : null}
         {config?.ui.bookmark.enable ? <BookmarkCollection className={styles.bookmarks} /> : null}
         <div className={styles.toolbar}>
           <Link href="/settings" shallow={true}>
             <a className={styles.icon}>
-              <Icon type="cog-outline" width={35} height={35} />
+              <Icon type="cog-outline" width={30} height={30} layout="fixed" />
             </a>
           </Link>
         </div>

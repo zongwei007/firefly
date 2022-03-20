@@ -2,6 +2,8 @@ import type { FC } from 'react';
 import { useMemo, useCallback } from 'react';
 import styles from './style.module.css';
 import Link from 'next/link';
+import { useBookmarks, useSettings } from 'hooks';
+import { Spinner } from 'components';
 
 import TabContainer from './tabs/TabContainer';
 import About from './about/About';
@@ -9,16 +11,13 @@ import Theme from './theme/Theme';
 import Weather from './weather/Weather';
 import Search from './search/Search';
 import UserInterface from './interface/UserInterface';
-import { useApps, useBookmarks, useSettings } from 'hooks';
-import { Spinner } from 'components';
 
 export type SettingPanelProps = { user: IToken };
 
 const SettingPanel: FC<SettingPanelProps> = ({ user }) => {
-  const apps = useApps();
   const bookmarks = useBookmarks();
   const settings = useSettings();
-  const loading = apps.isLoading || bookmarks.isLoading || settings.isLoading;
+  const loading = bookmarks.isLoading || settings.isLoading;
 
   const handleSettingChange = useCallback(
     (data: Partial<ISetting>) => settings.mutate({ ...settings.data, ...data }),
@@ -43,23 +42,25 @@ const SettingPanel: FC<SettingPanelProps> = ({ user }) => {
       {
         id: 'ui',
         label: '界面',
-        children: settings.data ? <UserInterface defaultValue={settings.data!.ui} onChange={handleSettingChange} /> : null,
+        children: settings.data ? (
+          <UserInterface defaultValue={settings.data!.ui} onChange={handleSettingChange} />
+        ) : null,
       },
       {
         id: 'about',
         label: '关于',
         children:
-          apps.data && bookmarks.data && settings.data ? (
-            <About user={user} apps={apps.data} bookmarks={bookmarks.data} settings={settings.data} />
+          bookmarks.data && settings.data ? (
+            <About user={user} bookmarks={bookmarks.data} settings={settings.data} />
           ) : null,
         defaultActive: true,
       },
     ],
-    [user, apps.isLoading, bookmarks.isLoading, handleSettingChange]
+    [user, bookmarks.isLoading, handleSettingChange]
   );
 
-  if (apps.error || bookmarks.error || settings.error) {
-    console.error(apps.error, bookmarks.error);
+  if (bookmarks.error || settings.error) {
+    console.error(bookmarks.error || settings.error);
     return null;
   }
 

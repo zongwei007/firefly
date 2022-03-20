@@ -7,7 +7,7 @@
 
 .tab {
   padding-left: 7px;
-  border-left: 3px solid var(--color-primary);
+  border-left: 3px solid var(--color-light-primary);
   display: block;
   height: 40px;
   line-height: 40px;
@@ -15,7 +15,7 @@
 }
 
 .tab.active {
-  border-left-color: var(--color-active);
+  border-left-color: var(--color-dark-primary);
 }
 
 .tabs:hover .tab {
@@ -23,7 +23,7 @@
 }
 
 .tabs:hover .tab:hover {
-  border-color: var(--color-active);
+  border-color: var(--color-dark-primary);
 }
 
 .panel {

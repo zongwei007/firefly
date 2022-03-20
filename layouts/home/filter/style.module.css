@@ -1,11 +1,11 @@
 .input {
   width: 100%;
   padding: 10px 0;
-  color: var(--color-primary);
+  color: var(--color-dark-primary);
   font-size: 20px;
   background-color: transparent;
   border: none;
-  border-bottom: 2px solid var(--color-accent);
+  border-bottom: 2px solid var(--color-divider);
   opacity: 0.5;
   transition: all 0.2s;
   outline: none;

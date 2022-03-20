@@ -1,26 +1,32 @@
+// noinspection HtmlUnknownTarget
+
 import type { HomeProps } from 'layouts/home/Home';
 import Home from 'layouts/home/Home';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { withUserProps } from 'infrastructure/auth';
+import * as environment from 'infrastructure/environment';
 
 export const getServerSideProps = withUserProps(
   async () => {
+    const { firefly: config } = environment.get();
+
     return {
       props: {
         timestamp: Date.now(),
+        title: config.title,
       },
     };
   },
   { required: true }
 );
 
-const Index: NextPage<HomeProps> = props => {
+const Index: NextPage<HomeProps & { title: string }> = ({ title, ...props }) => {
   return (
     <>
       <Head>
-        <title>Firefly</title>
-        <meta name="description" content="Firefly - 自托管导航页" />
+        <title>{title}</title>
+        <meta name="description" content={`${title} - 自托管导航页`} />
         <link rel="preload" href="/api/bookmarks" as="fetch" />
         <link rel="preload" href="/api/settings" as="fetch" />
         <link rel="icon" href="/favicon.ico" />

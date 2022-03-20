@@ -32,7 +32,6 @@ declare interface ISetting {
     autoFocus: boolean;
   };
   ui: {
-    title: string;
     footer?: string;
     clock: {
       enable: boolean;

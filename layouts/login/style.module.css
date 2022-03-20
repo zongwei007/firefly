@@ -7,7 +7,7 @@
 }
 
 .errorMessage {
-  color: var(--color-error);
+  color: var(--color-accent);
 }
 
 .submit {
