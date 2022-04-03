@@ -1,26 +1,25 @@
-import { build, parse, USERNAME, PASSWORD } from '../auth';
-
-const originalEnv = process.env;
+import { build, parse } from '../auth';
 
 beforeAll(() => {
-  process.env[USERNAME] = 'foo';
-  process.env[PASSWORD] = 'bar';
-});
-
-afterAll(() => {
-  process.env[USERNAME] = originalEnv[USERNAME];
-  process.env[PASSWORD] = originalEnv[PASSWORD];
+  jest.mock('../environment', () => ({
+    get() {
+      return {
+        firefly: {
+          username: 'foo',
+          password: 'bar',
+        },
+      };
+    },
+  }));
 });
 
 test('create and resolve', () => {
-  const u = process.env[USERNAME]!;
-
-  const { token } = build(u);
+  const { token } = build('foo');
 
   expect(token).not.toBeNull();
 
   const result = parse(token);
 
   expect(result).not.toBeNull();
-  expect(result?.username).toBe(u);
+  expect(result?.username).toBe('foo');
 });

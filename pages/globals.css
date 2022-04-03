@@ -20,7 +20,7 @@ body {
   --box-shadow: 0 2px 1px -1px rgb(0 0 0 / 20%), 0 1px 1px 0 rgb(0 0 0 / 14%), 0 1px 3px 0 rgb(0 0 0 / 12%);
 
   /* https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-element */
-  --svg-icon-filter: invert(100%) sepia(0%) saturate(2%) hue-rotate(309deg) brightness(109%) contrast(101%);
+  --svg-icon-filter: invert(20%) sepia(0%) saturate(0%) brightness(100%) contrast(100%);
 }
 
 body {
@@ -101,6 +101,10 @@ footer:hover {
   float: right;
 }
 
+.btn-group button {
+  margin-right: 0.5rem;
+}
+
 .form-group input,
 .form-group textarea,
 .form-group select {
@@ -111,6 +115,13 @@ footer:hover {
   padding: 10px;
   background-color: var(--color-text-light);
   color: var(--color-text-primary);
+}
+
+.form-group input.sm,
+.form-group textarea.sm,
+.form-group select.sm {
+  padding: 5px;
+  margin: 3px 0;
 }
 
 .form-group input:hover,

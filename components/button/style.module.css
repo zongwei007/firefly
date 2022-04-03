@@ -11,11 +11,34 @@
   color: var(--color-text-light);
 }
 
-.btn[type='button'] {
-  background-color: var(--color-divider);
-  color: var(--color-text-primary);
+.btn:hover {
+  filter: saturate(110%) brightness(120%);
 }
 
-.btn:hover {
-  filter: saturate(110%)  brightness(120%);
+.icon .container {
+  float: left;
+  margin-top: -4px;
+  margin-bottom: -8px;
+  margin-right: 0.2rem;
+  filter: var(--svg-icon-filter);
+}
+
+.iconOnly .container {
+  float: inherit;
+  margin: 5px 0 0 0;
+}
+
+.link {
+  border: none;
+  box-shadow: none;
+  background-color: transparent;
+}
+
+.circle {
+  border-radius: 50%;
+  padding: 0 3px;
+}
+
+.sm {
+  font-size: 80%;
 }

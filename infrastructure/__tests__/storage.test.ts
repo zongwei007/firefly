@@ -1,6 +1,20 @@
 import { v2 as webdav } from 'webdav-server';
 
-import { AUTH_TYPE, HOST, PASSWORD, read, USERNAME, write } from '../storage';
+jest.mock('infrastructure/environment', () => ({
+  get() {
+    return {
+      webdav: {
+        host: 'http://localhost:9000',
+        username: 'user',
+        password: 'pass',
+        authType: 'Basic',
+        directory: '/',
+      },
+    };
+  },
+}));
+
+import { read, write } from '../storage';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
@@ -14,17 +28,11 @@ links:
 
 let testTmpDir: string;
 let webdavServer: webdav.WebDAVServer;
-const originalEnv = process.env;
 
 beforeAll(async () => {
   jest.resetModules();
 
   testTmpDir = await fs.mkdtemp(path.resolve(os.tmpdir(), 'firefly-test'), {});
-
-  process.env[HOST] = 'http://localhost:9000';
-  process.env[AUTH_TYPE] = 'Basic';
-  process.env[USERNAME] = 'user';
-  process.env[PASSWORD] = 'pass';
 
   const userManager = new webdav.SimpleUserManager();
   userManager.addUser('user', 'pass', true);
@@ -81,8 +89,4 @@ test('write', async () => {
 
 afterAll(async () => {
   await webdavServer.stopAsync();
-
-  process.env[HOST] = originalEnv[HOST];
-  process.env[USERNAME] = originalEnv[USERNAME];
-  process.env[PASSWORD] = originalEnv[PASSWORD];
 }, 10000);

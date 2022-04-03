@@ -18,7 +18,7 @@ const BookmarkCollection: FC<BookmarkCollectionProps> = ({ className }) => {
         .filter(category => category.id !== 'favorite')
         .filter(category => group?.has(category.id))
         .map(category => (
-          <div className={className}>
+          <div key={category.id} className={className}>
             <h2>{category.name}</h2>
             <div className={classNames('clearfix', styles.bookmarks)}>
               {group?.get(category.id)?.map((link, i) => (

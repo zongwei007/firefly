@@ -19,7 +19,7 @@ const About: FC<{
           <dt>登录时间</dt>
           <dd>{format(user.timestamp, 'PPPPpp', { locale: zhCN })}</dd>
           <dt>分类数量</dt>
-          <dd>{bookmarks.categories.length - 2}</dd>
+          <dd>{bookmarks.categories.length}</dd>
           <dt>书签数量</dt>
           <dd>{bookmarks.bookmarks.length}</dd>
           <dt>书签版本</dt>
@@ -47,7 +47,7 @@ async function logout() {
 }
 
 function formatISODatetime(datetime: string) {
-  return format(parseISO(datetime), 'PPPPpp', { locale: zhCN });
+  return format(parseISO(datetime), 'yyyy-MM-dd hh:mm:ss');
 }
 
 export default About;

@@ -1,11 +1,23 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import useSWR from 'swr';
 
 export function useBookmarks() {
-  const { data, error } = useSWR<IBookmarkCollection>('/api/bookmarks', {
+  const { data, error, mutate } = useSWR<IBookmarkCollection>('/api/bookmarks', {
     revalidateIfStale: false,
     revalidateOnFocus: false,
   });
+
+  const updater = useCallback(
+    async value => {
+      const resp = await fetch('/api/bookmarks', {
+        body: JSON.stringify(value),
+        method: 'PUT',
+      });
+
+      mutate(await resp.json());
+    },
+    [mutate]
+  );
 
   const group = useMemo(() => {
     if (!data) {
@@ -22,9 +34,10 @@ export function useBookmarks() {
   }, [data]);
 
   return {
-    data: data && { ...data, categories: data.categories.concat({ id: 'undefined', name: '未分组' }) },
+    data,
     error,
     group,
+    mutate: updater,
     isLoading: !error && !data,
   };
 }

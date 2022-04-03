@@ -1,14 +1,15 @@
 declare interface ICategory {
-  id: 'favorite' | string;
+  id: string;
   name: string;
 }
 
 declare interface IBookmark {
   name: string;
   link: string;
-  icon: string;
+  icon?: string;
   desc?: string;
   category?: ICategory['id'];
+  pined?: boolean;
 }
 
 declare interface IBookmarkConfiguration {

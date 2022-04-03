@@ -1,16 +1,17 @@
 import type { FC } from 'react';
-import { useMemo, useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import styles from './style.module.css';
 import Link from 'next/link';
 import { useBookmarks, useSettings } from 'hooks';
 import { Spinner } from 'components';
 
-import TabContainer from './tabs/TabContainer';
 import About from './about/About';
-import Theme from './theme/Theme';
-import Weather from './weather/Weather';
+import Bookmark from './bookmark/Bookmark';
 import Search from './search/Search';
+import TabContainer from './tabs/TabContainer';
+import Theme from './theme/Theme';
 import UserInterface from './interface/UserInterface';
+import Weather from './weather/Weather';
 
 export type SettingPanelProps = { user: IToken };
 
@@ -19,6 +20,11 @@ const SettingPanel: FC<SettingPanelProps> = ({ user }) => {
   const settings = useSettings();
   const loading = bookmarks.isLoading || settings.isLoading;
 
+  const handleBookmarkChange = useCallback(
+    (data: IBookmarkCollection) => bookmarks.mutate({ ...bookmarks.data, ...data }),
+    [bookmarks.data]
+  );
+
   const handleSettingChange = useCallback(
     (data: Partial<ISetting>) => settings.mutate({ ...settings.data, ...data }),
     [settings.data]
@@ -26,6 +32,11 @@ const SettingPanel: FC<SettingPanelProps> = ({ user }) => {
 
   const tabs = useMemo(
     () => [
+      {
+        id: 'bookmarks',
+        label: '书签',
+        children: bookmarks.data ? <Bookmark defaultValue={bookmarks.data} onChange={handleBookmarkChange} /> : null,
+      },
       { id: 'theme', label: '主题', children: <Theme /> },
       {
         id: 'weather',

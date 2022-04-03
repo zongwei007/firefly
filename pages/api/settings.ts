@@ -16,11 +16,9 @@ async function handleRead(req: NextApiRequest, res: NextApiResponse<ISetting | E
 async function handleWrite(req: NextApiRequest, res: NextApiResponse<ISetting | ErrorResponse>) {
   try {
     const data: ISetting = JSON.parse(req.body);
-    const value = { ...data, lastModifiedAt: new Date().toISOString() };
+    const result = await settingService.set(data);
 
-    await settingService.set(value);
-
-    res.status(200).json(value);
+    res.status(200).json(result);
   } catch (e: any) {
     throw new UnknownException(e.message);
   }
