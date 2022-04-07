@@ -9,7 +9,7 @@ import styles from './style.module.css';
 import classNames from 'classnames';
 
 export type EditableColumnType<T> = ColumnType<T> & {
-  component?: FC<{ className: string; defaultValue: string; onBlur: FocusEventHandler<HTMLFormElement> }>;
+  component?: FC<{ className?: string; defaultValue?: string; onBlur: FocusEventHandler<HTMLFormElement> }>;
 };
 
 type TableProps<T> = Omit<ReactTableProps<T>, 'columns'> & {
@@ -83,7 +83,16 @@ const Table = <T extends DefaultRecordType>({
               <FC
                 className="sm"
                 defaultValue={value}
-                onBlur={event => handleRowChange(index, { ...row, [String(col.dataIndex)]: event.target.value })}
+                onBlur={event => {
+                  const value = event.target?.value;
+
+                  if (value !== undefined) {
+                    handleRowChange(index, { ...row, [String(col.dataIndex)]: value });
+                    return;
+                  }
+
+                  setEditing([]);
+                }}
               />
             );
           }

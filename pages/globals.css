@@ -21,6 +21,7 @@ body {
 
   /* https://stackoverflow.com/questions/22252472/how-to-change-the-color-of-an-svg-element */
   --svg-icon-filter: invert(20%) sepia(0%) saturate(0%) brightness(100%) contrast(100%);
+  --svg-icon-light-filter: invert(100%) sepia(0%) saturate(0%) brightness(98%) contrast(100%)
 }
 
 body {

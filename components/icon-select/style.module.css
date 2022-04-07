@@ -1,0 +1,43 @@
+.parent {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--border-radius);
+  margin-top: 0.2rem;
+  overflow-y: auto;
+}
+
+.input,
+.container {
+  width: 100%;
+  position: relative;
+}
+
+.clear {
+  position: absolute;
+  right: 0.1rem;
+  top: 0.5rem;
+  cursor: pointer;
+}
+
+.icon {
+  position: absolute;
+  margin: 2px;
+  cursor: pointer;
+}
+
+.icon.checked {
+  background-color: var(--color-primary);
+}
+
+.icon.checked img {
+  filter: var(--svg-icon-light-filter);
+}
+
+.icon:hover img {
+  background-color: var(--color-primary);
+  filter: var(--svg-icon-light-filter);
+}
+
+.icon.checked:hover img {
+  background-color: transparent;
+}

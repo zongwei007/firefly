@@ -1,9 +1,10 @@
 import type { FC, FormEvent } from 'react';
-import type { EditableColumnType } from 'components/table/Table';
 import { useCallback, useMemo, useState } from 'react';
+import type { EditableColumnType } from 'components/table';
+import { Button, IconSelect, Table } from 'components';
 import styles from '../style.module.css';
-import { Button, Table } from 'components';
 import { toast } from 'react-toastify';
+import classNames from 'classnames';
 
 type BookmarkProps = {
   defaultValue: IBookmarkCollection;
@@ -11,6 +12,19 @@ type BookmarkProps = {
 };
 
 const CATEGORY_COLUMNS = [{ title: '分类名称', dataIndex: 'name' }];
+
+const IconSelectColumn: FC<{ className?: string }> = ({ className, ...props }) => {
+  return (
+    <IconSelect
+      {...props}
+      className={classNames(className, styles.iconSelect)}
+      autoFocus
+      defaultOpen
+      placeholder="请选择图标"
+      column={8}
+    />
+  );
+};
 
 const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange }) => {
   const [categories, setCategories] = useState(defaultValue.categories);
@@ -46,7 +60,7 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange }) => {
         component: CategorySelect,
         render: (val: string) => categoryMapping[val],
       },
-      { title: '自定义图标', dataIndex: 'icon', width: '7rem' },
+      { title: '自定义图标', dataIndex: 'icon', width: '15rem', component: IconSelectColumn },
       { title: '描述', dataIndex: 'desc', ellipsis: true },
     ],
     [categoryMapping, CategorySelect]

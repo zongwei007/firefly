@@ -14,3 +14,8 @@
 .settings .submit {
   margin-top: 1rem;
 }
+
+.iconSelect {
+  width: 100%;
+  margin: 6px 0;
+}
