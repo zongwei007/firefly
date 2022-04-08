@@ -10,6 +10,7 @@ declare interface IBookmark {
   desc?: string;
   category?: ICategory['id'];
   pined?: boolean;
+  private?: boolean;
 }
 
 declare interface IBookmarkConfiguration {

@@ -8,9 +8,9 @@ export function useBookmarks() {
   });
 
   const updater = useCallback(
-    async value => {
+    async (value: IBookmarkCollection) => {
       const resp = await fetch('/api/bookmarks', {
-        body: JSON.stringify(value),
+        body: JSON.stringify({ bookmarks: value.bookmarks, categories: value.categories }),
         method: 'PUT',
       });
 

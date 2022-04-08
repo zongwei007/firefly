@@ -79,6 +79,28 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange }) => {
     [defaultValue]
   );
 
+  const handleBookmarkOperation = useCallback(
+    (_value, row: IBookmark, index: number) => (
+      <>
+        <Button
+          mode="circle-link"
+          size="sm"
+          icon={row.pined ? 'pin-off' : 'pin'}
+          onClick={() => setBookmarks(replaceItem(bookmarks, index, { ...row, pined: !row.pined }))}
+          title={(row.pined ? '取消' : '设为') + '常用书签'}
+        />
+        <Button
+          mode="circle-link"
+          size="sm"
+          icon={row.private ? 'eye-off' : 'eye'}
+          onClick={() => setBookmarks(replaceItem(bookmarks, index, { ...row, private: !row.private }))}
+          title={(row.private ? '取消' : '设为') + '私密书签'}
+        />
+      </>
+    ),
+    [bookmarks]
+  );
+
   return (
     <div>
       <h2>分类管理</h2>
@@ -104,6 +126,8 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange }) => {
           data={bookmarks}
           onCreate={() => ({ name: '', link: '' })}
           onChange={data => setBookmarks(data)}
+          operation={handleBookmarkOperation}
+          operationWidth="9rem"
         />
         <div className={styles.submit}>
           <Button type="submit">保存修改</Button>
@@ -112,5 +136,11 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange }) => {
     </div>
   );
 };
+
+function replaceItem<T>(array: Array<T>, index: number, item: T) {
+  const result = array.concat([]);
+  result.splice(index, 1, item);
+  return result;
+}
 
 export default Bookmark;

@@ -16,6 +16,8 @@ type TableProps<T> = Omit<ReactTableProps<T>, 'columns'> & {
   columns: EditableColumnType<T>[];
   onCreate: () => T;
   onChange: (data: T[]) => void;
+  operation?: ColumnType<T>['render'];
+  operationWidth?: string;
 };
 
 const Table = <T extends DefaultRecordType>({
@@ -24,6 +26,8 @@ const Table = <T extends DefaultRecordType>({
   data,
   onCreate,
   onChange,
+  operation,
+  operationWidth = '6.5rem',
   ...rest
 }: TableProps<T>) => {
   const [editing, setEditing] = useState<[number?, ColumnType<T>['dataIndex']?]>([]);
@@ -109,8 +113,8 @@ const Table = <T extends DefaultRecordType>({
       })),
       {
         title: '操作',
-        width: '6.5rem',
-        render(_value, row, index) {
+        width: operationWidth,
+        render(value, row, index) {
           return (
             <div className={styles.opt}>
               <Button
@@ -128,6 +132,7 @@ const Table = <T extends DefaultRecordType>({
                 onClick={() => handleRowMove(row, index, 1)}
               />
               <Button icon="delete" title="删除" mode="circle-link" size="sm" onClick={() => handleRowChange(index)} />
+              {operation?.(value, row, index)}
             </div>
           );
         },
