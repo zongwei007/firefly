@@ -8,10 +8,11 @@ import styles from './style.module.css';
 type BookmarkCollectionProps = {
   className?: string;
   filter: string;
+  anonymous: boolean;
 };
 
-const BookmarkCollection: FC<BookmarkCollectionProps> = ({ className, filter }) => {
-  const { data, group } = useBookmarks(filter);
+const BookmarkCollection: FC<BookmarkCollectionProps> = ({ className, filter, anonymous }) => {
+  const { data, group } = useBookmarks(anonymous, filter);
   const { categories } = data;
 
   return (

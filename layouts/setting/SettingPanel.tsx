@@ -9,7 +9,7 @@ import About from './about/About';
 import Bookmark from './bookmark/Bookmark';
 import Search from './search/Search';
 import TabContainer from './tabs/TabContainer';
-import Theme from './theme/Theme';
+// import Theme from './theme/Theme';
 import UserInterface from './interface/UserInterface';
 import Weather from './weather/Weather';
 
@@ -37,7 +37,7 @@ const SettingPanel: FC<SettingPanelProps> = ({ user }) => {
         label: '书签',
         children: bookmarks.data ? <Bookmark defaultValue={bookmarks.data} onChange={handleBookmarkChange} /> : null,
       },
-      { id: 'theme', label: '主题', children: <Theme /> },
+      /*{ id: 'theme', label: '主题', children: <Theme /> },*/
       {
         id: 'weather',
         label: '天气',

@@ -8,9 +8,9 @@ const ALGORITHM = 'aes-256-gcm';
 
 const COOKIE_NAME = 'firefly-token';
 
-type WithProps<Required extends boolean = true> = { required: Required };
+type WithProps<Required extends boolean = false> = { required: Required };
 
-export function withUserProps<T, Required extends boolean = true>(
+export function withUserProps<T, Required extends boolean = false>(
   next: (context: GetServerSidePropsContext & AuthenticationContext<Required>) => Promise<GetServerSidePropsResult<T>>,
   option?: WithProps<Required>
 ) {
@@ -19,12 +19,9 @@ export function withUserProps<T, Required extends boolean = true>(
 
     if (option?.required) {
       if (!user) {
-        const search = new URLSearchParams();
-        search.append('redirectTo', '/');
-
         return {
           redirect: {
-            destination: '/login?' + search,
+            destination: '/login?' + new URLSearchParams([['redirectTo', context.resolvedUrl]]),
             permanent: false,
           },
         };

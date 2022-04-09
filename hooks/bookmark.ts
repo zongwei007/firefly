@@ -1,13 +1,13 @@
 import { useCallback, useMemo } from 'react';
 import useSWR from 'swr';
 
-export function useBookmarks(filter?: string) {
-  const { data, error, mutate } = useSWR<IBookmarkConfiguration>('/api/bookmarks', {
+export function useBookmarks(anonymous?: boolean, filter?: string) {
+  const { data, error, mutate } = useSWR<IBookmarkConfiguration>(`/api/bookmarks?anonymous=${!!anonymous}`, {
     revalidateIfStale: false,
     revalidateOnFocus: false,
   });
 
-  const { categories = [], bookmarks: bookmarkRaws = [] } = data || {};
+  const { categories = [], bookmarks: bookmarkRaws = [], lastModifiedAt } = data || {};
 
   const bookmarks = useMemo(
     () =>
@@ -21,6 +21,7 @@ export function useBookmarks(filter?: string) {
     categories,
     bookmarks,
     favorites: bookmarks.filter(ele => ele.pined),
+    lastModifiedAt,
   };
 
   const updater = useCallback(

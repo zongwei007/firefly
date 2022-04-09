@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import * as settingService from 'services/setting';
-import { UnknownException, UnsupportedMethodException } from 'infrastructure/exception';
+import { ForbiddenException, UnknownException, UnsupportedMethodException } from 'infrastructure/exception';
 import { withUserApi } from 'infrastructure/auth';
 
 async function handleRead(req: NextApiRequest, res: NextApiResponse<ISetting | ErrorResponse>) {
@@ -13,7 +13,15 @@ async function handleRead(req: NextApiRequest, res: NextApiResponse<ISetting | E
   }
 }
 
-async function handleWrite(req: NextApiRequest, res: NextApiResponse<ISetting | ErrorResponse>) {
+async function handleWrite(
+  req: NextApiRequest,
+  res: NextApiResponse<ISetting | ErrorResponse>,
+  { user }: AuthenticationContext
+) {
+  if (!user) {
+    throw new ForbiddenException();
+  }
+
   try {
     const data: ISetting = JSON.parse(req.body);
     const result = await settingService.set(data);
@@ -24,12 +32,16 @@ async function handleWrite(req: NextApiRequest, res: NextApiResponse<ISetting | 
   }
 }
 
-async function handler(req: NextApiRequest, res: NextApiResponse<ISetting | ErrorResponse>) {
+async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<ISetting | ErrorResponse>,
+  context: AuthenticationContext
+) {
   switch (req.method) {
     case 'GET':
       return handleRead(req, res);
     case 'PUT':
-      return handleWrite(req, res);
+      return handleWrite(req, res, context);
     default:
       throw new UnsupportedMethodException(req.method);
   }

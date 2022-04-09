@@ -13,7 +13,7 @@ import Weather from './weather/Weather';
 import { useSettings } from 'hooks';
 import styles from './style.module.css';
 
-export type HomeProps = { timestamp: number };
+export type HomeProps = { timestamp: number; anonymous: boolean };
 
 const Home: NextPage<HomeProps> = props => {
   const { data: config } = useSettings();
@@ -27,8 +27,12 @@ const Home: NextPage<HomeProps> = props => {
         <Weather className={styles.weather} />
       </header>
       <main>
-        {config?.ui.favorite.enable && !filter ? <FavoriteCollection className={styles.favorites} /> : null}
-        {config?.ui.bookmark.enable ? <BookmarkCollection className={styles.bookmarks} filter={filter} /> : null}
+        {config?.ui.favorite.enable && !filter ? (
+          <FavoriteCollection className={styles.favorites} anonymous={props.anonymous} />
+        ) : null}
+        {config?.ui.bookmark.enable ? (
+          <BookmarkCollection className={styles.bookmarks} filter={filter} anonymous={props.anonymous} />
+        ) : null}
         <div className={styles.toolbar}>
           <Link href="/settings" shallow={true}>
             <a className={styles.icon}>

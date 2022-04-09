@@ -6,8 +6,10 @@ import Bookmark from './Bookmark';
 
 import styles from './style.module.css';
 
-const FavoriteCollection: FC<{ className?: string }> = ({ className }) => {
-  const { data, isLoading } = useBookmarks();
+type FavoriteProps = { className?: string; anonymous: boolean };
+
+const FavoriteCollection: FC<FavoriteProps> = ({ className, anonymous }) => {
+  const { data, isLoading } = useBookmarks(anonymous);
 
   return (
     <div className={className}>

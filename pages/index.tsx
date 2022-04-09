@@ -7,32 +7,30 @@ import Head from 'next/head';
 import { withUserProps } from 'infrastructure/auth';
 import * as environment from 'infrastructure/environment';
 
-export const getServerSideProps = withUserProps(
-  async () => {
-    const { firefly: config } = environment.get();
+export const getServerSideProps = withUserProps(async ({ user }) => {
+  const { firefly: config } = environment.get();
 
-    return {
-      props: {
-        timestamp: Date.now(),
-        title: config.title,
-      },
-    };
-  },
-  { required: true }
-);
+  return {
+    props: {
+      user,
+      timestamp: Date.now(),
+      title: config.title,
+    },
+  };
+});
 
-const Index: NextPage<HomeProps & { title: string }> = ({ title, ...props }) => {
+const Index: NextPage<HomeProps & { title: string; user: IToken }> = ({ title, user, ...props }) => {
   return (
     <>
       <Head>
         <title>{title}</title>
         <meta name="description" content={`${title} - 自托管导航页`} />
-        <link rel="preload" href="/api/bookmarks" as="fetch" crossOrigin="true" />
+        <link rel="preload" href={`/api/bookmarks${!user ? '?anonymous=true' : ''}`} as="fetch" crossOrigin="true" />
         <link rel="preload" href="/api/settings" as="fetch" crossOrigin="true" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="page-container">
-        <Home {...props} />
+        <Home {...props} anonymous={!user} />
       </div>
     </>
   );
