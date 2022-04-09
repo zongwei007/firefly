@@ -3,6 +3,7 @@
 import type { NextPage } from 'next';
 import { Icon } from 'components';
 import Link from 'next/link';
+import { mdiCogOutline } from '@mdi/js';
 import FavoriteCollection from './bookmark/FavoriteCollection';
 import BookmarkCollection from './bookmark/BookmarkCollection';
 import Clock from './clock/Clock';
@@ -29,7 +30,7 @@ const Home: NextPage<HomeProps> = props => {
         <div className={styles.toolbar}>
           <Link href="/settings" shallow={true}>
             <a className={styles.icon}>
-              <Icon type="cog-outline" width={30} height={30} layout="fixed" />
+              <Icon path={mdiCogOutline} size="30px" />
             </a>
           </Link>
         </div>

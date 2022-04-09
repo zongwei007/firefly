@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import type { TableProps as ReactTableProps } from 'rc-table/lib/Table';
 import type { ColumnType, DefaultRecordType } from 'rc-table/lib/interface';
 import { Button } from 'components';
+import { mdiFolderPlus, mdiArrowUpThick, mdiArrowDownThick, mdiDelete } from '@mdi/js';
 
 import styles from './style.module.css';
 import classNames from 'classnames';
@@ -117,20 +118,26 @@ function useTable<T>({
           return (
             <div className={styles.opt}>
               <Button
-                icon="arrow-up-thick"
+                icon={mdiArrowUpThick}
                 title="上移"
                 mode="circle-link"
                 size="sm"
                 onClick={() => handleRowMove(row, index, -1)}
               />
               <Button
-                icon="arrow-down-thick"
+                icon={mdiArrowDownThick}
                 title="下移"
                 mode="circle-link"
                 size="sm"
                 onClick={() => handleRowMove(row, index, 1)}
               />
-              <Button icon="delete" title="删除" mode="circle-link" size="sm" onClick={() => handleRowChange(index)} />
+              <Button
+                icon={mdiDelete}
+                title="删除"
+                mode="circle-link"
+                size="sm"
+                onClick={() => handleRowChange(index)}
+              />
               {operation?.render?.(value, row, index)}
             </div>
           );
@@ -169,7 +176,7 @@ const Table = <T extends DefaultRecordType>({
   return (
     <div className={styles.table}>
       <div className="btn-group">
-        <Button icon="folder-plus" onClick={handleCreate}>
+        <Button icon={mdiFolderPlus} onClick={handleCreate}>
           新增
         </Button>
         {toolbar}

@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import styles from './style.module.css';
 import { Icon } from 'components';
+import { mdiLoading } from '@mdi/js';
 
 const Spinner: FC<{ loading?: boolean }> = props => {
   if (props.loading === false) {
@@ -9,7 +10,7 @@ const Spinner: FC<{ loading?: boolean }> = props => {
 
   return (
     <div className={styles.container}>
-      <Icon type="loading" className={styles.icon} width={64} height={64} />
+      <Icon path={mdiLoading} className={styles.icon} size="64px" spin />
     </div>
   );
 };

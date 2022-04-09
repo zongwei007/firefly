@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import type { EditableColumnType } from 'components/table';
 import { Button, IconSelect, Table } from 'components';
 import CategorySelect from './CategorySelect';
+import { mdiPinOff, mdiPin, mdiEyeOff, mdiEye } from '@mdi/js';
 import styles from '../style.module.css';
 import { toast } from 'react-toastify';
 import classNames from 'classnames';
@@ -72,14 +73,14 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange }) => {
       <Button
         mode="circle-link"
         size="sm"
-        icon={row.pined ? 'pin-off' : 'pin'}
+        icon={row.pined ? mdiPinOff : mdiPin}
         onClick={() => setBookmarks(replaceItem(bookmarks, index, { ...row, pined: !row.pined }))}
         title={(row.pined ? '取消' : '设为') + '常用书签'}
       />
       <Button
         mode="circle-link"
         size="sm"
-        icon={row.private ? 'eye-off' : 'eye'}
+        icon={row.private ? mdiEyeOff : mdiEye}
         onClick={() => setBookmarks(replaceItem(bookmarks, index, { ...row, private: !row.private }))}
         title={(row.private ? '取消' : '设为') + '私密书签'}
       />
@@ -108,12 +109,7 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange }) => {
       <form onSubmit={event => handleSubmit(event, { ...defaultValue, bookmarks })}>
         <Table<IBookmark>
           rowKey={(row, idx) => (row.link ? row.link : String(idx))}
-          rowClassName={row =>
-            filter &&
-            (row.name.includes(filter) || row.link.includes(filter) || row.desc?.includes(filter)
-              ? styles.highlight
-              : '')
-          }
+          rowClassName={row => (rowIsMatch(row, filter) ? styles.highlight : '')}
           scroll={{ y: bookmarks.length > 10 ? 512 : undefined }}
           columns={bookmarkColumns}
           data={bookmarks}
@@ -143,6 +139,10 @@ function replaceItem<T>(array: Array<T>, index: number, item: T) {
   const result = array.concat([]);
   result.splice(index, 1, item);
   return result;
+}
+
+function rowIsMatch(item: IBookmark, filter: string) {
+  return filter && (item.name.includes(filter) || item.link.includes(filter) || item.desc?.includes(filter));
 }
 
 export default Bookmark;

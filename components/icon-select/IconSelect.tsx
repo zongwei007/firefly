@@ -4,7 +4,8 @@ import type { PopupProps } from 'reactjs-popup/dist/types';
 import { useDebounce, useIsomorphicLayoutEffect } from 'react-use';
 import Popup from 'reactjs-popup';
 import classNames from 'classnames';
-import { Icon } from 'components';
+import { Icon, RemoteIcon } from 'components';
+import { mdiClose } from '@mdi/js';
 import icons from '@mdi/svg/meta.json';
 import { useVirtual } from 'react-virtual';
 import styles from './style.module.css';
@@ -72,7 +73,7 @@ const IconSelect: FC<IconSelectProps> = ({ onBlur, defaultOpen, defaultValue, co
         <div className={styles.input}>
           <input {...props} onChange={handleInputChange} value={filter} />
           <a className={styles.clear} onClick={handleClear}>
-            <Icon type="close" width={20} height={20} />
+            <Icon path={mdiClose} size="20px" />
           </a>
         </div>
       }
@@ -101,7 +102,7 @@ const IconSelect: FC<IconSelectProps> = ({ onBlur, defaultOpen, defaultValue, co
                   height: virtualRow.size,
                   transform: `translateY(${virtualRow.start}px)`,
                 }}>
-                <Icon type={ele.name} width={innerSize} height={innerSize} />
+                <RemoteIcon type={ele.name} width={innerSize} height={innerSize} />
               </a>
             ));
           })}

@@ -10,8 +10,8 @@ type ButtonProps = DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HT
 };
 
 const ICON_SIZE = {
-  sm: 16,
-  base: 24,
+  sm: '16px',
+  base: '24px',
 };
 
 const Button: FC<ButtonProps> = ({ children, className, icon, mode, size = 'base', type = 'button', ...rest }) => {
@@ -26,7 +26,7 @@ const Button: FC<ButtonProps> = ({ children, className, icon, mode, size = 'base
     <button {...rest} className={clsName} type={type}>
       {icon ? (
         <div className={styles.container}>
-          <Icon type={icon} width={ICON_SIZE[size]} height={ICON_SIZE[size]} layout="fixed" />
+          <Icon path={icon} size={ICON_SIZE[size]} />
         </div>
       ) : null}
       {children}
