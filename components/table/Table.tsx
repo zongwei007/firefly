@@ -1,6 +1,6 @@
 import ReactTable from 'rc-table';
 import type { FC, FocusEventHandler, MouseEventHandler, ReactElement } from 'react';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { TableProps as ReactTableProps } from 'rc-table/lib/Table';
 import type { ColumnType, DefaultRecordType } from 'rc-table/lib/interface';
 import { Button } from 'components';
@@ -144,7 +144,7 @@ function useTable<T>({
         },
       },
     ],
-    [columns, editing]
+    [columns, editing, data]
   );
 
   return { tableColumn, setEditing };
@@ -162,16 +162,13 @@ const Table = <T extends DefaultRecordType>({
 }: TableProps<T>) => {
   const { tableColumn, setEditing } = useTable<T>({ data, onChange, columns, operation });
 
-  const handleCreate: MouseEventHandler<HTMLButtonElement> = useCallback(
-    event => {
-      event.preventDefault();
-      const row = onCreate();
+  const handleCreate: MouseEventHandler<HTMLButtonElement> = event => {
+    event.preventDefault();
+    const row = onCreate();
 
-      onChange([...(data || []), row]);
-      setEditing([data?.length || 0, (columns || [])[0]?.dataIndex]);
-    },
-    [onChange, onCreate]
-  );
+    onChange([...(data || []), row]);
+    setEditing([data?.length || 0, (columns || [])[0]?.dataIndex]);
+  };
 
   return (
     <div className={styles.table}>

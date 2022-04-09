@@ -27,3 +27,7 @@
 .highlight {
   background-color: var(--color-light-primary);
 }
+
+.importTrigger {
+  display: none;
+}
