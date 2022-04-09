@@ -19,3 +19,11 @@
   width: 100%;
   margin: 6px 0;
 }
+
+.bookmarkFilter {
+  float: right;
+}
+
+.highlight {
+  background-color: var(--color-light-primary);
+}

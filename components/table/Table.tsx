@@ -1,5 +1,5 @@
 import ReactTable from 'rc-table';
-import type { FC, FocusEventHandler, MouseEventHandler } from 'react';
+import type { FC, FocusEventHandler, MouseEventHandler, ReactElement } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import type { TableProps as ReactTableProps } from 'rc-table/lib/Table';
 import type { ColumnType, DefaultRecordType } from 'rc-table/lib/interface';
@@ -9,27 +9,26 @@ import styles from './style.module.css';
 import classNames from 'classnames';
 
 export type EditableColumnType<T> = ColumnType<T> & {
-  component?: FC<{ className?: string; defaultValue?: string; onBlur: FocusEventHandler<HTMLFormElement> }>;
+  component?: FC<{ className?: string; defaultValue?: string; onBlur: FocusEventHandler<HTMLElement> }>;
 };
 
 type TableProps<T> = Omit<ReactTableProps<T>, 'columns'> & {
   columns: EditableColumnType<T>[];
   onCreate: () => T;
   onChange: (data: T[]) => void;
-  operation?: ColumnType<T>['render'];
-  operationWidth?: string;
+  operation?: {
+    width?: string;
+    render: ColumnType<T>['render'];
+  };
+  toolbar?: ReactElement;
 };
 
-const Table = <T extends DefaultRecordType>({
-  className,
-  columns,
+function useTable<T>({
   data,
-  onCreate,
   onChange,
+  columns,
   operation,
-  operationWidth = '6.5rem',
-  ...rest
-}: TableProps<T>) => {
+}: Pick<TableProps<T>, 'data' | 'onChange' | 'columns' | 'operation'>) {
   const [editing, setEditing] = useState<[number?, ColumnType<T>['dataIndex']?]>([]);
 
   const handleRowChange = (index: number, row?: T) => {
@@ -51,7 +50,7 @@ const Table = <T extends DefaultRecordType>({
     setEditing([]);
   };
 
-  const columnData: TableProps<T>['columns'] = useMemo(
+  const tableColumn: TableProps<T>['columns'] = useMemo(
     () => [
       {
         title: '#',
@@ -88,7 +87,7 @@ const Table = <T extends DefaultRecordType>({
                 className="sm"
                 defaultValue={value}
                 onBlur={event => {
-                  const value = event.target?.value;
+                  const { value } = event.target as any;
 
                   if (value !== undefined) {
                     handleRowChange(index, { ...row, [String(col.dataIndex)]: value });
@@ -113,7 +112,7 @@ const Table = <T extends DefaultRecordType>({
       })),
       {
         title: '操作',
-        width: operationWidth,
+        width: operation?.width || '6.5rem',
         render(value, row, index) {
           return (
             <div className={styles.opt}>
@@ -132,7 +131,7 @@ const Table = <T extends DefaultRecordType>({
                 onClick={() => handleRowMove(row, index, 1)}
               />
               <Button icon="delete" title="删除" mode="circle-link" size="sm" onClick={() => handleRowChange(index)} />
-              {operation?.(value, row, index)}
+              {operation?.render?.(value, row, index)}
             </div>
           );
         },
@@ -140,6 +139,21 @@ const Table = <T extends DefaultRecordType>({
     ],
     [columns, editing]
   );
+
+  return { tableColumn, setEditing };
+}
+
+const Table = <T extends DefaultRecordType>({
+  className,
+  columns,
+  data,
+  onCreate,
+  onChange,
+  operation,
+  toolbar,
+  ...rest
+}: TableProps<T>) => {
+  const { tableColumn, setEditing } = useTable<T>({ data, onChange, columns, operation });
 
   const handleCreate: MouseEventHandler<HTMLButtonElement> = useCallback(
     event => {
@@ -158,11 +172,12 @@ const Table = <T extends DefaultRecordType>({
         <Button icon="folder-plus" onClick={handleCreate}>
           新增
         </Button>
+        {toolbar}
       </div>
       <ReactTable<T>
         {...rest}
         className={classNames('form-group', className)}
-        columns={columnData}
+        columns={tableColumn}
         data={data}
         emptyText="无数据"
       />

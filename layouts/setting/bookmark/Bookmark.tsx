@@ -2,6 +2,7 @@ import type { FC, FormEvent } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import type { EditableColumnType } from 'components/table';
 import { Button, IconSelect, Table } from 'components';
+import CategorySelect from './CategorySelect';
 import styles from '../style.module.css';
 import { toast } from 'react-toastify';
 import classNames from 'classnames';
@@ -29,20 +30,7 @@ const IconSelectColumn: FC<{ className?: string }> = ({ className, ...props }) =
 const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange }) => {
   const [categories, setCategories] = useState(defaultValue.categories);
   const [bookmarks, setBookmarks] = useState(defaultValue.bookmarks);
-
-  const CategorySelect: FC = useCallback(
-    props => (
-      <select {...props} autoFocus>
-        <option>未选择</option>
-        {categories.map(ele => (
-          <option key={ele.id} value={ele.id}>
-            {ele.name}
-          </option>
-        ))}
-      </select>
-    ),
-    [categories]
-  );
+  const [filter, setFilter] = useState('');
 
   const categoryMapping: Record<string, string> = useMemo(
     () => categories.reduce((memo, ele) => ({ ...memo, [ele.id]: ele.name }), {}),
@@ -57,13 +45,13 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange }) => {
         title: '分类',
         dataIndex: 'category',
         width: '8rem',
-        component: CategorySelect,
+        component: props => <CategorySelect {...props} autoFocus />,
         render: (val: string) => categoryMapping[val],
       },
       { title: '自定义图标', dataIndex: 'icon', width: '15rem', component: IconSelectColumn },
       { title: '描述', dataIndex: 'desc', ellipsis: true },
     ],
-    [categoryMapping, CategorySelect]
+    [categoryMapping]
   );
 
   const handleSubmit = useCallback(
@@ -79,26 +67,23 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange }) => {
     [defaultValue]
   );
 
-  const handleBookmarkOperation = useCallback(
-    (_value, row: IBookmark, index: number) => (
-      <>
-        <Button
-          mode="circle-link"
-          size="sm"
-          icon={row.pined ? 'pin-off' : 'pin'}
-          onClick={() => setBookmarks(replaceItem(bookmarks, index, { ...row, pined: !row.pined }))}
-          title={(row.pined ? '取消' : '设为') + '常用书签'}
-        />
-        <Button
-          mode="circle-link"
-          size="sm"
-          icon={row.private ? 'eye-off' : 'eye'}
-          onClick={() => setBookmarks(replaceItem(bookmarks, index, { ...row, private: !row.private }))}
-          title={(row.private ? '取消' : '设为') + '私密书签'}
-        />
-      </>
-    ),
-    [bookmarks]
+  const handleBookmarkOperation = (_value: any, row: IBookmark, index: number) => (
+    <>
+      <Button
+        mode="circle-link"
+        size="sm"
+        icon={row.pined ? 'pin-off' : 'pin'}
+        onClick={() => setBookmarks(replaceItem(bookmarks, index, { ...row, pined: !row.pined }))}
+        title={(row.pined ? '取消' : '设为') + '常用书签'}
+      />
+      <Button
+        mode="circle-link"
+        size="sm"
+        icon={row.private ? 'eye-off' : 'eye'}
+        onClick={() => setBookmarks(replaceItem(bookmarks, index, { ...row, private: !row.private }))}
+        title={(row.private ? '取消' : '设为') + '私密书签'}
+      />
+    </>
   );
 
   return (
@@ -109,6 +94,7 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange }) => {
           rowKey="id"
           columns={CATEGORY_COLUMNS}
           data={categories}
+          scroll={{ y: categories.length > 5 ? 256 : undefined }}
           onCreate={() => ({ id: String(Date.now()), name: '' })}
           onChange={data => setCategories(data)}
           style={{ width: '45%' }}
@@ -122,12 +108,28 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange }) => {
       <form onSubmit={event => handleSubmit(event, { ...defaultValue, bookmarks })}>
         <Table<IBookmark>
           rowKey={(row, idx) => (row.link ? row.link : String(idx))}
+          rowClassName={row =>
+            filter &&
+            (row.name.includes(filter) || row.link.includes(filter) || row.desc?.includes(filter)
+              ? styles.highlight
+              : '')
+          }
+          scroll={{ y: bookmarks.length > 10 ? 512 : undefined }}
           columns={bookmarkColumns}
           data={bookmarks}
           onCreate={() => ({ name: '', link: '' })}
           onChange={data => setBookmarks(data)}
-          operation={handleBookmarkOperation}
-          operationWidth="9rem"
+          operation={{ render: handleBookmarkOperation, width: '9rem' }}
+          toolbar={
+            <div className={classNames('form-group', styles.bookmarkFilter)}>
+              <input
+                className="sm"
+                placeholder="查询书签"
+                onChange={event => setFilter(event.target.value)}
+                value={filter}
+              />
+            </div>
+          }
         />
         <div className={styles.submit}>
           <Button type="submit">保存修改</Button>

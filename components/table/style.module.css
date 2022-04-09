@@ -21,41 +21,50 @@
   padding: 0 10px;
 }
 
-.table th,
-.table td {
-  border-top: 1px solid var(--color-divider);
-  border-left: 1px solid var(--color-divider);
+.table :global(.rc-table) {
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-divider);
+  border-top: 0;
 }
 
-.table th:last-child,
-.table td:last-child {
+.table :global(.rc-table-cell) {
+  border-bottom: 1px solid var(--color-divider);
   border-right: 1px solid var(--color-divider);
 }
 
-.table th:first-child {
+.table :global(.rc-table-cell):last-child {
+  border-right: 0;
+}
+
+.table :global(.rc-table .rc-table-body .rc-table-cell:first-child) {
+  border-left: 0;
+}
+
+.table :global(.rc-table-thead .rc-table-cell:first-child) {
   border-top-left-radius: var(--border-radius);
 }
 
-.table th:last-child {
+.table :global(.rc-table-thead .rc-table-cell:last-child) {
   border-top-right-radius: var(--border-radius);
 }
 
-.table tbody tr:last-child td {
-  border-bottom: 1px solid var(--color-divider);
+.table :global(.rc-table-tbody .rc-table-row:last-child .rc-table-cell) {
+  border-bottom: 0;
 }
 
-.table tbody tr:last-child td:first-child {
+.table :global(.rc-table .rc-table-body .rc-table-row:last-child .rc-table-cell:first-child) {
   border-bottom-left-radius: var(--border-radius);
-}
-
-.table tbody tr:last-child td:last-child {
-  border-bottom-right-radius: var(--border-radius);
 }
 
 .table :global(.rc-table-cell-ellipsis) {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+
+.table :global(.rc-table-sticky-holder) {
+  position: sticky;
+  z-index: 2;
 }
 
 .opt {
