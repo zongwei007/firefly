@@ -7,7 +7,7 @@ const FaviconIcon: FC<Omit<ImageProps, 'src'> & { icon?: string; link: string }>
   return icon ? (
     <RemoteIcon type={icon} {...rest} />
   ) : (
-    <Image src={`/api/favicon?host=${encodeURI(new URL(link).origin)}`} {...rest} alt={`${link} 的图标`} />
+    <Image src={`/api/favicon?host=${encodeURI(new URL(link).origin)}`} {...rest} alt={`${link} 的图标`} unoptimized />
   );
 };
 

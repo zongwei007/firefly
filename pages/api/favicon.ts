@@ -16,11 +16,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Buffer | string
 
   const html = await fetch(host).then(resp => resp.text());
   const iconUrl = new URL(resolveIconUrl(html) || `/favicon.ico`, host).toString();
-
   const iconResp = await fetch(iconUrl);
 
   if (!iconResp.ok) {
-    res.status(400).send(`Request ${host} icon fail.`);
+    res.status(400).send(`Request ${host} icon ${iconUrl} fail.`);
     return;
   }
 
@@ -43,11 +42,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse<Buffer | string
 function resolveIconUrl(html: string): string | null {
   const head = (/<head>[\s\S]+<\/head>/.exec(html) || [''])[0];
 
-  if (!head) {
-    return null;
-  }
-
-  const root = parse(head);
+  const root = head ? parse(head) : parse(html);
   const icons = new Map<number, string>();
 
   root
@@ -56,22 +51,21 @@ function resolveIconUrl(html: string): string | null {
     .forEach(ele => {
       let size;
       const href = ele.getAttribute('href');
+      const rel = ele.getAttribute('rel');
 
       if (!href) {
         return;
       }
 
       const sizes = ele.getAttribute('sizes');
-      if (sizes) {
-        if (sizes.includes('x')) {
-          const group = sizes.split(' ').sort();
+      if (sizes && sizes.includes('x')) {
+        const group = sizes.split(' ').sort();
 
-          size = parseInt(group[group.length - 1].split('x')[0]);
-        } else if (sizes === 'any') {
-          size = 32;
-        }
+        size = parseInt(group[group.length - 1].split('x')[0]);
       } else if (href.endsWith('.svg')) {
-        size = 128;
+        size = 192;
+      } else if ('apple-touch-icon' === rel) {
+        size = 150;
       } else if (href.endsWith('.png') || href.endsWith('.ico')) {
         size = 32;
       }
@@ -83,9 +77,9 @@ function resolveIconUrl(html: string): string | null {
 
   const matchSize = Array.from(icons.keys())
     .sort((a, b) => b - a)
-    .filter(ele => ele < 150)[0];
+    .filter(ele => ele < 200)[0];
 
-  return icons.get(matchSize) || null;
+  return matchSize ? icons.get(matchSize)! : null;
 }
 
 export default withUserApi(handler);
