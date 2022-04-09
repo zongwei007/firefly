@@ -4,6 +4,7 @@ import type { NextPage } from 'next';
 import { Icon } from 'components';
 import Link from 'next/link';
 import { mdiCogOutline } from '@mdi/js';
+import { useState } from 'react';
 import FavoriteCollection from './bookmark/FavoriteCollection';
 import BookmarkCollection from './bookmark/BookmarkCollection';
 import Clock from './clock/Clock';
@@ -16,17 +17,18 @@ export type HomeProps = { timestamp: number };
 
 const Home: NextPage<HomeProps> = props => {
   const { data: config } = useSettings();
+  const [filter, setFilter] = useState('');
 
   return (
     <div className="no-select">
-      <Filter />
+      <Filter value={filter} onFilter={value => setFilter(value)} />
       <header className={styles.header}>
         {config?.ui.clock.enable ? <Clock defaultValue={props.timestamp} /> : null}
         <Weather className={styles.weather} />
       </header>
       <main>
-        {config?.ui.favorite.enable ? <FavoriteCollection className={styles.favorites} /> : null}
-        {config?.ui.bookmark.enable ? <BookmarkCollection className={styles.bookmarks} /> : null}
+        {config?.ui.favorite.enable && !filter ? <FavoriteCollection className={styles.favorites} /> : null}
+        {config?.ui.bookmark.enable ? <BookmarkCollection className={styles.bookmarks} filter={filter} /> : null}
         <div className={styles.toolbar}>
           <Link href="/settings" shallow={true}>
             <a className={styles.icon}>

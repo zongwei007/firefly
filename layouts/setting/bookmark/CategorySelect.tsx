@@ -7,7 +7,7 @@ const CategorySelect: FC<DetailedHTMLProps<SelectHTMLAttributes<HTMLSelectElemen
 
   return (
     <select {...props}>
-      <option>{categories.length ? '未选择' : '加载中'}</option>
+      <option value="">{categories.length ? '未选择' : '加载中'}</option>
       {categories.map(ele => (
         <option key={ele.id} value={ele.id}>
           {ele.name}

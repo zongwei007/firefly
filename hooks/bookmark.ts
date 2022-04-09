@@ -1,16 +1,32 @@
 import { useCallback, useMemo } from 'react';
 import useSWR from 'swr';
 
-export function useBookmarks() {
-  const { data, error, mutate } = useSWR<IBookmarkCollection>('/api/bookmarks', {
+export function useBookmarks(filter?: string) {
+  const { data, error, mutate } = useSWR<IBookmarkConfiguration>('/api/bookmarks', {
     revalidateIfStale: false,
     revalidateOnFocus: false,
   });
 
+  const { categories = [], bookmarks: bookmarkRaws = [] } = data || {};
+
+  const bookmarks = useMemo(
+    () =>
+      bookmarkRaws.filter(
+        ele => !filter || ele.name.includes(filter) || ele.link.includes(filter) || ele.desc?.includes(filter)
+      ),
+    [bookmarkRaws, filter]
+  );
+
+  const result: IBookmarkCollection = {
+    categories,
+    bookmarks,
+    favorites: bookmarks.filter(ele => ele.pined),
+  };
+
   const updater = useCallback(
-    async (value: IBookmarkCollection) => {
+    async ({ bookmarks, categories }: IBookmarkConfiguration) => {
       const resp = await fetch('/api/bookmarks', {
-        body: JSON.stringify({ bookmarks: value.bookmarks, categories: value.categories }),
+        body: JSON.stringify({ bookmarks, categories }),
         method: 'PUT',
       });
 
@@ -20,21 +36,21 @@ export function useBookmarks() {
   );
 
   const group = useMemo(() => {
-    if (!data) {
+    if (!bookmarks) {
       return null;
     }
 
-    return data.bookmarks.reduce((memo, bookmark) => {
+    return bookmarks.reduce((memo, bookmark) => {
       const key = bookmark.category || 'undefined';
       const collection = memo.get(key) || [];
 
       collection.push(bookmark);
       return memo.set(key, collection);
     }, new Map<ICategory['id'], Array<IBookmark>>());
-  }, [data]);
+  }, [bookmarks]);
 
   return {
-    data,
+    data: result,
     error,
     group,
     mutate: updater,

@@ -3,7 +3,7 @@ import * as bookmarkService from 'services/bookmark';
 import { UnknownException, UnsupportedMethodException } from 'infrastructure/exception';
 import { withUserApi } from 'infrastructure/auth';
 
-async function handleRead(req: NextApiRequest, res: NextApiResponse<IBookmarkCollection | ErrorResponse>) {
+async function handleRead(req: NextApiRequest, res: NextApiResponse<IBookmarkConfiguration | ErrorResponse>) {
   try {
     const config = await bookmarkService.list();
 
@@ -13,9 +13,9 @@ async function handleRead(req: NextApiRequest, res: NextApiResponse<IBookmarkCol
   }
 }
 
-async function handleWrite(req: NextApiRequest, res: NextApiResponse<IBookmarkCollection | ErrorResponse>) {
+async function handleWrite(req: NextApiRequest, res: NextApiResponse<IBookmarkConfiguration | ErrorResponse>) {
   try {
-    const data: IBookmarkCollection = JSON.parse(req.body);
+    const data: IBookmarkConfiguration = JSON.parse(req.body);
     const result = await bookmarkService.set(data);
 
     res.status(200).json(result);
@@ -24,7 +24,7 @@ async function handleWrite(req: NextApiRequest, res: NextApiResponse<IBookmarkCo
   }
 }
 
-async function handler(req: NextApiRequest, res: NextApiResponse<IBookmarkCollection | ErrorResponse>) {
+async function handler(req: NextApiRequest, res: NextApiResponse<IBookmarkConfiguration | ErrorResponse>) {
   switch (req.method) {
     case 'GET':
       return handleRead(req, res);

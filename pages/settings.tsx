@@ -28,8 +28,8 @@ const Settings: NextPage<SettingPanelProps & { title: string }> = ({ title, ...p
       <Head>
         <title>{`设置 - ${title}`}</title>
         <meta name="description" content={`${title} - 自托管导航页`} />
-        <link rel="preload" href="/api/bookmarks" as="fetch" />
-        <link rel="preload" href="/api/settings" as="fetch" />
+        <link rel="preload" href="/api/bookmarks" as="fetch" crossOrigin="true" />
+        <link rel="preload" href="/api/settings" as="fetch" crossOrigin="true" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="page-container">

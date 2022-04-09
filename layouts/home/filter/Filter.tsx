@@ -1,13 +1,16 @@
-import type { DetailedHTMLProps, FC, HTMLAttributes } from 'react';
+import type { DetailedHTMLProps, FC, FormEventHandler, HTMLAttributes } from 'react';
 import { useRef } from 'react';
 import { useIsomorphicLayoutEffect } from 'react-use';
 import { useSettings } from 'hooks';
 
 import styles from './style.module.css';
 
-type FilterProps = DetailedHTMLProps<HTMLAttributes<HTMLFormElement>, HTMLFormElement>;
+type FilterProps = DetailedHTMLProps<HTMLAttributes<HTMLFormElement>, HTMLFormElement> & {
+  value?: string;
+  onFilter?: (value: string) => void;
+};
 
-const Filter: FC<FilterProps> = props => {
+const Filter: FC<FilterProps> = ({ value, onFilter, ...props }) => {
   const { data: config } = useSettings();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -17,12 +20,28 @@ const Filter: FC<FilterProps> = props => {
     }
   }, [config?.search.autoFocus]);
 
+  const handleSubmit: FormEventHandler<HTMLFormElement> = event => {
+    event.preventDefault();
+
+    if (!inputRef.current) {
+      return;
+    }
+
+    onFilter?.(inputRef.current.value);
+    inputRef.current.value = '';
+  };
+
   return (
-    <form {...props}>
-      <input ref={inputRef} autoComplete="off" name="search" className={styles.input} type="text" title="搜索书签" />
-      <label htmlFor="search" className={styles.label}>
-        书签太多？试试搜索你想寻找的书签吧 :)
-      </label>
+    <form {...props} onSubmit={handleSubmit}>
+      <input
+        ref={inputRef}
+        autoComplete="off"
+        className={styles.input}
+        type="text"
+        title="搜索书签"
+        placeholder={value ? `搜索结果：${value}` : undefined}
+      />
+      <label className={styles.label}>{value ? '再次按回车返回首页' : '书签太多？试试搜索你想寻找的书签吧 :)'}</label>
     </form>
   );
 };

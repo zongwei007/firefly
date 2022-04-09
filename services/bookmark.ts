@@ -1,16 +1,15 @@
 import { read, write } from 'infrastructure/storage';
 
-export async function list(): Promise<IBookmarkCollection> {
+export async function list(): Promise<IBookmarkConfiguration> {
   const { categories, bookmarks } = (await read<IBookmarkConfiguration>('bookmarks.yml')) || {
     bookmarks: [],
     categories: [],
-    favorites: [],
   };
 
-  return { categories, bookmarks, favorites: bookmarks.filter(ele => ele.pined === true) };
+  return { categories, bookmarks };
 }
 
-export async function set(data: IBookmarkCollection): Promise<IBookmarkCollection> {
+export async function set(data: IBookmarkConfiguration): Promise<IBookmarkConfiguration> {
   const result = { ...data, lastModifiedAt: new Date().toISOString() };
 
   await write('bookmarks.yml', data);
