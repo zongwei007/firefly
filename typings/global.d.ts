@@ -10,11 +10,17 @@ declare interface GlobalConfiguration {
     disableLogin: boolean;
     expire: number;
   };
-  webdav: {
-    host: string;
-    username: string;
-    password: string;
-    authType: 'Digest' | 'Password';
-    directory: string;
-  };
+  storage: DiskStorageConfiguration | WebdavStorageConfiguration;
+}
+
+interface DiskStorageConfiguration {
+  path: string;
+}
+
+interface WebdavStorageConfiguration {
+  host: string;
+  username: string;
+  password: string;
+  authType: 'Digest' | 'Password';
+  directory: string;
 }

@@ -1,65 +1,110 @@
+import type { WebDAVClient } from 'webdav';
 import YAML from 'yaml';
 import { AuthType, createClient } from 'webdav';
 import * as environment from 'infrastructure/environment';
+import fs from 'fs/promises';
 
-export async function read<T>(name: string): Promise<T | null> {
-  const client = getWebdavClient();
+export interface Storage {
+  read<T>(name: string): Promise<T | null>;
 
-  try {
-    const yaml = (await client.getFileContents(getWebdavFilePath(name), { format: 'text' })) as string;
-
-    if (!yaml.includes(':')) {
-      return null;
-    }
-
-    return YAML.parse(yaml);
-  } catch (e: any) {
-    if (e.status === 404) {
-      return null;
-    }
-
-    throw e;
-  }
+  write(name: string, value: unknown): Promise<void>;
 }
 
-export async function write(name: string, value: unknown) {
-  const client = getWebdavClient();
-  const yaml = YAML.stringify(value);
-  const buffer = Buffer.from(yaml, 'utf-8');
+export class DiskStorage implements Storage {
+  private readonly directory: string;
 
-  try {
-    await client.putFileContents(getWebdavFilePath(name), buffer, { overwrite: true, contentLength: buffer.length });
-  } catch (e: any) {
-    const { webdav } = environment.get();
+  constructor(cfg: DiskStorageConfiguration) {
+    this.directory = cfg.path;
+  }
 
-    if (e.status === 409 && !(await client.exists(webdav.directory))) {
-      try {
-        await client.createDirectory(webdav.directory, { recursive: true });
-      } catch (ex) {
-        throw ex;
+  async read<T>(name: string): Promise<T | null> {
+    try {
+      const yaml = await fs.readFile(`${this.directory}/${name}`, { encoding: 'utf8' });
+
+      return YAML.parse(yaml);
+    } catch (e: any) {
+      if (e.code === 'ENOENT') {
+        return null;
       }
 
-      await write(name, value);
+      throw e;
     }
+  }
 
-    throw e;
+  async write(name: string, value: unknown): Promise<void> {
+    const yaml = YAML.stringify(value);
+
+    try {
+      await fs.writeFile(`${this.directory}/${name}`, yaml);
+    } catch (e) {}
   }
 }
 
-function getWebdavClient() {
-  const { webdav } = environment.get();
-  const authType = webdav.authType === 'Digest' ? AuthType.Digest : AuthType.Password;
+export class WebdavStorage implements Storage {
+  private readonly directory: string;
+  private readonly client: WebDAVClient;
 
-  return createClient(webdav.host, {
-    authType,
-    username: webdav.username,
-    password: webdav.password,
-    withCredentials: true,
-  });
+  constructor(cfg: WebdavStorageConfiguration) {
+    const authType = cfg.authType === 'Digest' ? AuthType.Digest : AuthType.Password;
+
+    this.directory = cfg.directory;
+    this.client = createClient(cfg.host, {
+      authType,
+      username: cfg.username,
+      password: cfg.password,
+      withCredentials: true,
+    });
+  }
+
+  async read<T>(name: string): Promise<T | null> {
+    try {
+      const yaml = (await this.client.getFileContents(`${this.directory}/${name}`, { format: 'text' })) as string;
+
+      if (!yaml.includes(':')) {
+        return null;
+      }
+
+      return YAML.parse(yaml);
+    } catch (e: any) {
+      if (e.status === 404) {
+        return null;
+      }
+
+      throw e;
+    }
+  }
+
+  async write(name: string, value: unknown): Promise<void> {
+    const yaml = YAML.stringify(value);
+    const buffer = Buffer.from(yaml, 'utf-8');
+
+    try {
+      await this.client.putFileContents(`${this.directory}/${name}`, buffer, {
+        overwrite: true,
+        contentLength: buffer.length,
+      });
+    } catch (e: any) {
+      if (e.status === 409 && !(await this.client.exists(this.directory))) {
+        try {
+          await this.client.createDirectory(this.directory, { recursive: true });
+        } catch (ex) {
+          throw ex;
+        }
+
+        await this.write(name, value);
+      }
+
+      throw e;
+    }
+  }
 }
 
-function getWebdavFilePath(name: string) {
-  const { webdav } = environment.get();
+const storage: Storage = (cfg => {
+  if ('path' in cfg) {
+    return new DiskStorage(cfg);
+  }
 
-  return `${webdav.directory}/${name}`;
-}
+  return new WebdavStorage(cfg);
+})(environment.get().storage);
+
+export default storage;

@@ -1,4 +1,4 @@
-import { read, write } from 'infrastructure/storage';
+import storage from 'infrastructure/storage';
 
 const DEFAULTS: ISetting = {
   weather: { enable: true, location: '北京 北京市' },
@@ -11,13 +11,13 @@ const DEFAULTS: ISetting = {
 };
 
 export async function get(): Promise<ISetting> {
-  return { ...DEFAULTS, ...(await read<ISetting>('settings.yml')) };
+  return { ...DEFAULTS, ...(await storage.read<ISetting>('settings.yml')) };
 }
 
 export async function set(data: ISetting): Promise<ISetting> {
   const result = { ...data, lastModifiedAt: new Date().toISOString() };
 
-  await write('settings.yml', result);
+  await storage.write('settings.yml', result);
 
   return result;
 }

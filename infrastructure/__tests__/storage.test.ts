@@ -1,21 +1,7 @@
 import { v2 as webdav } from 'webdav-server';
-
-jest.mock('infrastructure/environment', () => ({
-  get() {
-    return {
-      webdav: {
-        host: 'http://localhost:9000',
-        username: 'user',
-        password: 'pass',
-        authType: 'Basic',
-        directory: '/',
-      },
-    };
-  },
-}));
-
-import { read, write } from '../storage';
-import fs from 'fs/promises';
+import type { Storage } from '../storage';
+import { DiskStorage, WebdavStorage } from '../storage';
+import fs from 'fs';
 import path from 'path';
 import os from 'os';
 
@@ -26,13 +12,21 @@ links:
   icon: evernote
   desc: 链接描述文本`;
 
-let testTmpDir: string;
+const diskDir: string = fs.mkdtempSync(path.resolve(os.tmpdir(), 'firefly-test'));
+const webdavServerDir: string = fs.mkdtempSync(path.resolve(os.tmpdir(), 'firefly-test'));
+const diskStorage: DiskStorage = new DiskStorage({ path: diskDir });
+const webdavStorage: WebdavStorage = new WebdavStorage({
+  host: 'http://localhost:9000',
+  username: 'user',
+  password: 'pass',
+  authType: 'Password',
+  directory: '/',
+});
+
 let webdavServer: webdav.WebDAVServer;
 
 beforeAll(async () => {
   jest.resetModules();
-
-  testTmpDir = await fs.mkdtemp(path.resolve(os.tmpdir(), 'firefly-test'), {});
 
   const userManager = new webdav.SimpleUserManager();
   userManager.addUser('user', 'pass', true);
@@ -44,47 +38,51 @@ beforeAll(async () => {
     },
   });
 
-  await webdavServer.setFileSystemAsync('/', new webdav.PhysicalFileSystem(testTmpDir));
+  await webdavServer.setFileSystemAsync('/', new webdav.PhysicalFileSystem(webdavServerDir));
   await webdavServer.startAsync(9000);
 });
 
-test('read', async () => {
-  const apps = path.resolve(testTmpDir, 'apps.yml');
-  await fs.writeFile(apps, APPS_EXAMPLE);
+beforeEach(async () => {
+  const files = fs.readdirSync(diskDir).map(ele => `${diskDir}/${ele}`);
+  files.push(...fs.readdirSync(webdavServerDir).map(ele => `${webdavServerDir}/${ele}`));
 
-  try {
-    const resp = await read<{ links: Array<IBookmark> }>('apps.yml');
-
-    expect(resp).not.toBeNull();
-    expect(resp!.links).toHaveLength(1);
-  } catch (e) {
-    console.error(e);
-    throw e;
-  } finally {
-    await fs.rm(apps);
+  for (const file of files) {
+    fs.rmSync(file);
   }
 });
 
-test('read not exist', async () => {
-  const resp = await read('apps.yml');
+describe.each<[string, string, Storage]>([
+  ['webdav', webdavServerDir, webdavStorage],
+  ['disk', diskDir, diskStorage],
+])('test %s', (_name, dir, storage) => {
+  test('read', async () => {
+    fs.writeFileSync(path.resolve(dir, 'apps.yml'), APPS_EXAMPLE);
 
-  expect(resp).toBeNull();
-});
+    try {
+      let resp = await storage.read<{ links: Array<IBookmark> }>('apps.yml');
+      expect(resp).not.toBeNull();
+      expect(resp!.links).toHaveLength(1);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  });
 
-test('write', async () => {
-  const apps = path.resolve(testTmpDir, 'apps.yml');
+  test('read not exist', async () => {
+    expect(await storage.read('apps.yml')).toBeNull();
+  });
 
-  try {
-    await write('apps.yml', { links: [] });
+  test('write', async () => {
+    try {
+      await storage.write('apps.yml', { links: [] });
 
-    const yml = await fs.readFile(apps, { encoding: 'utf-8' });
-    expect(yml).toContain('links');
-  } catch (e) {
-    console.error(e);
-    throw e;
-  } finally {
-    await fs.rm(apps);
-  }
+      const yml = fs.readFileSync(path.resolve(dir, 'apps.yml'), { encoding: 'utf-8' });
+      expect(yml).toContain('links');
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  });
 });
 
 afterAll(async () => {
