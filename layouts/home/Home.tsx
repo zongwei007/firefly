@@ -3,7 +3,7 @@
 import type { NextPage } from 'next';
 import { Icon } from 'components';
 import Link from 'next/link';
-import { mdiCogOutline } from '@mdi/js';
+import { mdiCogOutline, mdiLoginVariant } from '@mdi/js';
 import { useState } from 'react';
 import FavoriteCollection from './bookmark/FavoriteCollection';
 import BookmarkCollection from './bookmark/BookmarkCollection';
@@ -13,9 +13,9 @@ import Weather from './weather/Weather';
 import { useSettings } from 'hooks';
 import styles from './style.module.css';
 
-export type HomeProps = { timestamp: number; anonymous: boolean };
+export type HomeProps = { timestamp: number; anonymous: boolean; disableLogin: boolean };
 
-const Home: NextPage<HomeProps> = props => {
+const Home: NextPage<HomeProps> = ({ anonymous, timestamp, disableLogin }) => {
   const { data: config } = useSettings();
   const [filter, setFilter] = useState('');
 
@@ -23,19 +23,26 @@ const Home: NextPage<HomeProps> = props => {
     <div className="no-select">
       <Filter value={filter} onFilter={value => setFilter(value)} />
       <header className={styles.header}>
-        {config?.ui.clock.enable ? <Clock defaultValue={props.timestamp} /> : null}
+        {config?.ui.clock.enable ? <Clock defaultValue={timestamp} /> : null}
         <Weather className={styles.weather} />
       </header>
       <main>
         {config?.ui.favorite.enable && !filter ? (
-          <FavoriteCollection className={styles.favorites} anonymous={props.anonymous} />
+          <FavoriteCollection className={styles.favorites} anonymous={anonymous} />
         ) : null}
         {config?.ui.bookmark.enable ? (
-          <BookmarkCollection className={styles.bookmarks} filter={filter} anonymous={props.anonymous} />
+          <BookmarkCollection className={styles.bookmarks} filter={filter} anonymous={anonymous} />
         ) : null}
         <div className={styles.toolbar}>
+          {anonymous && !disableLogin ? (
+            <Link href="/login" shallow={true}>
+              <a className={styles.icon} title="登录">
+                <Icon path={mdiLoginVariant} size="30px" />
+              </a>
+            </Link>
+          ) : null}
           <Link href="/settings" shallow={true}>
-            <a className={styles.icon}>
+            <a className={styles.icon} title="设置">
               <Icon path={mdiCogOutline} size="30px" />
             </a>
           </Link>

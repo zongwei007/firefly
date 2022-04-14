@@ -2,11 +2,12 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import * as bookmarkService from 'services/bookmark';
 import { ForbiddenException, UnknownException, UnsupportedMethodException } from 'infrastructure/exception';
 import { withUserApi } from 'infrastructure/auth';
+import * as environment from 'infrastructure/environment';
 
 async function handleRead(
   req: NextApiRequest,
   res: NextApiResponse<IBookmarkConfiguration | ErrorResponse>,
-  { user }: AuthenticationContext
+  { user }: AuthenticationContext<false>
 ) {
   try {
     const anonymous = req.query.anonymous === 'true' && !user;
@@ -21,9 +22,11 @@ async function handleRead(
 async function handleWrite(
   req: NextApiRequest,
   res: NextApiResponse<IBookmarkConfiguration | ErrorResponse>,
-  { user }: AuthenticationContext
+  { user }: AuthenticationContext<false>
 ) {
-  if (!user) {
+  const { firefly: config } = environment.get();
+
+  if (!user && !config.disableLogin) {
     throw new ForbiddenException();
   }
 
@@ -40,7 +43,7 @@ async function handleWrite(
 async function handler(
   req: NextApiRequest,
   res: NextApiResponse<IBookmarkConfiguration | ErrorResponse>,
-  context: AuthenticationContext
+  context: AuthenticationContext<false>
 ) {
   switch (req.method) {
     case 'GET':

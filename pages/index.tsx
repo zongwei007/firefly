@@ -14,6 +14,7 @@ export const getServerSideProps = withUserProps(async ({ user }) => {
     props: {
       user,
       timestamp: Date.now(),
+      disableLogin: config.disableLogin,
       title: config.title,
     },
   };

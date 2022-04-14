@@ -11,15 +11,15 @@ import type { SettingPanelProps } from 'layouts/setting/SettingPanel';
 
 import 'react-toastify/dist/ReactToastify.css';
 
+const { firefly: config } = environment.get();
+
 export const getServerSideProps = withUserProps(
   async ({ user }) => {
-    const { firefly: config } = environment.get();
-
     return {
-      props: { user, title: config.title },
+      props: { user, title: config.title, disableLogin: config.disableLogin },
     };
   },
-  { required: true }
+  { required: !config.disableLogin }
 );
 
 const Settings: NextPage<SettingPanelProps & { title: string }> = ({ title, ...props }) => {

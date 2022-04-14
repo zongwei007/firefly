@@ -11,6 +11,7 @@ import classNames from 'classnames';
 type BookmarkProps = {
   defaultValue: IBookmarkCollection;
   onChange: (data: IBookmarkCollection) => Promise<void>;
+  disableLogin: boolean;
 };
 
 const CATEGORY_COLUMNS = [{ title: '分类名称', dataIndex: 'name' }];
@@ -28,7 +29,11 @@ const IconSelectColumn: FC<{ className?: string }> = ({ className, ...props }) =
   );
 };
 
-function useBookmark(defaultValue: IBookmarkCollection, onChange: (data: IBookmarkCollection) => Promise<void>) {
+function useBookmark(
+  defaultValue: IBookmarkCollection,
+  onChange: (data: IBookmarkCollection) => Promise<void>,
+  disableLogin: boolean
+) {
   const [categories, setCategories] = useState(defaultValue.categories);
   const [bookmarks, setBookmarks] = useState(defaultValue.bookmarks);
   const [filter, setFilter] = useState('');
@@ -55,13 +60,15 @@ function useBookmark(defaultValue: IBookmarkCollection, onChange: (data: IBookma
         onClick={() => setBookmarks(replaceItem(bookmarks, index, { ...row, pined: !row.pined }))}
         title={(row.pined ? '取消' : '设为') + '常用书签'}
       />
-      <Button
-        mode="circle-link"
-        size="sm"
-        icon={row.private ? mdiEyeOff : mdiEye}
-        onClick={() => setBookmarks(replaceItem(bookmarks, index, { ...row, private: !row.private }))}
-        title={(row.private ? '取消' : '设为') + '私密书签'}
-      />
+      {!disableLogin ? (
+        <Button
+          mode="circle-link"
+          size="sm"
+          icon={row.private ? mdiEyeOff : mdiEye}
+          onClick={() => setBookmarks(replaceItem(bookmarks, index, { ...row, private: !row.private }))}
+          title={(row.private ? '取消' : '设为') + '私密书签'}
+        />
+      ) : null}
     </>
   );
 
@@ -106,7 +113,7 @@ function useBookmark(defaultValue: IBookmarkCollection, onChange: (data: IBookma
   };
 }
 
-const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange }) => {
+const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange, disableLogin }) => {
   const {
     categories,
     bookmarks,
@@ -117,7 +124,7 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange }) => {
     handleSubmit,
     handleBookmarkOperation,
     handleBookmarkImport,
-  } = useBookmark(defaultValue, onChange);
+  } = useBookmark(defaultValue, onChange, disableLogin);
 
   const categoryMapping: Record<string, string> = useMemo(
     () => categories.reduce((memo, ele) => ({ ...memo, [ele.id]: ele.name }), {}),
@@ -171,7 +178,7 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange }) => {
           data={bookmarks}
           onCreate={() => ({ name: '', link: '' })}
           onChange={data => setBookmarks(data)}
-          operation={{ render: handleBookmarkOperation, width: '9rem' }}
+          operation={{ render: handleBookmarkOperation, width: disableLogin ? '7.5rem' : '9rem' }}
           toolbar={
             <>
               <Button onClick={() => fileImportRef.current && fileImportRef.current.click()} icon={mdiFileImport}>

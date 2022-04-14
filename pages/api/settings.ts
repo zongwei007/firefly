@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import * as settingService from 'services/setting';
 import { ForbiddenException, UnknownException, UnsupportedMethodException } from 'infrastructure/exception';
 import { withUserApi } from 'infrastructure/auth';
+import * as environment from 'infrastructure/environment';
 
 async function handleRead(req: NextApiRequest, res: NextApiResponse<ISetting | ErrorResponse>) {
   try {
@@ -16,9 +17,11 @@ async function handleRead(req: NextApiRequest, res: NextApiResponse<ISetting | E
 async function handleWrite(
   req: NextApiRequest,
   res: NextApiResponse<ISetting | ErrorResponse>,
-  { user }: AuthenticationContext
+  { user }: AuthenticationContext<false>
 ) {
-  if (!user) {
+  const { firefly: config } = environment.get();
+
+  if (!user && !config.disableLogin) {
     throw new ForbiddenException();
   }
 
@@ -35,7 +38,7 @@ async function handleWrite(
 async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ISetting | ErrorResponse>,
-  context: AuthenticationContext
+  context: AuthenticationContext<false>
 ) {
   switch (req.method) {
     case 'GET':

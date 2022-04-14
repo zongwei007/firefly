@@ -1,7 +1,6 @@
 import { query as queryWeather } from 'services/weather';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { withUserApi } from 'infrastructure/auth';
-import { Exception, UnknownException } from '../../infrastructure/exception';
+import { Exception, UnknownException } from 'infrastructure/exception';
 
 async function handler(req: NextApiRequest, res: NextApiResponse<IWeather | ErrorResponse>) {
   const { location } = req.query;
@@ -21,4 +20,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse<IWeather | Erro
   }
 }
 
-export default withUserApi(handler);
+export default handler;

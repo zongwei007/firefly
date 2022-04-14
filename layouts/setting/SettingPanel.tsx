@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import styles from './style.module.css';
 import Link from 'next/link';
 import { useBookmarks, useSettings } from 'hooks';
@@ -13,9 +13,9 @@ import TabContainer from './tabs/TabContainer';
 import UserInterface from './interface/UserInterface';
 import Weather from './weather/Weather';
 
-export type SettingPanelProps = { user: IToken };
+export type SettingPanelProps = { user: IToken | null; disableLogin: boolean };
 
-const SettingPanel: FC<SettingPanelProps> = ({ user }) => {
+const SettingPanel: FC<SettingPanelProps> = ({ user, disableLogin }) => {
   const bookmarks = useBookmarks();
   const settings = useSettings();
   const loading = bookmarks.isLoading || settings.isLoading;
@@ -30,45 +30,42 @@ const SettingPanel: FC<SettingPanelProps> = ({ user }) => {
     [settings.data]
   );
 
-  const tabs = useMemo(
-    () => [
-      {
-        id: 'bookmarks',
-        label: '书签',
-        children: bookmarks.data ? <Bookmark defaultValue={bookmarks.data} onChange={handleBookmarkChange} /> : null,
-      },
-      /*{ id: 'theme', label: '主题', children: <Theme /> },*/
-      {
-        id: 'weather',
-        label: '天气',
-        children: settings.data ? (
-          <Weather defaultValue={settings.data!.weather} onChange={handleSettingChange} />
+  const tabs = [
+    {
+      id: 'bookmarks',
+      label: '书签',
+      children: bookmarks.data ? (
+        <Bookmark defaultValue={bookmarks.data} onChange={handleBookmarkChange} disableLogin={disableLogin} />
+      ) : null,
+    },
+    /*{ id: 'theme', label: '主题', children: <Theme /> },*/
+    {
+      id: 'weather',
+      label: '天气',
+      children: settings.data ? <Weather defaultValue={settings.data!.weather} onChange={handleSettingChange} /> : null,
+    },
+    {
+      id: 'search',
+      label: '搜索',
+      children: settings.data ? <Search defaultValue={settings.data!.search} onChange={handleSettingChange} /> : null,
+    },
+    {
+      id: 'ui',
+      label: '界面',
+      children: settings.data ? (
+        <UserInterface defaultValue={settings.data!.ui} onChange={handleSettingChange} />
+      ) : null,
+    },
+    {
+      id: 'about',
+      label: '关于',
+      children:
+        bookmarks.data && settings.data ? (
+          <About user={user} bookmarks={bookmarks.data} settings={settings.data} />
         ) : null,
-      },
-      {
-        id: 'search',
-        label: '搜索',
-        children: settings.data ? <Search defaultValue={settings.data!.search} onChange={handleSettingChange} /> : null,
-      },
-      {
-        id: 'ui',
-        label: '界面',
-        children: settings.data ? (
-          <UserInterface defaultValue={settings.data!.ui} onChange={handleSettingChange} />
-        ) : null,
-      },
-      {
-        id: 'about',
-        label: '关于',
-        children:
-          bookmarks.data && settings.data ? (
-            <About user={user} bookmarks={bookmarks.data} settings={settings.data} />
-          ) : null,
-        defaultActive: true,
-      },
-    ],
-    [user, bookmarks.isLoading, handleSettingChange]
-  );
+      defaultActive: true,
+    },
+  ];
 
   if (bookmarks.error || settings.error) {
     console.error(bookmarks.error || settings.error);

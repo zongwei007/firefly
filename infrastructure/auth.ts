@@ -34,7 +34,7 @@ export function withUserProps<T, Required extends boolean = false>(
   };
 }
 
-export function withUserApi<Required extends boolean = true>(
+export function withUserApi<Required extends boolean = false>(
   next: (req: NextApiRequest, resp: NextApiResponse, context: AuthenticationContext<Required>) => Promise<void>,
   option?: WithProps<Required>
 ) {

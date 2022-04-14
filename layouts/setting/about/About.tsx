@@ -5,7 +5,7 @@ import styles from './style.module.css';
 import { Button } from 'components';
 
 const About: FC<{
-  user: IToken;
+  user: IToken | null;
   bookmarks: IBookmarkConfiguration;
   settings: ISetting;
 }> = ({ user, bookmarks, settings }) => {
@@ -15,9 +15,9 @@ const About: FC<{
         <h2>系统状态</h2>
         <dl>
           <dt>当前用户</dt>
-          <dd>{user.username}</dd>
+          <dd>{user ? user.username : 'Anonymous'}</dd>
           <dt>登录时间</dt>
-          <dd>{format(user.timestamp, 'PPPPpp', { locale: zhCN })}</dd>
+          <dd>{user ? format(user.timestamp, 'PPPPpp', { locale: zhCN }) : '无'}</dd>
           <dt>分类数量</dt>
           <dd>{bookmarks.categories.length}</dd>
           <dt>书签数量</dt>

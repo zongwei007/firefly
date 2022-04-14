@@ -6,8 +6,8 @@ export function get(): GlobalConfiguration {
       title: process.env.FIREFLY_TITLE || 'Firefly',
       username: process.env.FIREFLY_USERNAME,
       password: process.env.FIREFLY_PASSWORD,
-      disableLogin: process.env.FIREFLY_DISABLE_LOGIN === 'false',
-      expire: parseInt(process.env.FIREFLY_EXPIRE || '86400'),
+      disableLogin: process.env.FIREFLY_DISABLE_LOGIN === 'true',
+      expire: parseInt(process.env.FIREFLY_EXPIRE || '864000'),
     },
     storage: process.env.DISK_PATH
       ? { path: process.env.DISK_PATH! }
