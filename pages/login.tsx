@@ -23,7 +23,7 @@ const Login: NextPage<{ title: string }> = ({ title }) => {
       <Head>
         <title>{`登录 - ${title}`}</title>
         <meta name="description" content={`${title} - 自托管导航页`} />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.png" />
       </Head>
       <div className="page-container">
         <LoginForm redirectTo={Array.isArray(redirectTo) ? redirectTo[0] : redirectTo || '/'} />

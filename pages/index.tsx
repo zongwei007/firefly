@@ -28,7 +28,7 @@ const Index: NextPage<HomeProps & { title: string; user: IToken }> = ({ title, u
         <meta name="description" content={`${title} - 自托管导航页`} />
         <link rel="preload" href={`/api/bookmarks${!user ? '?anonymous=true' : ''}`} as="fetch" crossOrigin="true" />
         <link rel="preload" href="/api/settings" as="fetch" crossOrigin="true" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.png" />
       </Head>
       <div className="page-container">
         <Home {...props} anonymous={!user} />
