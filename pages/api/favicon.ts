@@ -62,7 +62,7 @@ function resolveIconUrl(html: string): string | null {
 
         size = parseInt(group[group.length - 1].split('x')[0]);
       } else if (href.endsWith('.svg')) {
-        size = 192;
+        size = 128;
       } else if ('apple-touch-icon' === rel) {
         size = 150;
       } else if (href.endsWith('.png') || href.endsWith('.ico')) {
