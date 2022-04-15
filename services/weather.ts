@@ -3,7 +3,7 @@ import { format, utcToZonedTime } from 'date-fns-tz';
 export async function query(province: string, city: string, county?: string): Promise<IWeather> {
   const params = new URLSearchParams();
   params.append('source', 'pc');
-  params.append('weather_type', 'observe|forecast_24h');
+  params.append('weather_type', 'observe|forecast_24h|rise');
   params.append('province', province);
 
   if (city) {
@@ -17,7 +17,7 @@ export async function query(province: string, city: string, county?: string): Pr
   const resp = await fetch(`https://wis.qq.com/weather/common?${params}`);
 
   const {
-    data: { observe, forecast_24h },
+    data: { observe, forecast_24h, rise },
     status,
     message,
   } = await resp.json();
@@ -32,7 +32,9 @@ export async function query(province: string, city: string, county?: string): Pr
 
   const zonedTime = utcToZonedTime(Date.now(), 'Asia/Shanghai');
   const today = format(zonedTime, 'yyyy-MM-dd');
+  const todayShort = format(zonedTime, 'yyyyMMdd');
   const todayWeather = (Object.values(forecast_24h) as any[]).find(ele => ele.time === today);
+  const todayRise = (Object.values(rise) as any[]).find(ele => ele.time === todayShort);
 
   return {
     current: {
@@ -48,6 +50,8 @@ export async function query(province: string, city: string, county?: string): Pr
     today: {
       maxDegree: parseInt(todayWeather?.max_degree),
       minDegree: parseInt(todayWeather?.min_degree),
+      sunrise: todayRise.sunrise,
+      sunset: todayRise.sunset,
     },
   };
 }

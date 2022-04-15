@@ -12,5 +12,7 @@ declare type IWeather = {
   today: {
     maxDegree: number;
     minDegree: number;
+    sunrise: string;
+    sunset: string;
   };
 };
