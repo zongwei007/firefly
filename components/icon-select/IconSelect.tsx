@@ -1,4 +1,4 @@
-import type { DetailedHTMLProps, FC, FocusEvent, InputHTMLAttributes, RefObject } from 'react';
+import type { ChangeEventHandler, DetailedHTMLProps, FC, FocusEvent, InputHTMLAttributes, RefObject } from 'react';
 import { useCallback, useRef, useState } from 'react';
 import type { PopupProps } from 'reactjs-popup/dist/types';
 import { useDebounce, useIsomorphicLayoutEffect } from 'react-use';
@@ -60,12 +60,10 @@ const IconSelect: FC<IconSelectProps> = ({ onBlur, defaultOpen, defaultValue, co
     }
   }, [defaultValue, row]);
 
-  const handleInputChange = useCallback(event => setFilter(event.target.value), []);
+  const handleInputChange: ChangeEventHandler<HTMLInputElement> = event => setFilter(event.target.value);
 
-  const handleClear = useCallback(
-    () => setTimeout(() => onBlur?.({ target: { value: null } } as unknown as FocusEvent<HTMLInputElement>), 50),
-    []
-  );
+  const handleClear = () =>
+    setTimeout(() => onBlur?.({ target: { value: null } } as unknown as FocusEvent<HTMLInputElement>), 50);
 
   return (
     <Popup

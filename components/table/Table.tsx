@@ -1,6 +1,6 @@
 import ReactTable from 'rc-table';
 import type { FC, FocusEventHandler, MouseEventHandler, ReactElement } from 'react';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { TableProps as ReactTableProps } from 'rc-table/lib/Table';
 import type { ColumnType, DefaultRecordType } from 'rc-table/lib/interface';
 import { Button } from 'components';
@@ -32,24 +32,30 @@ function useTable<T>({
 }: Pick<TableProps<T>, 'data' | 'onChange' | 'columns' | 'operation'>) {
   const [editing, setEditing] = useState<[number?, ColumnType<T>['dataIndex']?]>([]);
 
-  const handleRowChange = (index: number, row?: T) => {
-    const result = (data || []).concat([]);
-    result.splice(index, 1, ...(row ? [row] : []));
-    onChange(result);
-    setEditing([]);
-  };
+  const handleRowChange = useCallback(
+    (index: number, row?: T) => {
+      const result = (data || []).concat([]);
+      result.splice(index, 1, ...(row ? [row] : []));
+      onChange(result);
+      setEditing([]);
+    },
+    [onChange, data]
+  );
 
-  const handleRowMove = (row: T, index: number, offset: number) => {
-    const len = data!.length;
-    const idx = (len + index + offset) % len;
+  const handleRowMove = useCallback(
+    (row: T, index: number, offset: number) => {
+      const len = data!.length;
+      const idx = (len + index + offset) % len;
 
-    const result = data!.concat([]);
-    result.splice(index, 1);
-    result.splice(idx, 0, row);
+      const result = data!.concat([]);
+      result.splice(index, 1);
+      result.splice(idx, 0, row);
 
-    onChange(result);
-    setEditing([]);
-  };
+      onChange(result);
+      setEditing([]);
+    },
+    [onChange, data]
+  );
 
   const tableColumn: TableProps<T>['columns'] = useMemo(
     () => [
@@ -144,7 +150,7 @@ function useTable<T>({
         },
       },
     ],
-    [columns, editing, data]
+    [columns, editing, operation, handleRowChange, handleRowMove]
   );
 
   return { tableColumn, setEditing };
