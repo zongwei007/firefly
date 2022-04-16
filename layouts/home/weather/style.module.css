@@ -1,17 +1,13 @@
-.weather .weatherValue {
-  justify-content: center;
-  font-size: 16px;
-  margin-left: 10px;
+.mainTemperature {
   font-weight: 500;
+  font-size: 130%;
 }
 
-.weatherValue p {
-  font-weight: 300;
-  text-transform: uppercase;
-  height: 30px;
-}
-
-.weatherValue p:first-child {
-  border-bottom: 1px solid var(--color-light-primary);
-  padding-bottom: 5px;
+.aqi {
+  font-weight: 200;
+  margin-left: 0.5rem;
+  font-size: 60%;
+  padding: 1px 6px;
+  border-radius: var(--border-radius);
+  color: var(--color-text-light);
 }

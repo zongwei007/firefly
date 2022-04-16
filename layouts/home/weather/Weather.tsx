@@ -21,7 +21,7 @@ const Weather: FC<{ className?: string }> = ({ className }) => {
   const time = format(Date.now(), 'HH:mm');
 
   return (
-    <div className={classNames(className, styles.weather, 'clearfix')}>
+    <div className={classNames(className, 'clearfix')}>
       <div className="pull-left">
         <Image
           src={`/assets/weather/${mappingIcon(
@@ -30,13 +30,23 @@ const Weather: FC<{ className?: string }> = ({ className }) => {
           )}.svg`}
           width={64}
           height={64}
-          title={weather.current.weather}
         />
       </div>
-      <div className={classNames('pull-right', styles.weatherValue)}>
-        <p>{weather.current.degree}℃</p>
+      <div className="pull-right">
+        <p className={styles.mainTemperature}>{weather.current.degree}°</p>
         <p>
-          {weather.today.minDegree} ~ {weather.today.maxDegree}℃
+          <span title={`气压：${weather.current.pressure}hPa\n降水概率：${weather.current.precipitation}`}>
+            {weather.current.weather}
+          </span>
+          <span
+            className={styles.aqi}
+            style={{ background: `var(--weather-aqi-level${weather.current.aqiLevel})` }}
+            title={`空气质量指数：${weather.current.aqi}`}>
+            {weather.current.aqiName}
+          </span>
+        </p>
+        <p>
+          {weather.today.minDegree}° / {weather.today.maxDegree}°
         </p>
       </div>
     </div>

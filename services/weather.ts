@@ -3,7 +3,7 @@ import { format, utcToZonedTime } from 'date-fns-tz';
 export async function query(province: string, city: string, county?: string): Promise<IWeather> {
   const params = new URLSearchParams();
   params.append('source', 'pc');
-  params.append('weather_type', 'observe|forecast_24h|rise');
+  params.append('weather_type', 'observe|forecast_24h|rise|air');
   params.append('province', province);
 
   if (city) {
@@ -17,7 +17,7 @@ export async function query(province: string, city: string, county?: string): Pr
   const resp = await fetch(`https://wis.qq.com/weather/common?${params}`);
 
   const {
-    data: { observe, forecast_24h, rise },
+    data: { observe, forecast_24h, rise, air },
     status,
     message,
   } = await resp.json();
@@ -38,6 +38,9 @@ export async function query(province: string, city: string, county?: string): Pr
 
   return {
     current: {
+      aqi: air.aqi,
+      aqiLevel: air.aqi_level,
+      aqiName: air.aqi_name,
       degree: parseInt(observe.degree),
       precipitation: parseInt(observe.precipitation),
       pressure: parseInt(observe.pressure),
