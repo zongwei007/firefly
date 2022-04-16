@@ -1,3 +1,5 @@
+import { NextApiRequest, NextApiResponse } from 'next';
+
 export class Exception extends Error {
   code: number;
   status: number;
@@ -31,4 +33,24 @@ export class UnknownException extends Exception {
   constructor(message: string) {
     super(message, 500, 500);
   }
+}
+
+export function withExceptionWrapper(next: (req: NextApiRequest, resp: NextApiResponse) => Promise<void>) {
+  return async (req: NextApiRequest, resp: NextApiResponse) => {
+    try {
+      await next(req, resp);
+    } catch (e) {
+      if (e instanceof Exception) {
+        if (e.status === 500) {
+          console.error(e);
+        }
+
+        resp.status(e.status).json({ code: e.code, message: e.message });
+        resp.end();
+        return;
+      }
+
+      throw e;
+    }
+  };
 }

@@ -1,6 +1,6 @@
 import { query as queryWeather } from 'services/weather';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { Exception, UnknownException } from 'infrastructure/exception';
+import { Exception, withExceptionWrapper } from 'infrastructure/exception';
 
 async function handler(req: NextApiRequest, res: NextApiResponse<IWeather | ErrorResponse>) {
   const { location } = req.query;
@@ -11,13 +11,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse<IWeather | Erro
 
   const [province, city, county] = location.split(' ');
 
-  try {
-    const resp = await queryWeather(province, city, county);
+  const resp = await queryWeather(province, city, county);
 
-    res.status(200).json(resp);
-  } catch (e: any) {
-    throw new UnknownException(e.message);
-  }
+  res.status(200).json(resp);
 }
 
-export default handler;
+export default withExceptionWrapper(handler);

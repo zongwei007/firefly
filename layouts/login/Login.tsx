@@ -1,9 +1,10 @@
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/router';
 import type { FC } from 'react';
-import styles from './style.module.css';
 import classNames from 'classnames';
 import { Button } from 'components';
+import request from 'infrastructure/request';
+import styles from './style.module.css';
 
 type LoginFormProps = {
   className?: string;
@@ -20,7 +21,7 @@ const Login: FC<LoginFormProps> = ({ className, redirectTo = '/' }) => {
     event.preventDefault();
 
     try {
-      await fetch('/api/token', {
+      await request('/api/token', {
         body: JSON.stringify({ username, password }),
         headers: {
           'Content-Type': 'application/json',

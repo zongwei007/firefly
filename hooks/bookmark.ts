@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import useSWR from 'swr';
+import request from 'infrastructure/request';
 
 export function useBookmarks(anonymous?: boolean, filter?: string) {
   const { data, error, mutate } = useSWR<IBookmarkConfiguration>(`/api/bookmarks?anonymous=${!!anonymous}`, {
@@ -26,12 +27,12 @@ export function useBookmarks(anonymous?: boolean, filter?: string) {
 
   const updater = useCallback(
     async ({ bookmarks, categories }: IBookmarkConfiguration) => {
-      const resp = await fetch('/api/bookmarks', {
+      const data = await request<IBookmarkConfiguration>('/api/bookmarks', {
         body: JSON.stringify({ bookmarks, categories }),
         method: 'PUT',
       });
 
-      mutate(await resp.json());
+      mutate(data);
     },
     [mutate]
   );

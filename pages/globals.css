@@ -152,3 +152,7 @@ footer:hover {
   font-style: italic;
   opacity: 0.8;
 }
+
+.form-group  .help-text-danger {
+  color: var(--color-accent);
+}

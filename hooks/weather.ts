@@ -1,5 +1,6 @@
 import useSWR from 'swr';
 import { useSettings } from 'hooks';
+import request from 'infrastructure/request';
 
 export function useWeather() {
   const { data: setting } = useSettings();
@@ -12,5 +13,5 @@ export function useWeather() {
 }
 
 export function queryWeather(location: string): Promise<IWeather> {
-  return fetch(`/api/weather?${new URLSearchParams([['location', location]])}`).then(resp => resp.json());
+  return request<IWeather>(`/api/weather?${new URLSearchParams([['location', location]])}`);
 }

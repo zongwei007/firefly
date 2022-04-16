@@ -1,5 +1,6 @@
 import useSWR from 'swr';
 import { useCallback } from 'react';
+import request from 'infrastructure/request';
 
 export function useSettings() {
   const { data, error, mutate } = useSWR<ISetting>('/api/settings', {
@@ -9,12 +10,12 @@ export function useSettings() {
 
   const updater = useCallback(
     async value => {
-      const resp = await fetch('/api/settings', {
+      const data = await request<ISetting>('/api/settings', {
         body: JSON.stringify(value),
         method: 'PUT',
       });
 
-      mutate(await resp.json());
+      mutate(data);
     },
     [mutate]
   );

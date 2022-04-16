@@ -20,7 +20,8 @@ const Weather: FC<WeatherProps> = ({ defaultValue, onChange }) => {
     setValidating(true);
 
     try {
-      await queryWeather(event.target.value);
+      const foo = await queryWeather(event.target.value);
+      console.log(foo);
       setLocation(event.target.value);
     } catch (e: any) {
       setErrorMessage(e.message || '请求天气信息失败');
@@ -61,7 +62,11 @@ const Weather: FC<WeatherProps> = ({ defaultValue, onChange }) => {
             onChange={event => setLocation(event.target.value)}
             onBlur={handleValidate}
           />
-          <p className="help-text">{errorMessage}</p>
+          <p className="help-text">
+            <span>使用中文输入行政区划信息，支持设置二级或三级区划，各级间以空格分隔。</span>
+            {errorMessage && <br />}
+            <span className="help-text-danger">{errorMessage}</span>
+          </p>
         </div>
         <div className={styles.submit}>
           <Button type="submit" disabled={validating || !!errorMessage}>

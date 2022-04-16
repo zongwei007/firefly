@@ -1,9 +1,10 @@
 import type { AppProps } from 'next/app';
-import './globals.css';
 import { SWRConfig } from 'swr';
+import request from 'infrastructure/request';
+import './globals.css';
 
 const SWR_CONFIG = {
-  fetcher: (resource: RequestInfo, init: RequestInit) => fetch(resource, init).then(resp => resp.json()),
+  fetcher: request,
 };
 
 function App({ Component, pageProps }: AppProps) {

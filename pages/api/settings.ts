@@ -1,6 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import * as settingService from 'services/setting';
-import { ForbiddenException, UnknownException, UnsupportedMethodException } from 'infrastructure/exception';
+import {
+  ForbiddenException,
+  UnknownException,
+  UnsupportedMethodException,
+  withExceptionWrapper,
+} from 'infrastructure/exception';
 import { withUserApi } from 'infrastructure/auth';
 import config from 'infrastructure/environment';
 
@@ -48,4 +53,4 @@ async function handler(
   }
 }
 
-export default withUserApi(handler);
+export default withExceptionWrapper(withUserApi(handler));
