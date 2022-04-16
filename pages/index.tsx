@@ -5,17 +5,17 @@ import Home from 'layouts/home/Home';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { withUserProps } from 'infrastructure/auth';
-import * as environment from 'infrastructure/environment';
+import config from 'infrastructure/environment';
 
 export const getServerSideProps = withUserProps(async ({ user }) => {
-  const { firefly: config } = environment.get();
+  const { firefly: serverConfig } = config;
 
   return {
     props: {
       user,
       timestamp: Date.now(),
-      disableLogin: config.disableLogin,
-      title: config.title,
+      disableLogin: serverConfig.disableLogin,
+      title: serverConfig.title,
     },
   };
 });

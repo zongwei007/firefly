@@ -1,7 +1,7 @@
 import type { WebDAVClient } from 'webdav';
 import YAML from 'yaml';
 import { AuthType, createClient } from 'webdav';
-import * as environment from 'infrastructure/environment';
+import config from 'infrastructure/environment';
 import fs from 'fs/promises';
 
 export interface Storage {
@@ -100,11 +100,11 @@ export class WebdavStorage implements Storage {
 }
 
 const storage: Storage = (cfg => {
-  if ('path' in cfg) {
+  if (cfg.mode === 'disk') {
     return new DiskStorage(cfg);
   }
 
   return new WebdavStorage(cfg);
-})(environment.get().storage);
+})(config.storage);
 
 export default storage;

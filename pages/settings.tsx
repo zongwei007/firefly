@@ -5,21 +5,21 @@ import Head from 'next/head';
 import { ToastContainer } from 'react-toastify';
 
 import { withUserProps } from 'infrastructure/auth';
-import * as environment from 'infrastructure/environment';
+import config from 'infrastructure/environment';
 import SettingPanel from 'layouts/setting/SettingPanel';
 import type { SettingPanelProps } from 'layouts/setting/SettingPanel';
 
 import 'react-toastify/dist/ReactToastify.css';
 
-const { firefly: config } = environment.get();
+const { firefly: serverConfig } = config;
 
 export const getServerSideProps = withUserProps(
   async ({ user }) => {
     return {
-      props: { user, title: config.title, disableLogin: config.disableLogin },
+      props: { user, title: serverConfig.title, disableLogin: serverConfig.disableLogin },
     };
   },
-  { required: !config.disableLogin }
+  { required: !serverConfig.disableLogin }
 );
 
 const Settings: NextPage<SettingPanelProps & { title: string }> = ({ title, ...props }) => {

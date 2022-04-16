@@ -14,10 +14,12 @@ declare interface GlobalConfiguration {
 }
 
 interface DiskStorageConfiguration {
+  mode: 'disk';
   path: string;
 }
 
 interface WebdavStorageConfiguration {
+  mode: 'webdav';
   host: string;
   username: string;
   password: string;

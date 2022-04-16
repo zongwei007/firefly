@@ -2,7 +2,7 @@ import type { GetServerSidePropsContext, GetServerSidePropsResult, NextApiReques
 import crypto from 'crypto';
 import { getCookies } from 'infrastructure/cookie';
 import { ForbiddenException, UnauthenticatedException } from 'infrastructure/exception';
-import * as environment from 'infrastructure/environment';
+import config from 'infrastructure/environment';
 
 const ALGORITHM = 'aes-256-gcm';
 
@@ -60,7 +60,7 @@ export function getTokenConfig(): TokenConfig {
     return cfgCache;
   }
 
-  const { firefly } = environment.get();
+  const { firefly } = config;
 
   const sha256 = crypto.createHash('sha256');
   sha256.push(firefly.password || '', 'utf-8');
