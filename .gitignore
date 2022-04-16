@@ -42,3 +42,6 @@ yarn-error.log*
 
 # mdi icon
 public/assets/mdi
+
+# test data folder
+.data

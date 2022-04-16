@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-const loginFieldSchema = Joi.when('.disableLogin', {
+const loginFieldSchema = Joi.when('disableLogin', {
   is: Joi.equal(true),
   then: Joi.string(),
   otherwise: Joi.string().required(),
