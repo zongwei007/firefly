@@ -3,7 +3,7 @@ import storage from 'infrastructure/storage';
 import { Exception } from 'infrastructure/exception';
 
 const schema = Joi.object<IBookmarkConfiguration>({
-  lastModifiedAt: Joi.string().isoDuration(),
+  lastModifiedAt: Joi.string().isoDate(),
   categories: Joi.array()
     .items(
       Joi.object({

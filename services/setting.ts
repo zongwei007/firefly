@@ -18,7 +18,7 @@ const linkBlockSchema = Joi.object({
 }).required();
 
 const schema = Joi.object<ISetting>({
-  lastModifiedAt: Joi.string().isoDuration(),
+  lastModifiedAt: Joi.string().isoDate(),
   weather: Joi.object({ enable: Joi.boolean(), location: Joi.string() }).required(),
   search: Joi.object({ enable: Joi.boolean(), autoFocus: Joi.boolean() }),
   ui: Joi.object({

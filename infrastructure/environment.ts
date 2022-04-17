@@ -32,7 +32,7 @@ const schema = Joi.object<GlobalConfiguration>({
             .required(),
           username: Joi.string().required(),
           password: Joi.string().required(),
-          authType: Joi.string().valid('Digest', 'Password').required(),
+          authType: Joi.string().valid('Digest', 'Password').default('Password'),
           directory: Joi.string().default('/'),
         }),
       },
