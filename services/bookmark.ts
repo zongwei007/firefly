@@ -8,18 +8,18 @@ const schema = Joi.object<IBookmarkConfiguration>({
     .items(
       Joi.object({
         id: Joi.string().required(),
-        name: Joi.string().required(),
+        name: Joi.string().trim().required(),
       })
     )
     .required(),
   bookmarks: Joi.array()
     .items(
       Joi.object({
-        name: Joi.string().required(),
+        name: Joi.string().trim().required(),
         link: Joi.string().uri().required(),
-        icon: Joi.string(),
-        desc: Joi.string(),
-        category: Joi.string(),
+        icon: Joi.string().empty(''),
+        desc: Joi.string().trim().empty(''),
+        category: Joi.string().empty(''),
         pined: Joi.boolean(),
         private: Joi.boolean(),
       })

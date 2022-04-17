@@ -22,8 +22,8 @@ const schema = Joi.object<ISetting>({
   weather: Joi.object({ enable: Joi.boolean(), location: Joi.string() }).required(),
   search: Joi.object({ enable: Joi.boolean(), autoFocus: Joi.boolean() }),
   ui: Joi.object({
-    footer: Joi.string(),
-    clock: Joi.object({ enable: Joi.boolean(), welcome: Joi.string() }).required(),
+    footer: Joi.string().trim().empty(''),
+    clock: Joi.object({ enable: Joi.boolean(), welcome: Joi.string().trim() }).required(),
     favorite: linkBlockSchema,
     bookmark: linkBlockSchema,
   }).required(),
