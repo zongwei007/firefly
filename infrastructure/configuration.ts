@@ -52,16 +52,16 @@ export default function getConfiguration(): GlobalConfiguration {
         disableLogin: process.env.FIREFLY_DISABLE_LOGIN,
         expire: process.env.FIREFLY_EXPIRE,
       },
-      storage: process.env.DISK_PATH
-        ? { mode: 'disk', path: process.env.DISK_PATH }
-        : {
+      storage: process.env.WEBDAV_HOST
+        ? {
             mode: 'webdav',
             host: process.env.WEBDAV_HOST,
             username: process.env.WEBDAV_USERNAME,
             password: process.env.WEBDAV_PASSWORD,
             authType: process.env.WEBDAV_AUTH_TYPE,
             directory: process.env.WEBDAV_DIRECTORY,
-          },
+          }
+        : { mode: 'disk', path: process.env.DISK_PATH },
     });
 
     if (error) {
