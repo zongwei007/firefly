@@ -217,7 +217,8 @@ function replaceItem<T>(array: Array<T>, index: number, item: T) {
 }
 
 function rowIsMatch(item: IBookmark, filter: string) {
-  return filter && (item.name.includes(filter) || item.link.includes(filter) || item.desc?.includes(filter));
+  const regExp = filter ? new RegExp(filter, 'i') : undefined;
+  return filter && [item.name, item.link, item.desc].filter(Boolean).some(txt => txt!.match(regExp!));
 }
 
 export default Bookmark;

@@ -10,13 +10,14 @@ export function useBookmarks(anonymous?: boolean, filter?: string) {
 
   const { categories = [], bookmarks: bookmarkRaws = [], lastModifiedAt } = data || {};
 
-  const bookmarks = useMemo(
-    () =>
-      bookmarkRaws.filter(
-        ele => !filter || ele.name.includes(filter) || ele.link.includes(filter) || ele.desc?.includes(filter)
-      ),
-    [bookmarkRaws, filter]
-  );
+  const bookmarks = useMemo(() => {
+    if (!filter) {
+      return bookmarkRaws;
+    }
+
+    const regExp = new RegExp(filter, 'i');
+    return bookmarkRaws.filter(ele => [ele.name, ele.link, ele.desc].filter(Boolean).some(txt => txt!.match(regExp)));
+  }, [bookmarkRaws, filter]);
 
   const result: IBookmarkCollection = {
     categories,
