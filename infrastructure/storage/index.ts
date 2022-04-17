@@ -1,13 +1,13 @@
-import config from 'infrastructure/configuration';
+import getConfiguration from 'infrastructure/configuration';
 import { DiskStorage } from './disk';
 import { WebdavStorage } from './webdav';
 
-const storage: SettingStorage = (cfg => {
-  if (cfg.mode === 'disk') {
-    return new DiskStorage(cfg);
+const storage: SettingStorage = (({ storage: config }) => {
+  if (config.mode === 'disk') {
+    return new DiskStorage(config);
   }
 
-  return new WebdavStorage(cfg);
-})(config.storage);
+  return new WebdavStorage(config);
+})(getConfiguration());
 
 export default storage;

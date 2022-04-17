@@ -5,10 +5,10 @@ import Home from 'layouts/home/Home';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { withUserProps } from 'infrastructure/auth';
-import config from 'infrastructure/environment';
+import getConfiguration from 'infrastructure/configuration';
 
 export const getServerSideProps = withUserProps(async ({ user }) => {
-  const { firefly: serverConfig } = config;
+  const { firefly: serverConfig } = getConfiguration();
 
   return {
     props: {

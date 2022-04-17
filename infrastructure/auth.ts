@@ -2,7 +2,7 @@ import type { GetServerSidePropsContext, GetServerSidePropsResult, NextApiReques
 import crypto from 'crypto';
 import { getCookies } from 'infrastructure/cookie';
 import { ForbiddenException, UnauthenticatedException } from 'infrastructure/exception';
-import config from 'infrastructure/environment';
+import getConfiguration from 'infrastructure/configuration';
 
 const ALGORITHM = 'aes-256-gcm';
 
@@ -60,13 +60,13 @@ export function getTokenConfig(): TokenConfig {
     return cfgCache;
   }
 
-  const { firefly } = config;
+  const { firefly } = getConfiguration();
 
   const sha256 = crypto.createHash('sha256');
-  sha256.push(firefly.password || '', 'utf-8');
+  sha256.update(firefly.password || '', 'utf-8');
 
   const md5 = crypto.createHash('md5');
-  md5.push(firefly.password || '', 'utf-8');
+  md5.update(firefly.password || '', 'utf-8');
 
   return (cfgCache = {
     disabled: firefly.disableLogin,

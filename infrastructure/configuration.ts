@@ -40,32 +40,36 @@ const schema = Joi.object<GlobalConfiguration>({
   }),
 });
 
-const config = (() => {
-  const { error, value } = schema.validate({
-    firefly: {
-      title: process.env.FIREFLY_TITLE,
-      username: process.env.FIREFLY_USERNAME,
-      password: process.env.FIREFLY_PASSWORD,
-      disableLogin: process.env.FIREFLY_DISABLE_LOGIN,
-      expire: process.env.FIREFLY_EXPIRE,
-    },
-    storage: process.env.DISK_PATH
-      ? { mode: 'disk', path: process.env.DISK_PATH }
-      : {
-          mode: 'webdav',
-          host: process.env.WEBDAV_HOST,
-          username: process.env.WEBDAV_USERNAME,
-          password: process.env.WEBDAV_PASSWORD,
-          authType: process.env.WEBDAV_AUTH_TYPE,
-          directory: process.env.WEBDAV_DIRECTORY,
-        },
-  });
+let config: GlobalConfiguration | null = null;
 
-  if (error) {
-    throw error;
+export default function getConfiguration(): GlobalConfiguration {
+  if (!config) {
+    const { error, value } = schema.validate({
+      firefly: {
+        title: process.env.FIREFLY_TITLE,
+        username: process.env.FIREFLY_USERNAME,
+        password: process.env.FIREFLY_PASSWORD,
+        disableLogin: process.env.FIREFLY_DISABLE_LOGIN,
+        expire: process.env.FIREFLY_EXPIRE,
+      },
+      storage: process.env.DISK_PATH
+        ? { mode: 'disk', path: process.env.DISK_PATH }
+        : {
+            mode: 'webdav',
+            host: process.env.WEBDAV_HOST,
+            username: process.env.WEBDAV_USERNAME,
+            password: process.env.WEBDAV_PASSWORD,
+            authType: process.env.WEBDAV_AUTH_TYPE,
+            directory: process.env.WEBDAV_DIRECTORY,
+          },
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    config = value;
   }
 
-  return value!;
-})();
-
-export default config;
+  return config;
+}

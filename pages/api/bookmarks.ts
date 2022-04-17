@@ -7,7 +7,7 @@ import {
   withExceptionWrapper,
 } from 'infrastructure/exception';
 import { withUserApi } from 'infrastructure/auth';
-import config from 'infrastructure/environment';
+import getConfiguration from 'infrastructure/configuration';
 
 async function handleRead(
   req: NextApiRequest,
@@ -29,7 +29,7 @@ async function handleWrite(
   res: NextApiResponse<IBookmarkConfiguration | ErrorResponse>,
   { user }: AuthenticationContext<false>
 ) {
-  if (!user && !config.firefly.disableLogin) {
+  if (!user && !getConfiguration().firefly.disableLogin) {
     throw new ForbiddenException();
   }
 

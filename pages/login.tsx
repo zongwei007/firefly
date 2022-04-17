@@ -4,11 +4,11 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 import LoginForm from 'layouts/login/Login';
 import { useRouter } from 'next/router';
-import config from 'infrastructure/environment';
+import getConfiguration from 'infrastructure/configuration';
 
 export async function getStaticProps() {
   return {
-    props: { title: config.firefly.title },
+    props: { title: getConfiguration().firefly.title },
   };
 }
 

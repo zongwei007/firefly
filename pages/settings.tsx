@@ -5,13 +5,13 @@ import Head from 'next/head';
 import { ToastContainer } from 'react-toastify';
 
 import { withUserProps } from 'infrastructure/auth';
-import config from 'infrastructure/environment';
+import getConfiguration from 'infrastructure/configuration';
 import SettingPanel from 'layouts/setting/SettingPanel';
 import type { SettingPanelProps } from 'layouts/setting/SettingPanel';
 
 import 'react-toastify/dist/ReactToastify.css';
 
-const { firefly: serverConfig } = config;
+const { firefly: serverConfig } = getConfiguration();
 
 export const getServerSideProps = withUserProps(
   async ({ user }) => {
