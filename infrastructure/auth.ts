@@ -1,7 +1,7 @@
 import type { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'crypto';
 import { getCookies } from 'infrastructure/cookie';
-import { ForbiddenException, UnauthenticatedException } from 'infrastructure/exception';
+import { UnauthenticatedException } from 'infrastructure/exception';
 import getConfiguration from 'infrastructure/configuration';
 
 const ALGORITHM = 'aes-256-gcm';
@@ -86,7 +86,7 @@ export function parse(tokenValue?: string): IToken | null {
   const [token, authTagValue] = tokenValue.split('|');
 
   if (!authTagValue) {
-    throw new ForbiddenException('Invalid token');
+    return null;
   }
 
   const cfg = getTokenConfig();
@@ -99,13 +99,13 @@ export function parse(tokenValue?: string): IToken | null {
     body = decipher.update(token, 'base64', 'utf-8');
     body += decipher.final('utf-8');
   } catch (e) {
-    throw new ForbiddenException('Invalid token');
+    return null;
   }
 
   const [username, timestampValue, expiresValue] = body.split('|');
 
   if (!timestampValue || !expiresValue) {
-    throw new ForbiddenException('Invalid token');
+    return null;
   }
 
   const timestamp = parseInt(timestampValue);
