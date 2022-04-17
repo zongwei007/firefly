@@ -1,46 +1,7 @@
-import type { WebDAVClient } from 'webdav';
+import { AuthType, createClient, WebDAVClient } from 'webdav';
 import YAML from 'yaml';
-import { AuthType, createClient } from 'webdav';
-import config from 'infrastructure/environment';
-import fs from 'fs/promises';
 
-export interface Storage {
-  read<T>(name: string): Promise<T | null>;
-
-  write(name: string, value: unknown): Promise<void>;
-}
-
-export class DiskStorage implements Storage {
-  private readonly directory: string;
-
-  constructor(cfg: DiskStorageConfiguration) {
-    this.directory = cfg.path;
-  }
-
-  async read<T>(name: string): Promise<T | null> {
-    try {
-      const yaml = await fs.readFile(`${this.directory}/${name}`, { encoding: 'utf8' });
-
-      return YAML.parse(yaml);
-    } catch (e: any) {
-      if (e.code === 'ENOENT') {
-        return null;
-      }
-
-      throw e;
-    }
-  }
-
-  async write(name: string, value: unknown): Promise<void> {
-    const yaml = YAML.stringify(value);
-
-    try {
-      await fs.writeFile(`${this.directory}/${name}`, yaml);
-    } catch (e) {}
-  }
-}
-
-export class WebdavStorage implements Storage {
+export class WebdavStorage implements SettingStorage {
   private readonly directory: string;
   private readonly client: WebDAVClient;
 
@@ -56,6 +17,18 @@ export class WebdavStorage implements Storage {
     });
   }
 
+  private async checkDirectoryExisted(): Promise<boolean> {
+    try {
+      return await this.client.exists(this.directory);
+    } catch (e: any) {
+      if (e.status === 409) {
+        return false;
+      }
+
+      throw e;
+    }
+  }
+
   async read<T>(name: string): Promise<T | null> {
     try {
       const yaml = (await this.client.getFileContents(`${this.directory}/${name}`, { format: 'text' })) as string;
@@ -67,6 +40,10 @@ export class WebdavStorage implements Storage {
       return YAML.parse(yaml);
     } catch (e: any) {
       if (e.status === 404) {
+        return null;
+      }
+
+      if (e.status === 409 && !(await this.checkDirectoryExisted())) {
         return null;
       }
 
@@ -84,7 +61,7 @@ export class WebdavStorage implements Storage {
         contentLength: buffer.length,
       });
     } catch (e: any) {
-      if (e.status === 409 && !(await this.client.exists(this.directory))) {
+      if (e.status === 409 && !(await this.checkDirectoryExisted())) {
         try {
           await this.client.createDirectory(this.directory, { recursive: true });
         } catch (ex) {
@@ -98,13 +75,3 @@ export class WebdavStorage implements Storage {
     }
   }
 }
-
-const storage: Storage = (cfg => {
-  if (cfg.mode === 'disk') {
-    return new DiskStorage(cfg);
-  }
-
-  return new WebdavStorage(cfg);
-})(config.storage);
-
-export default storage;

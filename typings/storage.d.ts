@@ -1,3 +1,10 @@
+declare interface SettingStorage {
+  /** 读取配置 */
+  read<T>(name: string): Promise<T | null>;
+  /** 更新配置 */
+  write(name: string, value: unknown): Promise<void>;
+}
+
 declare interface ICategory {
   id: string;
   name: string;

@@ -1,9 +1,9 @@
 import { v2 as webdav } from 'webdav-server';
-import type { Storage } from '../storage';
-import { DiskStorage, WebdavStorage } from '../storage';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { DiskStorage } from '../disk';
+import { WebdavStorage } from '../webdav';
 
 const APPS_EXAMPLE = `
 links:
@@ -14,8 +14,9 @@ links:
 
 const diskDir: string = fs.mkdtempSync(path.resolve(os.tmpdir(), 'firefly-test'));
 const webdavServerDir: string = fs.mkdtempSync(path.resolve(os.tmpdir(), 'firefly-test'));
-const diskStorage: DiskStorage = new DiskStorage({ path: diskDir });
-const webdavStorage: WebdavStorage = new WebdavStorage({
+const diskStorage = new DiskStorage({ mode: 'disk', path: diskDir });
+const webdavStorage = new WebdavStorage({
+  mode: 'webdav',
   host: 'http://localhost:9000',
   username: 'user',
   password: 'pass',
@@ -51,7 +52,7 @@ beforeEach(async () => {
   }
 });
 
-describe.each<[string, string, Storage]>([
+describe.each<[string, string, SettingStorage]>([
   ['webdav', webdavServerDir, webdavStorage],
   ['disk', diskDir, diskStorage],
 ])('test %s', (_name, dir, storage) => {
