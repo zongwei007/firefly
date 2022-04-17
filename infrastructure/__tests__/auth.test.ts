@@ -1,16 +1,18 @@
 import { build, parse } from '../auth';
 
+const originalEnv = process.env;
+
 beforeAll(() => {
-  jest.mock('../environment', () => ({
-    get() {
-      return {
-        firefly: {
-          username: 'foo',
-          password: 'bar',
-        },
-      };
-    },
-  }));
+  process.env = {
+    ...originalEnv,
+    FIREFLY_USERNAME: 'foo',
+    FIREFLY_PASSWORD: 'bar',
+    DISK_PATH: '.data',
+  };
+});
+
+afterAll(() => {
+  process.env = originalEnv;
 });
 
 test('create and resolve', () => {
