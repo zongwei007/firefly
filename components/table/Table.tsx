@@ -61,7 +61,8 @@ function useTable<T>({
     () => [
       {
         title: '#',
-        width: '2.5rem',
+        width: `${Math.max(2, String(data?.length || 0).length)}.5rem`,
+        align: 'right',
         render(_value: unknown, _row: T, index: number) {
           return index + 1;
         },
@@ -120,9 +121,10 @@ function useTable<T>({
       {
         title: '操作',
         width: operation?.width || '6.5rem',
+        align: 'right',
         render(value, row, index) {
           return (
-            <div className={styles.opt}>
+            <>
               <Button
                 icon={mdiArrowUpThick}
                 title="上移"
@@ -145,12 +147,12 @@ function useTable<T>({
                 onClick={() => handleRowChange(index)}
               />
               {operation?.render?.(value, row, index)}
-            </div>
+            </>
           );
         },
       },
     ],
-    [columns, editing, operation, handleRowChange, handleRowMove]
+    [columns, editing, operation, data, handleRowChange, handleRowMove]
   );
 
   return { tableColumn, setEditing };

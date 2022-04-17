@@ -35,7 +35,7 @@ const Weather: FC<{ className?: string }> = ({ className }) => {
       <div className="pull-right">
         <p className={styles.mainTemperature}>{weather.current.degree}°</p>
         <p>
-          <span title={`气压：${weather.current.pressure}hPa\n降水概率：${weather.current.precipitation}`}>
+          <span title={`气压：${weather.current.pressure}hPa\n降水概率：${weather.current.precipitation}%`}>
             {weather.current.weather}
           </span>
           <span

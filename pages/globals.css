@@ -85,7 +85,7 @@ footer:hover {
   }
 }
 
-@media (min-width: 1201px) {
+@media (min-width: 1601px) {
   .page-container {
     width: 90%;
     padding: 50px 250px;

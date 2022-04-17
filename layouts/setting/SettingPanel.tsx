@@ -37,6 +37,7 @@ const SettingPanel: FC<SettingPanelProps> = ({ user, disableLogin }) => {
       children: bookmarks.data ? (
         <Bookmark defaultValue={bookmarks.data} onChange={handleBookmarkChange} disableLogin={disableLogin} />
       ) : null,
+      defaultActive: true,
     },
     /*{ id: 'theme', label: '主题', children: <Theme /> },*/
     {
@@ -63,7 +64,6 @@ const SettingPanel: FC<SettingPanelProps> = ({ user, disableLogin }) => {
         bookmarks.data && settings.data ? (
           <About user={user} bookmarks={bookmarks.data} settings={settings.data} />
         ) : null,
-      defaultActive: true,
     },
   ];
 
