@@ -18,6 +18,10 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
+# 设置环境变量，避免构建时数据初始化报错
+ENV FIREFLY_DISABLE_LOGIN true
+ENV DISK_PATH /app/data
+
 RUN npm run build
 
 # Production image, copy all the files and run next
