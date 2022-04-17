@@ -1,5 +1,5 @@
 import { format, utcToZonedTime } from 'date-fns-tz';
-import { Exception } from 'infrastructure/exception';
+import { Exception, UnknownException } from 'infrastructure/exception';
 
 export async function query(province: string, city: string, county?: string): Promise<IWeather> {
   const params = new URLSearchParams();
@@ -16,26 +16,23 @@ export async function query(province: string, city: string, county?: string): Pr
 
   //https://tianqi.qq.com/
   const resp = await fetch(`https://wis.qq.com/weather/common?${params}`);
+  const data = await resp.json();
+
+  if (!resp.ok || data.status !== 200) {
+    throw new UnknownException(data.message);
+  }
 
   const {
     data: { observe, forecast_24h, rise, air },
-    status,
-    message,
-  } = await resp.json();
-
-  if (status !== 200) {
-    throw new Error(message);
-  }
+  } = data;
 
   if (!observe.degree) {
     throw new Exception(`无法获取 ${province}${city || ''}${county || ''} 的天气数据`);
   }
 
   const zonedTime = utcToZonedTime(Date.now(), 'Asia/Shanghai');
-  const today = format(zonedTime, 'yyyy-MM-dd');
-  const todayShort = format(zonedTime, 'yyyyMMdd');
-  const todayWeather = (Object.values(forecast_24h) as any[]).find(ele => ele.time === today);
-  const todayRise = (Object.values(rise) as any[]).find(ele => ele.time === todayShort);
+  const todayWeather = (Object.values(forecast_24h) as any[]).find(ele => ele.time === format(zonedTime, 'yyyy-MM-dd'));
+  const todayRise = (Object.values(rise) as any[]).find(ele => ele.time === format(zonedTime, 'yyyyMMdd'));
 
   return {
     current: {

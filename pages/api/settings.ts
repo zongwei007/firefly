@@ -28,14 +28,10 @@ async function handleWrite(
     throw new ForbiddenException();
   }
 
-  try {
-    const data: ISetting = JSON.parse(req.body);
-    const result = await settingService.set(data);
+  const data: ISetting = JSON.parse(req.body);
+  const result = await settingService.set(data);
 
-    res.status(200).json(result);
-  } catch (e: any) {
-    throw new UnknownException(e.message);
-  }
+  res.status(200).json(result);
 }
 
 async function handler(

@@ -39,7 +39,7 @@ export function withExceptionWrapper(next: (req: NextApiRequest, resp: NextApiRe
   return async (req: NextApiRequest, resp: NextApiResponse) => {
     try {
       await next(req, resp);
-    } catch (e) {
+    } catch (e: any) {
       if (e instanceof Exception) {
         if (e.status === 500) {
           console.error(e);
@@ -50,7 +50,8 @@ export function withExceptionWrapper(next: (req: NextApiRequest, resp: NextApiRe
         return;
       }
 
-      throw e;
+      console.error('Unknown error', e);
+      throw new UnknownException(e.message);
     }
   };
 }

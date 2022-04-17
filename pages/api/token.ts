@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { setCookie } from 'infrastructure/cookie';
 import { build as buildToken, getTokenConfig } from 'infrastructure/auth';
-import { Exception, ForbiddenException, UnknownException, withExceptionWrapper } from 'infrastructure/exception';
+import { Exception, ForbiddenException, withExceptionWrapper } from 'infrastructure/exception';
 
 async function handler(req: NextApiRequest, res: NextApiResponse<ErrorResponse>) {
   switch (req.method) {
@@ -26,15 +26,11 @@ async function handleLogin(req: NextApiRequest, res: NextApiResponse<ErrorRespon
     throw new Exception('用户名或密码错误');
   }
 
-  try {
-    const { token, expires } = buildToken(body.username);
+  const { token, expires } = buildToken(body.username);
 
-    serialize(res, token, expires);
-    res.status(200);
-    res.end();
-  } catch (e: any) {
-    throw new UnknownException(e.message);
-  }
+  serialize(res, token, expires);
+  res.status(200);
+  res.end();
 }
 
 async function handleLogout(req: NextApiRequest, res: NextApiResponse) {
