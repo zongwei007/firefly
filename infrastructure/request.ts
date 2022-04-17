@@ -5,6 +5,10 @@ async function request<T>(resource: RequestInfo, init?: RequestInit): Promise<T>
     throw { ...(await resp.json()), status: resp.status };
   }
 
+  if (resp.status === 204) {
+    return undefined as unknown as T;
+  }
+
   return (await resp.json()) as T;
 }
 

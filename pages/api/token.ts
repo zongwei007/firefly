@@ -29,13 +29,13 @@ async function handleLogin(req: NextApiRequest, res: NextApiResponse<ErrorRespon
   const { token, expires } = buildToken(body.username);
 
   serialize(res, token, expires);
-  res.status(200);
+  res.status(204);
   res.end();
 }
 
 async function handleLogout(req: NextApiRequest, res: NextApiResponse) {
   serialize(res, 'null', new Date());
-  res.status(200);
+  res.status(204);
   res.end();
 }
 
