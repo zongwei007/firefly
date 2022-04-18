@@ -9,34 +9,47 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: checkout
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
 
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v3.1.1
-      with:
-        node-version: 14.x
-        cache: npm
-        cache-dependency-path: package-lock.json
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3.1.1
+        with:
+          node-version: 14.x
+          cache: npm
+          cache-dependency-path: package-lock.json
 
-    - name: lint
-      run: |
-        npm ci
-        npm run lint
-        npm test
-    
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-    
-    - name: Login to Docker Hub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-        
-    - name: Build and push Docker images
-      uses: docker/build-push-action@v2.10.0
-      with:
-        push: true
-        tags: knives/firefly:latest
-    
+      - name: Lint
+        run: |
+          npm ci
+          npm run lint
+          npm test
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v2.10.0
+        with:
+          push: true
+          tags: knives/firefly:latest
+
+      - name: Build next.js
+        env:
+          FIREFLY_DISABLE_LOGIN: true
+          DISK_PATH: .data
+        run: npm run build
+
+      - name: Deploy to vercel
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-args: --prod
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID}}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID}}
