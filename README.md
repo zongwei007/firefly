@@ -33,7 +33,7 @@ docker run -p 3000:3000 -v /path/to/data:/app/data -e FIREFLY_DISABLE_LOGIN=true
 - FIREFLY_TITLE：页面标题，默认为 `Firefly`
 - FIREFLY_USERNAME：登录用户名，不启用 `FIREFLY_DISABLE_LOGIN` 选项时必填
 - FIREFLY_PASSWORD：登录密码，不启用 `FIREFLY_DISABLE_LOGIN` 选项时必填
-- FIREFLY_DISABLE_LOGIN：禁用登录功能，禁用后将关闭登录认证和私密链接功能，一般用于内网部署使用
+- FIREFLY_DISABLE_LOGIN：禁用登录功能，禁用后将关闭登录认证和私密链接功能，一般用于内网部署
 - FIREFLY_EXPIRE：登录认证有效期，单位为秒；默认为 10 天
 - DISK_PATH：配置存储路径，Docker 镜像默认设置为 `/app/data`
 - WEBDAV_HOST：WebDAV 服务器地址。配置该变量后，启用 WebDAV 作为配置存储目标
