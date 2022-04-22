@@ -44,6 +44,7 @@
     "jest-fetch-mock": "^3.0.3",
     "node-mocks-http": "^1.11.0",
     "prettier": "^2.6.2",
+    "simple-icons": "^6.19.0",
     "typescript": "^4.6.3",
     "webdav-server": "^2.6.2"
   }

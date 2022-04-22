@@ -8,13 +8,7 @@ type IconProps = Omit<ImageProps, 'src'> & { type: string };
 
 const RemoteIcon: FC<IconProps> = ({ className, type, ...rest }) => {
   return (
-    <Image
-      {...rest}
-      className={classNames(className, styles.icon)}
-      src={`/assets/mdi/${type}.svg`}
-      alt="图标"
-      priority
-    />
+    <Image {...rest} className={classNames(className, styles.icon)} src={`/assets/${type}.svg`} alt="图标" priority />
   );
 };
 

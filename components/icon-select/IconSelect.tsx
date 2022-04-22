@@ -2,12 +2,12 @@ import type { ChangeEventHandler, DetailedHTMLProps, FC, FocusEvent, InputHTMLAt
 import { useCallback, useRef, useState } from 'react';
 import type { PopupProps } from 'reactjs-popup/dist/types';
 import { useDebounce, useIsomorphicLayoutEffect } from 'react-use';
+import useImmutableSWR from 'swr/immutable';
 import Popup from 'reactjs-popup';
 import classNames from 'classnames';
-import { Icon, RemoteIcon } from 'components';
 import { mdiClose } from '@mdi/js';
-import icons from '@mdi/svg/meta.json';
 import { useVirtual } from 'react-virtual';
+import { Icon, RemoteIcon } from 'components';
 import styles from './style.module.css';
 
 type IconData = {
@@ -34,14 +34,15 @@ const IconSelect: FC<IconSelectProps> = ({ onBlur, defaultOpen, defaultValue, co
   const parentRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>;
   const [filter, setFilter] = useState<string>();
   const [checked, setChecked] = useState(defaultValue);
-  const [data, setData] = useState<Array<IconData>>(icons);
+  const { data: allIcons } = useImmutableSWR<IconData[]>('/assets/icon-meta.json');
+  const [data, setData] = useState<IconData[]>(allIcons || []);
 
   useDebounce(
     () => {
-      setData(filterIcons(filter));
+      setData(filterIcons(allIcons || [], filter));
     },
     500,
-    [filter]
+    [allIcons, filter]
   );
 
   const virtual = useVirtual({
@@ -52,13 +53,17 @@ const IconSelect: FC<IconSelectProps> = ({ onBlur, defaultOpen, defaultValue, co
   });
 
   useIsomorphicLayoutEffect(() => {
-    const idx = icons.findIndex(ele => ele.name === defaultValue);
+    if (!allIcons) {
+      return;
+    }
+
+    const idx = allIcons.findIndex(ele => ele.name === defaultValue);
     const pos = Math.floor(idx / column);
 
     if (pos > row) {
       virtual.scrollToIndex(pos);
     }
-  }, [defaultValue, row]);
+  }, [allIcons, defaultValue, row]);
 
   const handleInputChange: ChangeEventHandler<HTMLInputElement> = event => setFilter(event.target.value);
 
@@ -78,10 +83,7 @@ const IconSelect: FC<IconSelectProps> = ({ onBlur, defaultOpen, defaultValue, co
       arrow={false}
       defaultOpen={defaultOpen}
       position="bottom left"
-      onClose={() => {
-        console.log('oc', checked);
-        onBlur?.({ target: { value: checked } } as unknown as FocusEvent<HTMLInputElement>);
-      }}>
+      onClose={() => onBlur?.({ target: { value: checked } } as unknown as FocusEvent<HTMLInputElement>)}>
       <div
         className={styles.parent}
         ref={parentRef}
@@ -110,12 +112,12 @@ const IconSelect: FC<IconSelectProps> = ({ onBlur, defaultOpen, defaultValue, co
   );
 };
 
-function filterIcons(filter?: string) {
+function filterIcons(data: IconData[], filter?: string) {
   if (!filter || !filter.trim().length) {
-    return icons;
+    return data;
   }
 
-  return icons.filter(
+  return data.filter(
     ele =>
       ele.name.includes(filter) || ele.aliases.some(a => a.includes(filter)) || ele.tags.some(t => t.includes(filter))
   );

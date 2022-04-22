@@ -40,8 +40,10 @@ yarn-error.log*
 # idea
 .idea
 
-# mdi icon
+# icons
 public/assets/mdi
+public/assets/simple-icons
+public/assets/icon-meta.json
 
 # test data folder
 .data
