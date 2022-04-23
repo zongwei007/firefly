@@ -1,21 +1,3 @@
-.container {
-  padding: 25px 40px;
-  margin: 0 auto;
-}
-
-@media (max-width: 1200px) {
-  .container {
-    width: 90%;
-  }
-}
-
-@media (min-width: 1201px) {
-  .container {
-    width: 90%;
-    padding: 50px 250px;
-  }
-}
-
 .header {
   position: relative;
 }
@@ -68,3 +50,24 @@
 .toolbar .icon:hover img {
   filter: invert(0%);
 }
+
+@media (max-width: 640px) {
+  .clock h1 {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .clock h1 {
+    font-size: 2rem;
+  }
+
+  .weather {
+    right: 0;
+  }
+
+  .weather p {
+    font-size: 85%;
+  }
+}
+

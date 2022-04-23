@@ -23,7 +23,7 @@ const Home: NextPage<HomeProps> = ({ anonymous, timestamp, disableLogin }) => {
     <div className="no-select">
       <Filter value={filter} onFilter={value => setFilter(value)} />
       <header className={styles.header}>
-        {config?.ui.clock.enable ? <Clock defaultValue={timestamp} /> : null}
+        {config?.ui.clock.enable ? <Clock className={styles.clock} defaultValue={timestamp} /> : null}
         <Weather className={styles.weather} />
       </header>
       <main>

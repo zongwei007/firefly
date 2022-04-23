@@ -82,13 +82,20 @@ footer:hover {
 @media (max-width: 1200px) {
   .page-container {
     width: 90%;
+    padding: 0;
   }
 }
 
 @media (min-width: 1601px) {
   .page-container {
-    width: 90%;
-    padding: 50px 250px;
+    width: 80%;
+    padding: 50px;
+  }
+}
+
+@media (min-width: 1921px) {
+  .page-container {
+    padding: 50px 150px;
   }
 }
 
@@ -153,6 +160,6 @@ footer:hover {
   opacity: 0.8;
 }
 
-.form-group  .help-text-danger {
+.form-group .help-text-danger {
   color: var(--color-accent);
 }

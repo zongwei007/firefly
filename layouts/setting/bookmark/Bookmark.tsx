@@ -48,7 +48,7 @@ function useBookmark(
         error: '保存失败',
       });
     },
-    [defaultValue]
+    [onChange]
   );
 
   const handleBookmarkOperation = (_value: any, row: IBookmark, index: number) => (
@@ -155,13 +155,13 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange, disableLogin }) =
       <h2>分类管理</h2>
       <form onSubmit={event => handleSubmit(event, { ...defaultValue, categories })}>
         <Table<ICategory>
+          className={styles.categoryTable}
           rowKey="id"
           columns={CATEGORY_COLUMNS}
           data={categories}
           scroll={{ y: categories.length > 6 ? 256 : undefined }}
           onCreate={() => ({ id: String(Date.now()), name: '' })}
           onChange={data => setCategories(data)}
-          style={{ width: '45%' }}
         />
         <div className={styles.submit}>
           <Button type="submit">保存修改</Button>

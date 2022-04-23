@@ -64,3 +64,27 @@
   margin-top: 1rem;
   font-size: 1.2rem;
 }
+
+@media (max-width: 1100px) {
+  .bookmark {
+    width: 25%;
+  }
+}
+
+@media (max-width: 850px) {
+  .bookmark {
+    width: 33.333%;
+  }
+}
+
+@media (max-width: 650px) {
+  .bookmark {
+    width: 50%;
+  }
+}
+
+@media (max-width: 450px) {
+  .bookmark {
+    width: 100%;
+  }
+}

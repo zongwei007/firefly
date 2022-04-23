@@ -4,7 +4,7 @@
 
 .settings h1 {
   font-size: 30px;
-  transition:width 2s linear;
+  transition: width 2s linear;
 }
 
 .settings h2 {
@@ -18,6 +18,10 @@
 
 .settings .submit {
   margin-top: 1rem;
+}
+
+.categoryTable {
+  width: 45%;
 }
 
 .iconSelect {
@@ -35,4 +39,17 @@
 
 .importTrigger {
   display: none;
+}
+
+@media (max-width: 900px) {
+  .categoryTable {
+    width: 100%;
+  }
+}
+
+@media (max-width: 540px) {
+  .bookmarkFilter {
+    float: none;
+    margin-top: 0.2rem;
+  }
 }
