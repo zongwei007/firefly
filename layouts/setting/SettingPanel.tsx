@@ -1,9 +1,8 @@
 import type { FC } from 'react';
-import { useCallback } from 'react';
 import styles from './style.module.css';
 import Link from 'next/link';
 import { useBookmarks, useSettings } from 'hooks';
-import { Spinner } from 'components';
+import { Affix, Spinner } from 'components';
 
 import About from './about/About';
 import Bookmark from './bookmark/Bookmark';
@@ -20,15 +19,8 @@ const SettingPanel: FC<SettingPanelProps> = ({ user, disableLogin }) => {
   const settings = useSettings();
   const loading = bookmarks.isLoading || settings.isLoading;
 
-  const handleBookmarkChange = useCallback(
-    (data: IBookmarkCollection) => bookmarks.mutate({ ...bookmarks.data, ...data }),
-    [bookmarks.data]
-  );
-
-  const handleSettingChange = useCallback(
-    (data: Partial<ISetting>) => settings.mutate({ ...settings.data, ...data }),
-    [settings.data]
-  );
+  const handleBookmarkChange = (data: IBookmarkCollection) => bookmarks.mutate({ ...bookmarks.data, ...data });
+  const handleSettingChange = (data: Partial<ISetting>) => settings.mutate({ ...settings.data, ...data });
 
   const tabs = [
     {
@@ -74,16 +66,20 @@ const SettingPanel: FC<SettingPanelProps> = ({ user, disableLogin }) => {
 
   return (
     <div className={styles.settings}>
-      <header>
-        <h1>应用设置</h1>
-        <p>
-          <Link href="/" shallow>
-            返回
-          </Link>
-        </p>
-      </header>
+      <Affix offsetTop={15} tag="header">
+        {affix => (
+          <>
+            {affix ? <h3>应用设置</h3> : <h1>应用设置</h1>}
+            <p>
+              <Link href="/" shallow>
+                返回
+              </Link>
+            </p>
+          </>
+        )}
+      </Affix>
       <Spinner loading={loading} />
-      {loading ? null : <TabContainer className="clearfix" tag="main" tabs={tabs} />}
+      {loading ? null : <TabContainer affix={{ offsetTop: 75 }} className="clearfix" tag="main" tabs={tabs} />}
     </div>
   );
 };

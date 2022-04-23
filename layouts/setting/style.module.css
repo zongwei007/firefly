@@ -1,5 +1,10 @@
+.settings header {
+  z-index: 10;
+}
+
 .settings h1 {
   font-size: 30px;
+  transition:width 2s linear;
 }
 
 .settings h2 {
