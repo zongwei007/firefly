@@ -1,6 +1,6 @@
 import type { DetailedHTMLProps, FC, FormEventHandler, HTMLAttributes } from 'react';
 import { useRef } from 'react';
-import { useIsomorphicLayoutEffect } from 'react-use';
+import { useIsomorphicLayoutEffect, useKey } from 'react-use';
 import { useSettings } from 'hooks';
 
 import styles from './style.module.css';
@@ -19,6 +19,10 @@ const Filter: FC<FilterProps> = ({ value, onFilter, ...props }) => {
       inputRef.current?.focus();
     }
   }, [config?.search.autoFocus]);
+
+  useKey('Escape', () => {
+    inputRef.current?.focus();
+  });
 
   const handleSubmit: FormEventHandler<HTMLFormElement> = event => {
     event.preventDefault();
