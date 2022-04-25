@@ -4,7 +4,6 @@ import request from 'infrastructure/request';
 
 export function useSettings() {
   const { data, error, mutate } = useSWR<ISetting>('/api/settings', {
-    revalidateIfStale: false,
     revalidateOnFocus: false,
   });
 

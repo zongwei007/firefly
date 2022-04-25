@@ -28,31 +28,31 @@ const Home: NextPage<HomeProps> = ({ anonymous, timestamp, disableLogin }) => {
       </header>
       <main>
         {config?.ui.favorite.enable && !filter ? (
-          <FavoriteCollection className={styles.favorites} anonymous={anonymous} />
+          <FavoriteCollection className={styles.bookmarks} anonymous={anonymous} />
         ) : null}
         {config?.ui.bookmark.enable ? (
           <BookmarkCollection className={styles.bookmarks} filter={filter} anonymous={anonymous} />
         ) : null}
-        <div className={styles.toolbar}>
-          {anonymous && !disableLogin ? (
-            <Link href="/login" shallow={true}>
-              <a className={styles.icon} title="登录">
-                <Icon path={mdiLoginVariant} size="30px" />
-              </a>
-            </Link>
-          ) : null}
-          <Link href="/settings" shallow={true}>
-            <a className={styles.icon} title="设置">
-              <Icon path={mdiCogOutline} size="30px" />
-            </a>
-          </Link>
-        </div>
       </main>
       {config?.ui.footer ? (
         <footer>
           <div dangerouslySetInnerHTML={{ __html: config.ui.footer }} />
         </footer>
       ) : null}
+      <div className={styles.toolbar}>
+        {anonymous && !disableLogin ? (
+          <Link href="/login" shallow={true}>
+            <a className={styles.icon} title="登录">
+              <Icon path={mdiLoginVariant} size="30px" />
+            </a>
+          </Link>
+        ) : null}
+        <Link href="/settings" shallow={true}>
+          <a className={styles.icon} title="设置">
+            <Icon path={mdiCogOutline} size="30px" />
+          </a>
+        </Link>
+      </div>
     </div>
   );
 };

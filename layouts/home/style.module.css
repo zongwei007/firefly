@@ -8,12 +8,10 @@
   top: 30px;
 }
 
-.favorites,
 .bookmarks {
   margin: 2rem 0;
 }
 
-.favorites > h2,
 .bookmarks > h2 {
   text-transform: uppercase;
   font-weight: 900;

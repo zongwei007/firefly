@@ -1,4 +1,4 @@
-async function request<T>(resource: RequestInfo, init?: RequestInit): Promise<T> {
+export default async function request<T>(resource: RequestInfo, init?: RequestInit): Promise<T> {
   const resp = await fetch(resource, init);
 
   if (!resp.ok) {
@@ -12,4 +12,16 @@ async function request<T>(resource: RequestInfo, init?: RequestInit): Promise<T>
   return (await resp.json()) as T;
 }
 
-export default request;
+export function localCacheProvider() {
+  if (typeof window !== 'undefined') {
+    const map = new Map(JSON.parse(localStorage.getItem('swr-cache') || '[]'));
+
+    window.addEventListener('beforeunload', () => {
+      localStorage.setItem('swr-cache', JSON.stringify(Array.from(map.entries())));
+    });
+
+    return map;
+  }
+
+  return new Map();
+}

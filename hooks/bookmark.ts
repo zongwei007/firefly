@@ -4,7 +4,6 @@ import request from 'infrastructure/request';
 
 export function useBookmarks(anonymous?: boolean, filter?: string) {
   const { data, error, mutate } = useSWR<IBookmarkConfiguration>(`/api/bookmarks?anonymous=${!!anonymous}`, {
-    revalidateIfStale: false,
     revalidateOnFocus: false,
   });
 
