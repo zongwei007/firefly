@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { setCookie } from 'infrastructure/cookie';
-import { build as buildToken, getTokenConfig } from 'infrastructure/auth';
+import { build as buildToken, getTokenConfig, updateToken } from 'infrastructure/auth';
 import { Exception, ForbiddenException, withExceptionWrapper } from 'infrastructure/exception';
 
 async function handler(req: NextApiRequest, res: NextApiResponse<ErrorResponse>) {
@@ -28,19 +27,15 @@ async function handleLogin(req: NextApiRequest, res: NextApiResponse<ErrorRespon
 
   const { token, expires } = buildToken(body.username);
 
-  serialize(res, token, expires);
+  updateToken(res, token, expires);
   res.status(204);
   res.end();
 }
 
 async function handleLogout(req: NextApiRequest, res: NextApiResponse) {
-  serialize(res, 'null', new Date());
+  updateToken(res, 'null', new Date());
   res.status(204);
   res.end();
-}
-
-function serialize(res: NextApiResponse, token: string, expires: Date) {
-  setCookie(res, 'firefly-token', token, { expires });
 }
 
 export default withExceptionWrapper(handler);

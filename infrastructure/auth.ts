@@ -1,12 +1,15 @@
 import type { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'crypto';
-import { getCookies } from 'infrastructure/cookie';
+import { getCookies, setCookie } from 'infrastructure/cookie';
 import { UnauthenticatedException } from 'infrastructure/exception';
 import getConfiguration from 'infrastructure/configuration';
+import { ServerResponse } from 'http';
 
 const ALGORITHM = 'aes-256-gcm';
 
 const COOKIE_NAME = 'firefly-token';
+
+const ONE_DAY = 1000 * 60 * 60 * 24;
 
 type WithProps<Required extends boolean = false> = { required: Required };
 
@@ -17,20 +20,22 @@ export function withUserProps<T, Required extends boolean = false>(
   return async (context: GetServerSidePropsContext) => {
     const user = await parse(getCookies(context.req)[COOKIE_NAME]);
 
-    if (option?.required) {
-      if (!user) {
-        return {
-          redirect: {
-            destination: '/login?' + new URLSearchParams([['redirectTo', context.resolvedUrl]]),
-            permanent: false,
-          },
-        };
-      }
-
-      return next({ ...context, user });
-    } else {
-      return next({ ...context, ...({ user } as AuthenticationContext) });
+    if (option?.required && !user) {
+      return {
+        redirect: {
+          destination: '/login?' + new URLSearchParams([['redirectTo', context.resolvedUrl]]),
+          permanent: false,
+        },
+      };
     }
+
+    if (user && Date.now() - user.timestamp > ONE_DAY) {
+      const { token, expires } = build(user.username);
+
+      updateToken(context.res, token, expires);
+    }
+
+    return next({ ...context, ...({ user } as AuthenticationContext) });
   };
 }
 
@@ -133,4 +138,8 @@ export function build(username: string) {
   token += '|' + cipher.getAuthTag().toString('base64');
 
   return { token, expires: new Date(expires) };
+}
+
+export function updateToken(res: ServerResponse, token: string, expires: Date) {
+  setCookie(res, 'firefly-token', token, { expires });
 }
