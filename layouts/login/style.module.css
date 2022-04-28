@@ -13,3 +13,15 @@
 .submit {
   margin: 1.5rem 0;
 }
+
+@media (max-width: 760px) {
+  .login {
+    margin: 2rem 4rem;
+  }
+}
+
+@media (max-width: 450px) {
+  .login {
+    margin: 1rem 2rem;
+  }
+}
