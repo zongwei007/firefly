@@ -15,6 +15,10 @@
   filter: saturate(110%) brightness(120%);
 }
 
+.btn:disabled svg {
+  color: var(--color-divider);
+}
+
 .icon .container {
   float: left;
   margin-top: -4px;

@@ -66,3 +66,38 @@
   position: sticky;
   z-index: 2;
 }
+
+td.rowNumber,
+th.rowNumber {
+  padding: 8px;
+}
+
+th.rowSelector,
+td.rowSelector {
+  padding: 8px 0;
+}
+
+.rowSelector .checkbox {
+  margin-bottom: -5px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.toolbar > * {
+  flex: 0 0 auto;
+  margin-top: 0.2rem;
+}
+
+.filter {
+  margin-left: auto;
+}
+
+@media (max-width: 730px) {
+  .filter {
+    flex: 1 1 auto;
+    margin-left: 0;
+  }
+}

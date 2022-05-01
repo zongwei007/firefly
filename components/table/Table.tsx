@@ -1,9 +1,16 @@
 import ReactTable from 'rc-table';
-import type { FC, FocusEventHandler, MouseEventHandler, ReactElement } from 'react';
-import { useCallback, useMemo, useState } from 'react';
+import {
+  useCallback,
+  useMemo,
+  useState,
+  type FC,
+  type FocusEventHandler,
+  type MouseEventHandler,
+  type ReactElement,
+} from 'react';
 import type { TableProps as ReactTableProps } from 'rc-table/lib/Table';
 import type { ColumnType, DefaultRecordType } from 'rc-table/lib/interface';
-import { Button } from 'components';
+import { Button, Checkbox } from 'components';
 import { mdiFolderPlus, mdiArrowUpThick, mdiArrowDownThick, mdiDelete } from '@mdi/js';
 
 import styles from './style.module.css';
@@ -22,15 +29,34 @@ type TableProps<T> = Omit<ReactTableProps<T>, 'columns'> & {
     render: ColumnType<T>['render'];
   };
   toolbar?: ReactElement;
+  filter?: (input: string, data: T) => boolean;
 };
 
-function useTable<T>({
-  data,
-  onChange,
-  columns,
-  operation,
-}: Pick<TableProps<T>, 'data' | 'onChange' | 'columns' | 'operation'>) {
-  const [editing, setEditing] = useState<[number?, ColumnType<T>['dataIndex']?]>([]);
+type useTableParam<T> = Pick<TableProps<T>, 'data' | 'filter' | 'onChange' | 'columns' | 'operation'>;
+type TableRows<T> = {
+  positions: number[];
+  items: T[];
+};
+type TableEditing<T> = [number?, ColumnType<T>['dataIndex']?];
+type useTableResult<T> = [
+  {
+    filterValue: string;
+    rows: TableRows<T>;
+    selected: Set<T>;
+    tableColumn: TableProps<T>['columns'];
+  },
+  {
+    handleRowMove: (offset: number) => void;
+    setEditing: (v: TableEditing<T>) => void;
+    setFilterValue: (v: string) => void;
+  }
+];
+
+function useTable<T>({ data, filter, onChange, columns, operation }: useTableParam<T>): useTableResult<T> {
+  const [editing, setEditing] = useState<TableEditing<T>>([]);
+  const [filterValue, setFilterValue] = useState('');
+  const [selected, setSelected] = useState(new Set<T>());
+  const rows = useMemo(() => extractRows(data, filterValue, filter), [data, filter, filterValue]);
 
   const handleRowChange = useCallback(
     (index: number, row?: T) => {
@@ -42,27 +68,58 @@ function useTable<T>({
     [onChange, data]
   );
 
-  const handleRowMove = useCallback(
-    (row: T, index: number, offset: number) => {
-      const len = data!.length;
-      const idx = (len + index + offset) % len;
+  const handleRowMove = (offset: number) => {
+    const result = (data || []).concat([]);
 
-      const result = data!.concat([]);
-      result.splice(index, 1);
+    selected.forEach(row => {
+      const pos = rows.positions[rows.items.indexOf(row)];
+
+      if (pos == null) {
+        return;
+      }
+
+      const len = result.length;
+      const idx = (len + pos + offset) % len;
+
+      result.splice(pos, 1);
       result.splice(idx, 0, row);
+    });
 
-      onChange(result);
-      setEditing([]);
-    },
-    [onChange, data]
-  );
+    onChange(result);
+    setEditing([]);
+  };
 
   const tableColumn: TableProps<T>['columns'] = useMemo(
     () => [
       {
+        title: '',
+        width: '2rem',
+        className: styles.rowSelector,
+        align: 'center',
+        render(_value: unknown, row: T) {
+          return (
+            <Checkbox
+              className={styles.checkbox}
+              checked={selected.has(row)}
+              onChange={event => {
+                if (event.target.checked) {
+                  selected.add(row);
+                } else {
+                  selected.delete(row);
+                }
+
+                setSelected(new Set(selected));
+              }}
+              size="sm"
+            />
+          );
+        },
+      },
+      {
         title: '#',
-        width: `${Math.max(2, String(data?.length || 0).length)}.5rem`,
+        width: `${Math.max(1, String(data?.length || 0).length)}rem`,
         align: 'right',
+        className: styles.rowNumber,
         render(_value: unknown, _row: T, index: number) {
           return index + 1;
         },
@@ -120,25 +177,11 @@ function useTable<T>({
       })),
       {
         title: '操作',
-        width: operation?.width || '6.5rem',
-        align: 'right',
+        width: operation?.width || '4rem',
+        align: 'center',
         render(value, row, index) {
           return (
             <>
-              <Button
-                icon={mdiArrowUpThick}
-                title="上移"
-                mode="circle-link"
-                size="sm"
-                onClick={() => handleRowMove(row, index, -1)}
-              />
-              <Button
-                icon={mdiArrowDownThick}
-                title="下移"
-                mode="circle-link"
-                size="sm"
-                onClick={() => handleRowMove(row, index, 1)}
-              />
               <Button
                 icon={mdiDelete}
                 title="删除"
@@ -152,23 +195,33 @@ function useTable<T>({
         },
       },
     ],
-    [columns, editing, operation, data, handleRowChange, handleRowMove]
+    [columns, data, editing, operation, selected, handleRowChange]
   );
 
-  return { tableColumn, setEditing };
+  return [
+    { filterValue, rows, selected, tableColumn },
+    { setEditing, setFilterValue, handleRowMove },
+  ];
 }
 
 const Table = <T extends DefaultRecordType>({
   className,
   columns,
   data,
+  filter,
   onCreate,
   onChange,
   operation,
   toolbar,
   ...rest
 }: TableProps<T>) => {
-  const { tableColumn, setEditing } = useTable<T>({ data, onChange, columns, operation });
+  const [{ filterValue, rows, selected, tableColumn }, { handleRowMove, setEditing, setFilterValue }] = useTable<T>({
+    data,
+    filter,
+    onChange,
+    columns,
+    operation,
+  });
 
   const handleCreate: MouseEventHandler<HTMLButtonElement> = event => {
     event.preventDefault();
@@ -179,22 +232,58 @@ const Table = <T extends DefaultRecordType>({
   };
 
   return (
-    <div className={styles.table}>
-      <div className="btn-group">
+    <div className={classNames(styles.table, className)}>
+      <div className={classNames(styles.toolbar, 'btn-group')}>
         <Button icon={mdiFolderPlus} onClick={handleCreate}>
           新增
         </Button>
+        <Button icon={mdiArrowUpThick} onClick={() => handleRowMove(-1)} disabled={selected.size === 0}>
+          上移
+        </Button>
+        <Button icon={mdiArrowDownThick} onClick={() => handleRowMove(1)} disabled={selected.size === 0}>
+          下移
+        </Button>
         {toolbar}
+        {filter && (
+          <div className={classNames('form-group', styles.filter)}>
+            <input
+              className="sm"
+              placeholder="查询"
+              onChange={event => setFilterValue(event.target.value.trim())}
+              value={filterValue}
+            />
+          </div>
+        )}
       </div>
-      <ReactTable<T>
-        {...rest}
-        className={classNames('form-group', className)}
-        columns={tableColumn}
-        data={data}
-        emptyText="无数据"
-      />
+      <ReactTable<T> {...rest} className="form-group" columns={tableColumn} data={rows.items} emptyText="无数据" />
     </div>
   );
 };
+
+function extractRows<T>(
+  data: readonly T[] | undefined,
+  filterValue: string,
+  filter: TableProps<T>['filter']
+): TableRows<T> {
+  const result: { positions: Array<number>; items: Array<T> } = {
+    positions: [],
+    items: [],
+  };
+
+  if (!data) {
+    return result;
+  }
+
+  for (let i = 0; i < data.length; i++) {
+    const ele = data[i];
+
+    if (!filterValue || !filter || filter(filterValue, ele)) {
+      result.positions.push(i);
+      result.items.push(ele);
+    }
+  }
+
+  return result;
+}
 
 export default Table;

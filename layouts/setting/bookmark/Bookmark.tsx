@@ -36,7 +36,6 @@ function useBookmark(
 ) {
   const [categories, setCategories] = useState(defaultValue.categories);
   const [bookmarks, setBookmarks] = useState(defaultValue.bookmarks);
-  const [filter, setFilter] = useState('');
 
   const handleSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>, result: IBookmarkCollection) => {
@@ -103,10 +102,8 @@ function useBookmark(
   return {
     categories,
     bookmarks,
-    filter,
     setCategories,
     setBookmarks,
-    setFilter,
     handleSubmit,
     handleBookmarkOperation,
     handleBookmarkImport,
@@ -117,10 +114,8 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange, disableLogin }) =
   const {
     categories,
     bookmarks,
-    filter,
     setCategories,
     setBookmarks,
-    setFilter,
     handleSubmit,
     handleBookmarkOperation,
     handleBookmarkImport,
@@ -172,40 +167,30 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange, disableLogin }) =
       <form onSubmit={event => handleSubmit(event, { ...defaultValue, bookmarks })}>
         <Table<IBookmark>
           rowKey={(row, idx) => (row.link ? row.link : String(idx))}
-          rowClassName={row => (rowIsMatch(row, filter) ? styles.highlight : '')}
           scroll={{ y: bookmarks.length > 12 ? 512 : undefined }}
           columns={bookmarkColumns}
           data={bookmarks}
           onCreate={() => ({ name: '', link: '' })}
           onChange={data => setBookmarks(data)}
-          operation={{ render: handleBookmarkOperation, width: disableLogin ? '7.5rem' : '9rem' }}
+          operation={{ render: handleBookmarkOperation, width: disableLogin ? '5rem' : '6.5rem' }}
+          filter={rowIsMatch}
           toolbar={
-            <>
-              <Button onClick={() => fileImportRef.current && fileImportRef.current.click()} icon={mdiFileImport}>
-                导入
-              </Button>
-              <div className={classNames('form-group', styles.bookmarkFilter)}>
-                <input
-                  className="sm"
-                  placeholder="查询书签"
-                  onChange={event => setFilter(event.target.value)}
-                  value={filter}
-                />
-              </div>
-            </>
+            <Button onClick={() => fileImportRef.current?.click()} icon={mdiFileImport}>
+              导入
+            </Button>
           }
-        />
-        <input
-          ref={fileImportRef}
-          className={styles.importTrigger}
-          type="file"
-          accept="text/html"
-          onChange={handleBookmarkImport}
         />
         <div className={styles.submit}>
           <Button type="submit">保存修改</Button>
         </div>
       </form>
+      <input
+        ref={fileImportRef}
+        className={styles.importTrigger}
+        type="file"
+        accept="text/html"
+        onChange={handleBookmarkImport}
+      />
     </div>
   );
 };
@@ -216,9 +201,10 @@ function replaceItem<T>(array: Array<T>, index: number, item: T) {
   return result;
 }
 
-function rowIsMatch(item: IBookmark, filter: string) {
-  const regExp = filter ? new RegExp(filter, 'i') : undefined;
-  return filter && [item.name, item.link, item.desc].filter(Boolean).some(txt => txt!.match(regExp!));
+function rowIsMatch(filter: string, item: IBookmark) {
+  const regExp = new RegExp(filter, 'i');
+
+  return [item.name, item.link, item.desc].filter(Boolean).some(txt => txt!.match(regExp!));
 }
 
 export default Bookmark;
