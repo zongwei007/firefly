@@ -66,7 +66,7 @@ const SettingPanel: FC<SettingPanelProps> = ({ user, disableLogin }) => {
 
   return (
     <div className={styles.settings}>
-      <Affix offsetTop={15} tag="header">
+      <Affix paddingTop={15} tag="header">
         {affix => (
           <>
             {affix ? <h3>应用设置</h3> : <h1>应用设置</h1>}
@@ -79,7 +79,9 @@ const SettingPanel: FC<SettingPanelProps> = ({ user, disableLogin }) => {
         )}
       </Affix>
       <Spinner loading={loading} />
-      {loading ? null : <TabContainer affix={{ offsetTop: 75 }} className="clearfix" tag="main" tabs={tabs} />}
+      {loading ? null : (
+        <TabContainer affix={{ top: 75, paddingTop: 75 }} className="clearfix" tag="main" tabs={tabs} />
+      )}
     </div>
   );
 };

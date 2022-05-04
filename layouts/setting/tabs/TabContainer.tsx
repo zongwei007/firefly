@@ -35,7 +35,7 @@ const TabContainer: FC<TabsProps> = ({ affix, className, tag: Tag = 'div', tabs 
         {...affix}
         className={classNames(styles.tabs, affix?.className, 'pull-left')}
         tag="ul"
-        offsetTop={affix ? affix.offsetTop : -1}>
+        paddingTop={affix ? affix.paddingTop : -1}>
         {() =>
           tabs.map(ele => (
             <li

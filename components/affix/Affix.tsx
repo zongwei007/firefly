@@ -1,36 +1,55 @@
-import type { CSSProperties, ElementType, HTMLAttributes, ReactElement, ReactNode } from 'react';
-import { useState, useEffect } from 'react';
-import { useWindowScroll } from 'react-use';
+import {
+  useRef,
+  useState,
+  type CSSProperties,
+  type ElementType,
+  type HTMLAttributes,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
+import { useIsomorphicLayoutEffect } from 'react-use';
 
 type AffixProps = Omit<HTMLAttributes<HTMLOrSVGElement>, 'children'> & {
   children: (affix: boolean) => ReactNode;
   tag?: ElementType;
-  offsetTop?: number;
+  paddingTop?: number;
+  top?: number;
 };
 
-const Affix = ({ offsetTop = 0, tag: Wrapper = 'div', children, style, ...rest }: AffixProps): ReactElement => {
-  const { y: scrollTop } = useWindowScroll();
+const Affix = ({
+  top = -1,
+  paddingTop = 0,
+  tag: Wrapper = 'div',
+  children,
+  style,
+  ...rest
+}: AffixProps): ReactElement => {
+  const wrapperRef = useRef<HTMLElement>(null);
   const [affix, setAffix] = useState(false);
 
-  useEffect(() => {
-    if (offsetTop >= 0 && scrollTop > 0) {
-      setAffix(true);
+  useIsomorphicLayoutEffect(() => {
+    const observer = new IntersectionObserver(
+      ([e]) => {
+        setAffix(e.intersectionRatio < 1);
+      },
+      { threshold: [1] }
+    );
 
-      return;
-    }
+    observer.observe(wrapperRef.current!);
 
-    setAffix(false);
-  }, [scrollTop, offsetTop]);
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
-  const affixStyle: CSSProperties = { ...style };
+  const affixStyle: CSSProperties = { ...style, position: 'sticky', top };
 
   if (affix) {
-    affixStyle.position = 'fixed';
-    affixStyle.top = offsetTop;
+    affixStyle.paddingTop = paddingTop;
   }
 
   return (
-    <Wrapper {...rest} style={affixStyle}>
+    <Wrapper {...rest} ref={wrapperRef} style={affixStyle}>
       {children(affix)}
     </Wrapper>
   );
