@@ -117,7 +117,7 @@ function useTable<T>({ data, filter, onChange, columns, operation }: useTablePar
       },
       {
         title: '#',
-        width: `${Math.max(1, String(data?.length || 0).length)}rem`,
+        width: `${Math.max(2, String(data?.length || 0).length)}rem`,
         align: 'right',
         className: styles.rowNumber,
         render(_value: unknown, _row: T, index: number) {
