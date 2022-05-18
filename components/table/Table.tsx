@@ -59,13 +59,14 @@ function useTable<T>({ data, filter, onChange, columns, operation }: useTablePar
   const rows = useMemo(() => extractRows(data, filterValue, filter), [data, filter, filterValue]);
 
   const handleRowChange = useCallback(
-    (index: number, row?: T) => {
+    (index: number, row?: T, originalRow?: T) => {
       const result = (data || []).concat([]);
-      result.splice(index, 1, ...(row ? [row] : []));
+      const pos = originalRow ? rows.positions[rows.items.indexOf(originalRow)] : 0;
+      result.splice(pos, 1, ...(row ? [row] : []));
       onChange(result);
       setEditing([]);
     },
-    [onChange, data]
+    [data, onChange, rows]
   );
 
   const handleRowMove = (offset: number) => {
@@ -155,7 +156,7 @@ function useTable<T>({ data, filter, onChange, columns, operation }: useTablePar
                   const { value } = event.target as any;
 
                   if (value !== undefined) {
-                    handleRowChange(index, { ...row, [String(col.dataIndex)]: value });
+                    handleRowChange(index, { ...row, [String(col.dataIndex)]: value }, row);
                     return;
                   }
 
@@ -169,7 +170,7 @@ function useTable<T>({ data, filter, onChange, columns, operation }: useTablePar
             <input
               className="sm"
               defaultValue={value}
-              onBlur={event => handleRowChange(index, { ...row, [String(col.dataIndex)]: event.target.value })}
+              onBlur={event => handleRowChange(index, { ...row, [String(col.dataIndex)]: event.target.value }, row)}
               autoFocus
             />
           );
