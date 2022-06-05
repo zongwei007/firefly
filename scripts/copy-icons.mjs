@@ -1,5 +1,6 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import * as simpleIcons from 'simple-icons/icons';
 
 console.log('Starting...');
 
@@ -42,16 +43,13 @@ function copyMdiIcon(meta) {
 function copySimpleIcon(meta) {
   const sourceDir = path.resolve(process.cwd(), 'node_modules', 'simple-icons');
   const targetDir = path.resolve(process.cwd(), 'public', 'assets', 'simple-icons');
-
-  const icons = require('simple-icons');
-
   if (fs.existsSync(targetDir)) {
     fs.rmSync(targetDir, { recursive: true });
   }
 
   fs.mkdirSync(targetDir);
 
-  for (const icon of Object.values(icons)) {
+  for (const icon of Object.values(simpleIcons)) {
     const svgPath = path.resolve(sourceDir, 'icons', icon.slug + '.svg');
     const targetPath = path.resolve(targetDir, icon.slug + '.svg');
 

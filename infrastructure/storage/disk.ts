@@ -28,6 +28,7 @@ export class DiskStorage implements SettingStorage {
     try {
       await fs.writeFile(`${this.directory}/${name}`, yaml);
     } catch (e) {
+      //ignore
     }
   }
 }
