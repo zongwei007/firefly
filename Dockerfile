@@ -25,7 +25,6 @@ ENV DISK_PATH /app/data
 RUN npm run build
 
 RUN rm -rf /app/node_modules/@mdi/svg && \
-    rm -rf /app/node_modules/@mdi/js && \
     rm -rf /app/node_modules/simple-icons
 
 # Production image, copy all the files and run next
