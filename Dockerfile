@@ -12,6 +12,7 @@ FROM node:16-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+COPY scripts/next.build.config.js ./next.config.js
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
@@ -23,9 +24,6 @@ ENV FIREFLY_DISABLE_LOGIN true
 ENV DISK_PATH /app/data
 
 RUN npm run build
-
-RUN rm -rf /app/node_modules/@mdi/svg && \
-    rm -rf /app/node_modules/simple-icons
 
 # Production image, copy all the files and run next
 FROM node:16-alpine AS runner
@@ -40,9 +38,12 @@ RUN adduser --system --uid 1001 nextjs
 
 COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY package.json ./
+COPY --from=builder /app/package.json ./package.json
+
+# Automatically leverage output traces to reduce image size
+# https://nextjs.org/docs/advanced-features/output-file-tracing
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
@@ -51,4 +52,4 @@ EXPOSE 3000
 ENV PORT 3000
 ENV DISK_PATH /app/data
 
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
