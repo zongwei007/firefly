@@ -2,7 +2,6 @@ name: Build
 
 on:
   - push
-  - pull_request
 
 jobs:
   deploy-docker:
@@ -39,6 +38,7 @@ jobs:
         with:
           push: true
           tags: knives/firefly:latest
+  
   deploy-vercel:
     runs-on: ubuntu-latest
 
