@@ -15,6 +15,8 @@ export class WebdavStorage implements SettingStorage {
       password: cfg.password,
       withCredentials: true,
     });
+
+    console.log(`使用 WebDAV 存储，路径 ${this.directory}`);
   }
 
   private async checkDirectoryExisted(): Promise<boolean> {
@@ -65,13 +67,20 @@ export class WebdavStorage implements SettingStorage {
         try {
           await this.client.createDirectory(this.directory, { recursive: true });
         } catch (ex) {
+          console.log(`创建 WebDAV 目录 ${this.directory} 失败`, ex);
+
           throw ex;
         }
 
         await this.write(name, value);
+        return;
       }
+
+      console.log(`保存文件 ${this.directory}/${name} 失败`, e);
 
       throw e;
     }
+
+    console.log(`保存文件 ${this.directory}/${name} 成功`);
   }
 }

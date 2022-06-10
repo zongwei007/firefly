@@ -6,6 +6,7 @@ export class DiskStorage implements SettingStorage {
 
   constructor(cfg: DiskStorageConfiguration) {
     this.directory = cfg.path;
+    console.log(`使用本地磁盘存储，路径：${this.directory}`);
   }
 
   async read<T>(name: string): Promise<T | null> {
@@ -28,7 +29,11 @@ export class DiskStorage implements SettingStorage {
     try {
       await fs.writeFile(`${this.directory}/${name}`, yaml);
     } catch (e) {
-      //ignore
+      console.error(`保存文件 ${this.directory}/${name} 失败`, e);
+
+      throw e;
     }
+
+    console.log(`保存文件 ${this.directory}/${name} 成功`);
   }
 }
