@@ -23,6 +23,11 @@ Firefly 是一个自托管的个人首页，用于将常用网站收录为书签
 ## 安装
 
 ```bash
+# 初始化数据目录
+mkdir /path/to/data
+# 容器使用 1001 用户/用户组运行
+chown 1001:1001 /path/to/data
+
 docker pull knives/firefly
 
 docker run -p 3000:3000 -v /path/to/data:/app/data -e FIREFLY_DISABLE_LOGIN=true knives/firefly
