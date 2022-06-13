@@ -7,6 +7,7 @@ import {
   type FocusEventHandler,
   type MouseEventHandler,
   type ReactElement,
+  type ReactNode,
 } from 'react';
 import type { TableProps as ReactTableProps } from 'rc-table/lib/Table';
 import type { ColumnType, DefaultRecordType } from 'rc-table/lib/interface';
@@ -20,13 +21,20 @@ export type EditableColumnType<T> = ColumnType<T> & {
   component?: FC<{ className?: string; defaultValue?: string; onBlur: FocusEventHandler<HTMLElement> }>;
 };
 
+export type OperationRender<T> = (
+  value: any,
+  record: T,
+  index: number,
+  updater: (index: number, row?: T, originalRow?: T) => void
+) => ReactNode;
+
 type TableProps<T> = Omit<ReactTableProps<T>, 'columns'> & {
   columns: EditableColumnType<T>[];
   onCreate: () => T;
   onChange: (data: T[]) => void;
   operation?: {
     width?: string;
-    render: ColumnType<T>['render'];
+    render?: OperationRender<T>;
   };
   toolbar?: ReactElement;
   filter?: (input: string, data: T) => boolean;
@@ -190,7 +198,7 @@ function useTable<T>({ data, filter, onChange, columns, operation }: useTablePar
                 size="sm"
                 onClick={() => handleRowChange(index)}
               />
-              {operation?.render?.(value, row, index)}
+              {operation?.render?.(value, row, index, handleRowChange)}
             </>
           );
         },

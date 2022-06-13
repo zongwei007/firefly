@@ -1,9 +1,9 @@
 import type { ChangeEventHandler, FC, FormEvent } from 'react';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import type { EditableColumnType } from 'components/table';
+import type { EditableColumnType, OperationRender } from 'components/table';
 import { Button, IconSelect, Table } from 'components';
 import CategorySelect from './CategorySelect';
-import { mdiPinOff, mdiPin, mdiEyeOff, mdiEye, mdiFileImport } from '@mdi/js';
+import { mdiEye, mdiEyeOff, mdiFileImport, mdiPin, mdiPinOff } from '@mdi/js';
 import styles from '../style.module.css';
 import { toast } from 'react-toastify';
 import classNames from 'classnames';
@@ -50,13 +50,13 @@ function useBookmark(
     [onChange]
   );
 
-  const handleBookmarkOperation = (_value: any, row: IBookmark, index: number) => (
+  const handleBookmarkOperation: OperationRender<IBookmark> = (_value, row, index, updater) => (
     <>
       <Button
         mode="circle-link"
         size="sm"
         icon={row.pined ? mdiPinOff : mdiPin}
-        onClick={() => setBookmarks(replaceItem(bookmarks, index, { ...row, pined: !row.pined }))}
+        onClick={() => updater(index, { ...row, pined: !row.pined }, row)}
         title={(row.pined ? '取消' : '设为') + '常用书签'}
       />
       {!disableLogin ? (
@@ -64,7 +64,7 @@ function useBookmark(
           mode="circle-link"
           size="sm"
           icon={row.private ? mdiEyeOff : mdiEye}
-          onClick={() => setBookmarks(replaceItem(bookmarks, index, { ...row, private: !row.private }))}
+          onClick={() => updater(index, { ...row, private: !row.private }, row)}
           title={(row.private ? '取消' : '设为') + '私密书签'}
         />
       ) : null}
@@ -194,12 +194,6 @@ const Bookmark: FC<BookmarkProps> = ({ defaultValue, onChange, disableLogin }) =
     </div>
   );
 };
-
-function replaceItem<T>(array: Array<T>, index: number, item: T) {
-  const result = array.concat([]);
-  result.splice(index, 1, item);
-  return result;
-}
 
 function rowIsMatch(filter: string, item: IBookmark) {
   const regExp = new RegExp(filter, 'i');
