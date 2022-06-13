@@ -141,5 +141,5 @@ export function build(username: string) {
 }
 
 export function updateToken(res: ServerResponse, token: string, expires: Date) {
-  setCookie(res, 'firefly-token', token, { expires });
+  setCookie(res, COOKIE_NAME, token, { expires });
 }

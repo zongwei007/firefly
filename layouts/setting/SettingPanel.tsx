@@ -65,7 +65,7 @@ const SettingPanel: FC<SettingPanelProps> = ({ user, disableLogin }) => {
   }
 
   return (
-    <div className={styles.settings}>
+    <div className={styles.settings} suppressHydrationWarning>
       <Affix paddingTop={15} tag="header">
         {affix => (
           <>

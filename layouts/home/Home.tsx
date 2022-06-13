@@ -22,11 +22,11 @@ const Home: NextPage<HomeProps> = ({ anonymous, timestamp, disableLogin }) => {
   return (
     <div className="no-select">
       <Filter value={filter} onFilter={value => setFilter(value)} />
-      <header className={styles.header}>
+      <header className={styles.header} suppressHydrationWarning>
         {config?.ui.clock.enable ? <Clock className={styles.clock} defaultValue={timestamp} /> : null}
         <Weather className={styles.weather} />
       </header>
-      <main>
+      <main suppressHydrationWarning>
         {config?.ui.favorite.enable && !filter ? (
           <FavoriteCollection className={styles.bookmarks} anonymous={anonymous} />
         ) : null}
