@@ -25,7 +25,7 @@ export type OperationRender<T> = (
   value: any,
   record: T,
   index: number,
-  updater: (index: number, row?: T, originalRow?: T) => void
+  updater: (index: number, originalRow: T, row?: T) => void
 ) => ReactNode;
 
 type TableProps<T> = Omit<ReactTableProps<T>, 'columns'> & {
@@ -67,9 +67,9 @@ function useTable<T>({ data, filter, onChange, columns, operation }: useTablePar
   const rows = useMemo(() => extractRows(data, filterValue, filter), [data, filter, filterValue]);
 
   const handleRowChange = useCallback(
-    (index: number, row?: T, originalRow?: T) => {
+    (index: number, originalRow: T, row?: T) => {
       const result = (data || []).concat([]);
-      const pos = originalRow ? rows.positions[rows.items.indexOf(originalRow)] : 0;
+      const pos = rows.positions[rows.items.indexOf(originalRow)];
       result.splice(pos, 1, ...(row ? [row] : []));
       onChange(result);
       setEditing([]);
@@ -164,7 +164,7 @@ function useTable<T>({ data, filter, onChange, columns, operation }: useTablePar
                   const { value } = event.target as any;
 
                   if (value !== undefined) {
-                    handleRowChange(index, { ...row, [String(col.dataIndex)]: value }, row);
+                    handleRowChange(index, row, { ...row, [String(col.dataIndex)]: value });
                     return;
                   }
 
@@ -178,7 +178,7 @@ function useTable<T>({ data, filter, onChange, columns, operation }: useTablePar
             <input
               className="sm"
               defaultValue={value}
-              onBlur={event => handleRowChange(index, { ...row, [String(col.dataIndex)]: event.target.value }, row)}
+              onBlur={event => handleRowChange(index, row, { ...row, [String(col.dataIndex)]: event.target.value })}
               autoFocus
             />
           );
@@ -196,7 +196,7 @@ function useTable<T>({ data, filter, onChange, columns, operation }: useTablePar
                 title="删除"
                 mode="circle-link"
                 size="sm"
-                onClick={() => handleRowChange(index)}
+                onClick={() => handleRowChange(index, row)}
               />
               {operation?.render?.(value, row, index, handleRowChange)}
             </>
