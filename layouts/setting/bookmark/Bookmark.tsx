@@ -56,7 +56,7 @@ function useBookmark(
         mode="circle-link"
         size="sm"
         icon={row.pined ? mdiPinOff : mdiPin}
-        onClick={() => updater(index, { ...row, pined: !row.pined }, row)}
+        onClick={() => updater(index, row, { ...row, pined: !row.pined })}
         title={(row.pined ? '取消' : '设为') + '常用书签'}
       />
       {!disableLogin ? (
@@ -64,7 +64,7 @@ function useBookmark(
           mode="circle-link"
           size="sm"
           icon={row.private ? mdiEyeOff : mdiEye}
-          onClick={() => updater(index, { ...row, private: !row.private }, row)}
+          onClick={() => updater(index, row, { ...row, private: !row.private })}
           title={(row.private ? '取消' : '设为') + '私密书签'}
         />
       ) : null}
