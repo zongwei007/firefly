@@ -14,6 +14,7 @@ export class DiskStorage implements SettingStorage {
       const yaml = await fs.readFile(`${this.directory}/${name}`, { encoding: 'utf8' });
 
       return YAML.parse(yaml);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       if (e.code === 'ENOENT') {
         return null;

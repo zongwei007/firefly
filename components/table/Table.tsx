@@ -1,3 +1,5 @@
+'use client';
+
 import ReactTable from 'rc-table';
 import {
   useCallback,
@@ -11,7 +13,7 @@ import {
 } from 'react';
 import type { TableProps as ReactTableProps } from 'rc-table/lib/Table';
 import type { ColumnType, DefaultRecordType } from 'rc-table/lib/interface';
-import { Button, Checkbox } from 'components';
+import { Button, Checkbox } from '@/components';
 import { mdiFolderPlus, mdiArrowUpThick, mdiArrowDownThick, mdiDelete } from '@mdi/js';
 
 import styles from './style.module.css';
@@ -22,7 +24,7 @@ export type EditableColumnType<T> = ColumnType<T> & {
 };
 
 export type OperationRender<T> = (
-  value: any,
+  value: unknown,
   record: T,
   index: number,
   updater: (index: number, originalRow: T, row?: T) => void
@@ -57,7 +59,7 @@ type useTableResult<T> = [
     handleRowMove: (offset: number) => void;
     setEditing: (v: TableEditing<T>) => void;
     setFilterValue: (v: string) => void;
-  }
+  },
 ];
 
 function useTable<T>({ data, filter, onChange, columns, operation }: useTableParam<T>): useTableResult<T> {
@@ -148,6 +150,8 @@ function useTable<T>({ data, filter, onChange, columns, operation }: useTablePar
             },
           };
         },
+        // TODO
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         render(value: any, row: T, index: number) {
           if (!col.dataIndex || !editing.length || editing[0] !== index || editing[1] !== col.dataIndex) {
             return col.render ? col.render(value, row, index) : value;
@@ -161,6 +165,8 @@ function useTable<T>({ data, filter, onChange, columns, operation }: useTablePar
                 className="sm"
                 defaultValue={value}
                 onBlur={event => {
+                  // TODO
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   const { value } = event.target as any;
 
                   if (value !== undefined) {

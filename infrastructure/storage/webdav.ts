@@ -22,6 +22,7 @@ export class WebdavStorage implements SettingStorage {
   private async checkDirectoryExisted(): Promise<boolean> {
     try {
       return await this.client.exists(this.directory);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       if (e.status === 409) {
         return false;
@@ -40,6 +41,7 @@ export class WebdavStorage implements SettingStorage {
       }
 
       return YAML.parse(yaml);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       if (e.status === 404) {
         return null;
@@ -62,6 +64,7 @@ export class WebdavStorage implements SettingStorage {
         overwrite: true,
         contentLength: buffer.length,
       });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       if (e.status === 409 && !(await this.checkDirectoryExisted())) {
         try {

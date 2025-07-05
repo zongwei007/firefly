@@ -1,0 +1,40 @@
+.settings header {
+  z-index: 10;
+}
+
+.settings h1 {
+  font-size: 30px;
+  transition: width 2s linear;
+}
+
+.settings h2 {
+  margin-bottom: 10px;
+}
+
+.settings main {
+  margin: 20px 0;
+  position: relative;
+}
+
+.settings .submit {
+  margin-top: 1rem;
+}
+
+.iconSelect {
+  width: 100%;
+  margin: 6px 0;
+}
+
+.categoryTable {
+  width: 45%;
+}
+
+.importTrigger {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .categoryTable {
+    width: 100%;
+  }
+}

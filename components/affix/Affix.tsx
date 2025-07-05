@@ -1,3 +1,5 @@
+'use client';
+
 import {
   useRef,
   useState,
@@ -16,14 +18,7 @@ type AffixProps = Omit<HTMLAttributes<HTMLOrSVGElement>, 'children'> & {
   top?: number;
 };
 
-const Affix = ({
-  top = -1,
-  paddingTop = 0,
-  tag: Wrapper = 'div',
-  children,
-  style,
-  ...rest
-}: AffixProps): ReactElement => {
+function Affix({ top = -1, paddingTop = 0, tag: Wrapper = 'div', children, style, ...rest }: AffixProps): ReactElement {
   const wrapperRef = useRef<HTMLElement>(null);
   const [affix, setAffix] = useState(false);
 
@@ -53,6 +48,6 @@ const Affix = ({
       {children(affix)}
     </Wrapper>
   );
-};
+}
 
 export default Affix;

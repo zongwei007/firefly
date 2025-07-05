@@ -1,9 +1,8 @@
-import type { FC } from 'react';
-import styles from './style.module.css';
-import { Icon } from 'components';
 import { mdiLoading } from '@mdi/js';
+import { Icon } from '@mdi/react';
+import styles from './style.module.css';
 
-const Spinner: FC<{ loading?: boolean }> = props => {
+function Spinner(props: { loading?: boolean }) {
   if (props.loading === false) {
     return null;
   }
@@ -13,6 +12,6 @@ const Spinner: FC<{ loading?: boolean }> = props => {
       <Icon path={mdiLoading} className={styles.icon} size="64px" spin />
     </div>
   );
-};
+}
 
 export default Spinner;

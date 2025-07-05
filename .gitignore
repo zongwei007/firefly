@@ -47,3 +47,5 @@ public/assets/icon-meta.json
 
 # test data folder
 .data
+//TODO
+.old

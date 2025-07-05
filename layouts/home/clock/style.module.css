@@ -1,9 +1,0 @@
-.clock p {
-  font-weight: 300;
-  text-transform: uppercase;
-  height: 30px;
-}
-
-.clock p span:nth-child(2) {
-  padding-left: 0.5rem;
-}

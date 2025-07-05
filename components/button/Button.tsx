@@ -1,7 +1,7 @@
-import type { ButtonHTMLAttributes, DetailedHTMLProps, FC } from 'react';
-import styles from './style.module.css';
+import { Icon } from '@mdi/react';
 import classNames from 'classnames';
-import { Icon } from 'components';
+import type { ButtonHTMLAttributes, DetailedHTMLProps } from 'react';
+import styles from './style.module.css';
 
 type ButtonProps = DetailedHTMLProps<ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> & {
   icon?: string;
@@ -14,7 +14,7 @@ const ICON_SIZE = {
   base: '24px',
 };
 
-const Button: FC<ButtonProps> = ({ children, className, icon, mode, size = 'base', type = 'button', ...rest }) => {
+function Button({ children, className, icon, mode, size = 'base', type = 'button', ...rest }: ButtonProps) {
   const clsName = classNames(styles.btn, className, {
     [styles.icon]: !!icon,
     [styles.circle]: mode?.startsWith('circle'),
@@ -32,6 +32,6 @@ const Button: FC<ButtonProps> = ({ children, className, icon, mode, size = 'base
       {children}
     </button>
   );
-};
+}
 
 export default Button;

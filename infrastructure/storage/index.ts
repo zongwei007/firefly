@@ -1,4 +1,4 @@
-import getConfiguration from 'infrastructure/configuration';
+import getConfiguration from '@/infrastructure/configuration';
 import { DiskStorage } from './disk';
 import { WebdavStorage } from './webdav';
 

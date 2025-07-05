@@ -1,0 +1,50 @@
+.weather {
+  position: absolute;
+  right: 20px;
+  top: 30px;
+}
+
+@media (max-width: 640px) {
+  .clock h1 {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .clock h1 {
+    font-size: 2rem;
+  }
+
+  .weather {
+    right: 0;
+  }
+
+  .weather p {
+    font-size: 85%;
+  }
+}
+
+
+.clock p {
+  font-weight: 300;
+  text-transform: uppercase;
+  height: 30px;
+}
+
+.clock p span:nth-child(2) {
+  padding-left: 0.5rem;
+}
+
+.mainTemperature {
+  font-weight: 500;
+  font-size: 130%;
+}
+
+.aqi {
+  font-weight: 200;
+  margin-left: 0.5rem;
+  font-size: 60%;
+  padding: 1px 6px;
+  border-radius: var(--border-radius);
+  color: var(--color-text-light);
+}

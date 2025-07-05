@@ -1,13 +1,17 @@
-import type { ChangeEventHandler, DetailedHTMLProps, FC, FocusEvent, InputHTMLAttributes, RefObject } from 'react';
-import { useCallback, useRef, useState } from 'react';
-import type { PopupProps } from 'reactjs-popup/dist/types';
-import { useDebounce, useIsomorphicLayoutEffect } from 'react-use';
-import useImmutableSWR from 'swr/immutable';
-import Popup from 'reactjs-popup';
-import classNames from 'classnames';
+'use client';
+
+import { RemoteIcon } from '@/components';
+import request from '@/infrastructure/request';
 import { mdiClose } from '@mdi/js';
-import { useVirtual } from 'react-virtual';
-import { Icon, RemoteIcon } from 'components';
+import { Icon } from '@mdi/react';
+import { useVirtualizer } from '@tanstack/react-virtual';
+import classNames from 'classnames';
+import type { ChangeEventHandler, DetailedHTMLProps, FocusEvent, InputHTMLAttributes, RefObject } from 'react';
+import { useRef, useState } from 'react';
+import { useDebounce, useIsomorphicLayoutEffect } from 'react-use';
+import Popup from 'reactjs-popup';
+import type { PopupProps } from 'reactjs-popup/dist/types';
+import useImmutableSWR from 'swr/immutable';
 import styles from './style.module.css';
 
 type IconData = {
@@ -30,11 +34,11 @@ type IconSelectProps = Omit<
 const innerSize = 28;
 const scrollWidth = 24;
 
-const IconSelect: FC<IconSelectProps> = ({ onBlur, defaultOpen, defaultValue, column = 5, row = 5, ...props }) => {
-  const parentRef = useRef<HTMLDivElement>() as RefObject<HTMLDivElement>;
+function IconSelect({ onBlur, defaultOpen, defaultValue, column = 5, row = 5, ...props }: IconSelectProps) {
+  const parentRef = useRef<HTMLDivElement>(null) as RefObject<HTMLDivElement>;
   const [filter, setFilter] = useState<string>();
   const [checked, setChecked] = useState(defaultValue);
-  const { data: allIcons } = useImmutableSWR<IconData[]>('/assets/icon-meta.json');
+  const { data: allIcons } = useImmutableSWR<IconData[]>('/assets/icon-meta.json', request);
   const [data, setData] = useState<IconData[]>(allIcons || []);
 
   useDebounce(
@@ -45,10 +49,10 @@ const IconSelect: FC<IconSelectProps> = ({ onBlur, defaultOpen, defaultValue, co
     [allIcons, filter]
   );
 
-  const virtual = useVirtual({
-    size: Math.ceil(data.length / column),
-    parentRef,
-    estimateSize: useCallback(() => innerSize, []),
+  const virtual = useVirtualizer({
+    count: Math.ceil(data.length / column),
+    estimateSize: () => innerSize,
+    getScrollElement: () => parentRef.current,
     overscan: row,
   });
 
@@ -88,8 +92,8 @@ const IconSelect: FC<IconSelectProps> = ({ onBlur, defaultOpen, defaultValue, co
         className={styles.parent}
         ref={parentRef}
         style={{ width: innerSize * column + scrollWidth, height: row * innerSize }}>
-        <div className={styles.container} style={{ height: virtual.totalSize }}>
-          {virtual.virtualItems.map(virtualRow => {
+        <div className={styles.container} style={{ height: virtual.getTotalSize() }}>
+          {virtual.getVirtualItems().map(virtualRow => {
             return data.slice(virtualRow.index * column, (virtualRow.index + 1) * column).map((ele, idx) => (
               <a
                 key={ele.id}
@@ -102,7 +106,7 @@ const IconSelect: FC<IconSelectProps> = ({ onBlur, defaultOpen, defaultValue, co
                   height: virtualRow.size,
                   transform: `translateY(${virtualRow.start}px)`,
                 }}>
-                <RemoteIcon type={ele.name} width={innerSize} height={innerSize} />
+                <RemoteIcon alt={ele.name} type={ele.name} width={innerSize} height={innerSize} />
               </a>
             ));
           })}
@@ -110,7 +114,7 @@ const IconSelect: FC<IconSelectProps> = ({ onBlur, defaultOpen, defaultValue, co
       </div>
     </Popup>
   );
-};
+}
 
 function filterIcons(data: IconData[], filter?: string) {
   if (!filter || !filter.trim().length) {

@@ -1,7 +1,9 @@
-import { type ChangeEventHandler, type CSSProperties, type FC, type MouseEventHandler, useRef } from 'react';
-import classNames from 'classnames';
-import { Icon } from 'components';
+'use client';
+
 import { mdiCheckboxBlankOutline, mdiCheckboxOutline } from '@mdi/js';
+import { Icon } from '@mdi/react';
+import classNames from 'classnames';
+import { type ChangeEventHandler, type CSSProperties, type MouseEventHandler, useRef } from 'react';
 import styles from './styles.module.css';
 
 type CheckboxProps = {
@@ -18,7 +20,7 @@ const SIZE_MAPPING = {
   sm: 1,
 };
 
-const Checkbox: FC<CheckboxProps> = ({ className, checked, onClick, onChange, size = 'base', ...props }) => {
+function Checkbox({ className, checked, onClick, onChange, size = 'base', ...props }: CheckboxProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleClick = () => {
@@ -36,6 +38,6 @@ const Checkbox: FC<CheckboxProps> = ({ className, checked, onClick, onChange, si
       <input className={styles.input} onClick={onClick} onChange={onChange} ref={inputRef} type="checkbox" />
     </span>
   );
-};
+}
 
 export default Checkbox;

@@ -1,0 +1,27 @@
+.login {
+  margin: 5rem 30%;
+}
+
+.login h2 {
+  margin-bottom: 10px;
+}
+
+.errorMessage {
+  color: var(--color-accent);
+}
+
+.submit {
+  margin: 1.5rem 0;
+}
+
+@media (max-width: 760px) {
+  .login {
+    margin: 2rem 4rem;
+  }
+}
+
+@media (max-width: 450px) {
+  .login {
+    margin: 1rem 2rem;
+  }
+}

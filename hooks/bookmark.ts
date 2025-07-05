@@ -1,10 +1,13 @@
+'use client';
+
 import { useCallback, useMemo } from 'react';
 import useSWR from 'swr';
-import request from 'infrastructure/request';
+import request from '@/infrastructure/request';
 
-export function useBookmarks(anonymous?: boolean, filter?: string) {
+export function useBookmarks(anonymous: boolean, filter: string, defaultValue?: IBookmarkConfiguration) {
   const { data, error, mutate } = useSWR<IBookmarkConfiguration>(`/api/bookmarks?anonymous=${!!anonymous}`, {
     revalidateOnFocus: false,
+    fallbackData: defaultValue,
   });
 
   const { categories = [], bookmarks: bookmarkRaws = [], lastModifiedAt } = data || {};

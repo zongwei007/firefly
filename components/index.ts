@@ -1,5 +1,3 @@
-export { default as Icon } from '@mdi/react';
-
 export { default as Affix } from './affix/Affix';
 export { default as Checkbox } from './checkbox/Checkbox';
 export { default as Spinner } from './spinner/Spinner';

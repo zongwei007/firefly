@@ -1,62 +1,10 @@
-import type { GetServerSidePropsContext, GetServerSidePropsResult, NextApiRequest, NextApiResponse } from 'next';
 import crypto from 'crypto';
-import { getCookies, setCookie } from 'infrastructure/cookie';
-import { UnauthenticatedException } from 'infrastructure/exception';
-import getConfiguration from 'infrastructure/configuration';
-import { ServerResponse } from 'http';
+import getConfiguration from '@/infrastructure/configuration';
+import { cookies } from 'next/headers';
 
 const ALGORITHM = 'aes-256-gcm';
 
 const COOKIE_NAME = 'firefly-token';
-
-const ONE_DAY = 1000 * 60 * 60 * 24;
-
-type WithProps<Required extends boolean = false> = { required: Required };
-
-export function withUserProps<T, Required extends boolean = false>(
-  next: (context: GetServerSidePropsContext & AuthenticationContext<Required>) => Promise<GetServerSidePropsResult<T>>,
-  option?: WithProps<Required>
-) {
-  return async (context: GetServerSidePropsContext) => {
-    const user = await parse(getCookies(context.req)[COOKIE_NAME]);
-
-    if (option?.required && !user) {
-      return {
-        redirect: {
-          destination: '/login?' + new URLSearchParams([['redirectTo', context.resolvedUrl]]),
-          permanent: false,
-        },
-      };
-    }
-
-    if (user && Date.now() - user.timestamp > ONE_DAY) {
-      const { token, expires } = build(user.username);
-
-      updateToken(context.res, token, expires);
-    }
-
-    return next({ ...context, ...({ user } as AuthenticationContext) });
-  };
-}
-
-export function withUserApi<Required extends boolean = false>(
-  next: (req: NextApiRequest, resp: NextApiResponse, context: AuthenticationContext<Required>) => Promise<void>,
-  option?: WithProps<Required>
-) {
-  return async (req: NextApiRequest, resp: NextApiResponse) => {
-    const user = await parse(getCookies(req)[COOKIE_NAME]);
-
-    if (option?.required) {
-      if (!user) {
-        throw new UnauthenticatedException();
-      }
-
-      return next(req, resp, { user });
-    } else {
-      return next(req, resp, { user } as AuthenticationContext);
-    }
-  };
-}
 
 let cfgCache: TokenConfig;
 
@@ -103,6 +51,7 @@ export function parse(tokenValue?: string): IToken | null {
   try {
     body = decipher.update(token, 'base64', 'utf-8');
     body += decipher.final('utf-8');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     return null;
   }
@@ -140,6 +89,13 @@ export function build(username: string) {
   return { token, expires: new Date(expires) };
 }
 
-export function updateToken(res: ServerResponse, token: string, expires: Date) {
-  setCookie(res, COOKIE_NAME, token, { expires });
+export async function getUserInfo() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(COOKIE_NAME)?.value;
+
+  return parse(token);
+}
+
+export async function updateToken(store: Awaited<ReturnType<typeof cookies>>, token: string, expires: Date) {
+  store.set(COOKIE_NAME, token, { expires, httpOnly: true });
 }
