@@ -1,35 +1,45 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import * as simpleIcons from 'simple-icons/icons';
 
 console.log('Starting...');
 
-const meta = [];
+try {
+  const meta = [];
 
-copyMdiIcon(meta);
-copySimpleIcon(meta);
+  await copyMdiIcon(meta);
+  await copySimpleIcon(meta);
 
-fs.writeFileSync(path.resolve(process.cwd(), 'public', 'assets', 'icon-meta.json'), JSON.stringify(meta));
+  await fs.writeFile(
+    path.resolve(process.cwd(), 'public', 'assets', 'icon-meta.json'), 
+    JSON.stringify(meta)
+  );
 
-console.log('Done!');
+  console.log('Done!');
+} catch (err) {
+  console.error('Error:', err);
+  process.exit(1);
+}
 
-function copyMdiIcon(meta) {
+async function copyMdiIcon(meta) {
   const sourceDir = path.resolve(process.cwd(), 'node_modules', '@mdi', 'svg');
   const targetDir = path.resolve(process.cwd(), 'public', 'assets', 'mdi');
 
-  const icons = JSON.parse(fs.readFileSync(path.resolve(sourceDir, 'meta.json'), 'utf8'));
+  const content = await fs.readFile(path.resolve(sourceDir, 'meta.json'), 'utf8');
+  const icons = JSON.parse(content);
 
-  if (fs.existsSync(targetDir)) {
-    fs.rmSync(targetDir, { recursive: true });
+  if (existsSync(targetDir)) {
+    await fs.rm(targetDir, { recursive: true });
   }
 
-  fs.mkdirSync(targetDir);
+  await fs.mkdir(targetDir);
 
   for (const icon of icons) {
     const svgPath = path.resolve(sourceDir, 'svg', icon.name + '.svg');
     const targetPath = path.resolve(targetDir, icon.name + '.svg');
 
-    fs.copyFileSync(svgPath, targetPath);
+    await fs.copyFile(svgPath, targetPath);
 
     meta.push({
       id: icon.id,
@@ -40,20 +50,21 @@ function copyMdiIcon(meta) {
   }
 }
 
-function copySimpleIcon(meta) {
+async function copySimpleIcon(meta) {
   const sourceDir = path.resolve(process.cwd(), 'node_modules', 'simple-icons');
   const targetDir = path.resolve(process.cwd(), 'public', 'assets', 'simple-icons');
-  if (fs.existsSync(targetDir)) {
-    fs.rmSync(targetDir, { recursive: true });
+  
+  if (existsSync(targetDir)) {
+    await fs.rm(targetDir, { recursive: true });
   }
 
-  fs.mkdirSync(targetDir);
+  await fs.mkdir(targetDir);
 
   for (const icon of Object.values(simpleIcons)) {
     const svgPath = path.resolve(sourceDir, 'icons', icon.slug + '.svg');
     const targetPath = path.resolve(targetDir, icon.slug + '.svg');
 
-    fs.copyFileSync(svgPath, targetPath);
+    await fs.copyFile(svgPath, targetPath);
 
     meta.push({
       id: icon.hex,

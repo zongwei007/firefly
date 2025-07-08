@@ -1,4 +1,4 @@
-import { AuthType, createClient, WebDAVClient } from 'webdav';
+import { AuthType, createClient, type WebDAVClient } from 'webdav';
 import YAML from 'yaml';
 
 export class WebdavStorage implements SettingStorage {

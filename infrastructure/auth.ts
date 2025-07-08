@@ -1,6 +1,6 @@
-import crypto from 'crypto';
-import getConfiguration from '@/infrastructure/configuration';
-import { cookies } from 'next/headers';
+import crypto from 'node:crypto';
+import getConfiguration from './configuration.ts';
+import { cookies } from 'next/headers.js';
 
 const ALGORITHM = 'aes-256-gcm';
 

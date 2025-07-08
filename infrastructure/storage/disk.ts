@@ -1,4 +1,4 @@
-import fs from 'fs/promises';
+import fs from 'node:fs/promises';
 import YAML from 'yaml';
 
 export class DiskStorage implements SettingStorage {
