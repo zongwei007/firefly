@@ -6,7 +6,7 @@ import Bookmark from './Bookmark';
 export default async function SettingsPage() {
   const { firefly } = getConfiguration();
   const user = await getUserInfo();
-  const bookmarks = await bookmarkService.list(user != null);
+  const bookmarks = await bookmarkService.list(user == null);
 
   async function handleBookmarkChange(config: IBookmarkConfiguration) {
     'use server';
