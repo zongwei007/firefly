@@ -1,14 +1,14 @@
 'use client';
 
+import { Button, IconSelect, Table } from '@/components';
+import type { EditableColumnType, OperationRender } from '@/components/table';
+import { mdiEye, mdiEyeOff, mdiFileImport, mdiPin, mdiPinOff } from '@mdi/js';
+import classNames from 'classnames';
 import type { ChangeEventHandler } from 'react';
 import { useCallback, useMemo, useRef, useState } from 'react';
-import type { EditableColumnType, OperationRender } from '@/components/table';
-import { Button, IconSelect, Table } from '@/components';
-import CategorySelect from './CategorySelect';
-import { mdiEye, mdiEyeOff, mdiFileImport, mdiPin, mdiPinOff } from '@mdi/js';
-import styles from '../style.module.css';
 import { toast } from 'react-toastify';
-import classNames from 'classnames';
+import styles from '../style.module.css';
+import CategorySelect from './CategorySelect';
 
 type BookmarkProps = {
   defaultValue: IBookmarkConfiguration;
@@ -134,13 +134,13 @@ function Bookmark({ defaultValue, onChange, disableLogin }: BookmarkProps) {
         title: '分类',
         dataIndex: 'category',
         width: '8rem',
-        component: props => <CategorySelect {...props} autoFocus />,
+        component: props => <CategorySelect {...props} data={categories} autoFocus />,
         render: (val: string) => categoryMapping[val],
       },
       { title: '自定义图标', dataIndex: 'icon', width: '15rem', component: IconSelectColumn },
       { title: '描述', dataIndex: 'desc', ellipsis: true },
     ],
-    [categoryMapping]
+    [categoryMapping, categories]
   );
 
   const fileImportRef = useRef<HTMLInputElement>(null);

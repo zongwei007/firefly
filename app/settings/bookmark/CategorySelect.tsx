@@ -1,13 +1,11 @@
 import type { DetailedHTMLProps, SelectHTMLAttributes } from 'react';
 
 function CategorySelect({
-  data,
+  data: categories = [],
   ...props
 }: DetailedHTMLProps<SelectHTMLAttributes<HTMLSelectElement>, HTMLSelectElement> & {
-  data?: IBookmarkConfiguration;
+  data?: IBookmarkConfiguration['categories'];
 }) {
-  const categories = data?.categories || [];
-
   return (
     <select {...props}>
       <option value="">{categories.length ? '未选择' : '加载中'}</option>
