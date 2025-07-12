@@ -12,13 +12,3 @@ declare type LoginRequest = {
   username: string;
   password: string;
 };
-
-declare type TokenConfig = {
-  disabled: boolean;
-  username?: string;
-  password?: string;
-  /** token 过期时间，单位为秒 */
-  expire: number;
-  securityKey: Buffer;
-  initVector: Buffer;
-};

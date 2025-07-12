@@ -1,19 +1,20 @@
-import { build, getTokenConfig, updateToken } from '@/infrastructure/auth';
+import { build, updateToken } from '@/infrastructure/auth';
+import getConfiguration from '@/infrastructure/configuration';
 import { cookies } from 'next/headers';
 import { redirect, RedirectType } from 'next/navigation';
 
 export async function login(redirectTo: string, _prevState: string | undefined, formData: FormData) {
   'use server';
 
-  const config = getTokenConfig();
+  const { firefly } = getConfiguration();
   const username = formData.get('username');
   const password = formData.get('password');
 
-  if (username !== config.username || password !== config.password) {
+  if (username !== firefly.username || password !== firefly.password) {
     return '用户名或密码错误';
   }
 
-  const { token, expires } = build(username);
+  const { token, expires } = await build(username);
 
   const cookieStore = await cookies();
   updateToken(cookieStore, token, expires);
@@ -25,7 +26,6 @@ export async function logout() {
   'use server';
 
   const cookieStore = await cookies();
-
   updateToken(cookieStore, '', new Date(0));
 
   redirect('/');

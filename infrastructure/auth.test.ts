@@ -18,11 +18,11 @@ describe('auth', () => {
     process.env = originalEnv;
   });
 
-  it('should create and resolve token', () => {
-    const { token } = build('foo');
+  it('should create and resolve token', async () => {
+    const { token } = await build('foo');
     assert.ok(token);
 
-    const result = parse(token);
+    const result = await parse(token);
     assert.ok(result);
     assert.strictEqual(result?.username, 'foo');
   });

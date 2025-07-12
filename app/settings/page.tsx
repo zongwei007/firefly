@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
 
 export default async function SettingsPage() {
-  redirect('/settings/bookmark');
+  permanentRedirect('/settings/bookmark');
 }
