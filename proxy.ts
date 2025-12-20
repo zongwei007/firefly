@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { getUserInfo } from './infrastructure/auth';
 import getConfiguration from './infrastructure/configuration';
 
-export default async function middleware(req: NextRequest) {
+export default async function proxy(req: NextRequest) {
   const config = getConfiguration();
   const user = await getUserInfo(req.cookies);
 
