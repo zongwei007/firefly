@@ -15,6 +15,7 @@ export default async function HomePage() {
   const setting = await settingAction.get();
   const weather = await weatherAction.fromSetting(setting.weather);
   const bookmarks = await bookmarkAction.list(anonymous);
+  // eslint-disable-next-line react-hooks/purity
   const now = Date.now();
 
   return (

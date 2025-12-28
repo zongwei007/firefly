@@ -1,6 +1,6 @@
 'use client';
 
-import { useWeather } from '@/hooks';
+import { useWeather, useTime } from '@/hooks';
 import classNames from 'classnames';
 import { format } from 'date-fns';
 import Image from 'next/image';
@@ -14,12 +14,13 @@ import styles from './style.module.css';
  */
 function Weather({ className }: { className?: string }) {
   const { data: weather } = useWeather();
+  const now = useTime()
 
   if (!weather) {
     return null;
   }
 
-  const time = format(Date.now(), 'HH:mm');
+  const time = format(now, 'HH:mm');
 
   return (
     <div className={classNames(className, 'clearfix')}>

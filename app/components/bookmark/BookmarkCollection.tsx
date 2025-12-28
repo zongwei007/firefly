@@ -2,7 +2,6 @@ import classNames from 'classnames';
 import Bookmark from './Bookmark';
 
 import styles from './style.module.css';
-import { useMemo } from 'react';
 
 type BookmarkCollectionProps = {
   className?: string;
@@ -13,16 +12,16 @@ type BookmarkCollectionProps = {
 function BookmarkCollection({ className, filter, value }: BookmarkCollectionProps) {
   const { categories = [], bookmarks: bookmarkRaws = [] } = value || {};
 
-  const bookmarks = useMemo(() => {
+  const bookmarks = (() => {
     if (!filter) {
       return bookmarkRaws;
     }
 
     const regExp = new RegExp(filter, 'i');
     return bookmarkRaws.filter(ele => [ele.name, ele.link, ele.desc ?? ''].some(txt => txt.match(regExp)));
-  }, [bookmarkRaws, filter]);
+  })();
 
-  const group = useMemo(() => {
+  const group = (() => {
     if (!bookmarks) {
       return null;
     }
@@ -34,7 +33,7 @@ function BookmarkCollection({ className, filter, value }: BookmarkCollectionProp
       collection.push(bookmark);
       return memo.set(key, collection);
     }, new Map<ICategory['id'], Array<IBookmark>>());
-  }, [bookmarks]);
+  })();
 
   return (
     <>
