@@ -1,9 +1,9 @@
 'use client';
 
-import { useWeather, useTime } from '@/hooks';
+import { useWeather } from '@/hooks';
 import classNames from 'classnames';
 import { format } from 'date-fns';
-import Image from 'next/image';
+import WeatherIcon from '../weather-icons/WeatherIcon';
 import styles from './style.module.css';
 
 /**
@@ -14,22 +14,22 @@ import styles from './style.module.css';
  */
 function Weather({ className }: { className?: string }) {
   const { data: weather } = useWeather();
-  const now = useTime()
 
   if (!weather) {
     return null;
   }
 
-  const time = format(now, 'HH:mm');
+  const time = format(new Date(weather.now), 'HH:mm');
+  const iconName = mappingIcon(weather.current, time > weather.today.sunrise && time < weather.today.sunset);
 
   return (
     <div className={classNames(className, 'clearfix')}>
       <div className="pull-left">
-        <Image
+        <WeatherIcon
+          iconName={iconName}
           alt={weather.current.weather}
-          src={`/assets/weather/${mappingIcon(weather.current, time > weather.today.sunrise && time < weather.today.sunset)}.svg`}
-          width={64}
-          height={64}
+          size={64}
+          animate={false}
         />
       </div>
       <div className="pull-right">

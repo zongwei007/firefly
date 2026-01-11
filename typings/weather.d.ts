@@ -1,4 +1,6 @@
 declare type IWeather = {
+  //时间戳
+  now: number;
   current: {
     //空气质量指数
     aqi: number;
