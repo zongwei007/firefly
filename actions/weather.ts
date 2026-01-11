@@ -76,12 +76,14 @@ async function query(province: string, city: string, county?: string): Promise<I
   if (!observe.degree) {
     throw new Error(`无法获取 ${province}${city || ''}${county || ''} 的天气数据`);
   }
-
-  const zonedTime = toZonedTime(Date.now(), 'Asia/Shanghai');
+  
+  const now = Date.now();
+  const zonedTime = toZonedTime(now, 'Asia/Shanghai');
   const todayWeather = Object.values(forecast_24h).find(ele => ele.time === format(zonedTime, 'yyyy-MM-dd'))!;
   const todayRise = Object.values(rise).find(ele => ele.time === format(zonedTime, 'yyyyMMdd'))!;
 
   return {
+    now: now,
     current: {
       aqi: air.aqi,
       aqiLevel: air.aqi_level,

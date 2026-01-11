@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import type { Locale } from 'date-fns';
 import { differenceInMinutes, format as formatDateTime, isAfter, isBefore, parse as parseDateTime } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { useRef, useState } from 'react';
+import { useRef, useState, useMemo, useCallback } from 'react';
 import { useIsomorphicLayoutEffect } from 'react-use';
 import styles from './style.module.css';
 
@@ -16,11 +16,14 @@ function Clock({ className, defaultValue, locale = zhCN }: ClockProps) {
   const { data: weather } = useWeather();
   const timestamp = useTimestamp(defaultValue);
 
-  
-  let welcome = '';
-  const titles = config?.ui.clock.welcome.split(';') || [];
-  
-  if (weather) {
+  const titles = useMemo(
+    () => config?.ui.clock.welcome.split(';') || [],
+    [config?.ui.clock.welcome]
+  );
+
+  const welcome = useMemo(() => {
+    if (!weather) return '';
+    
     const { sunrise, sunset } = weather.today;
     const sunriseTime = parseDateTime(sunrise, 'HH:mm', timestamp);
     const sunsetTime = parseDateTime(sunset, 'HH:mm', timestamp);
@@ -29,17 +32,27 @@ function Clock({ className, defaultValue, locale = zhCN }: ClockProps) {
       const duration = differenceInMinutes(sunsetTime, sunriseTime, { roundingMethod: 'floor' });
       const diff = differenceInMinutes(timestamp, sunriseTime, { roundingMethod: 'floor' });
       const pos = Math.floor((diff / duration) * titles.length);
-      welcome = titles[pos];
+      return titles[pos] || '';
     } else {
-      welcome = titles[titles.length - 1];
+      return titles[titles.length - 1] || '';
     }
-  }
+  }, [weather, timestamp, titles]);
+
+  const formattedDate = useMemo(
+    () => formatDateTime(timestamp, 'PPPP', { locale }),
+    [timestamp, locale]
+  );
+  
+  const formattedTime = useMemo(
+    () => formatDateTime(timestamp, 'HH:mm:ss', { locale }),
+    [timestamp, locale]
+  );
 
   return (
     <div className={classNames(className, styles.clock)}>
       <p>
-        <span>{formatDateTime(timestamp, 'PPPP', { locale })}</span>
-        <span>{formatDateTime(timestamp, 'HH:mm:ss', { locale })}</span>
+        <span>{formattedDate}</span>
+        <span>{formattedTime}</span>
       </p>
       <h1>{welcome}</h1>
     </div>
@@ -47,31 +60,42 @@ function Clock({ className, defaultValue, locale = zhCN }: ClockProps) {
 }
 
 function useTimestamp(defaultTimestamp: number) {
-  const [, forceUpdate] = useState(Symbol());
-  const timestamp = useRef(defaultTimestamp);
-  const prevStamp = useRef(Date.now());
+  const [timestamp, setTimestamp] = useState(defaultTimestamp);
   const handle = useRef<NodeJS.Timeout>(null);
 
-  const updateTimestamp = () =>
-    setTimeout(() => {
-      timestamp.current = timestamp.current + Date.now() - prevStamp.current;
-      prevStamp.current = Date.now();
-      forceUpdate(Symbol());
+  const updateTimestamp = useCallback(() => {
+    setTimestamp(Date.now());
 
-      handle.current = updateTimestamp();
-    }, 200);
+    // 优化：根据当前时间调整更新频率
+    const now = Date.now();
+    const milliseconds = new Date(now).getMilliseconds();
+    
+    // 如果是整秒时刻，延迟1秒更新（显示秒数变化）
+    // 否则延迟到下一个整秒
+    if (milliseconds < 50) {
+      // eslint-disable-next-line react-hooks/immutability
+      handle.current = setTimeout(updateTimestamp, 1000);
+    } else {
+      handle.current = setTimeout(updateTimestamp, 1000 - milliseconds);
+    }
+  }, []);
+
 
   useIsomorphicLayoutEffect(() => {
-    handle.current = updateTimestamp();
+    // 立即更新一次时间戳
+    setTimestamp(Date.now());
+    
+    // 启动定时器
+    updateTimestamp();
 
     return () => {
       if (handle.current) {
         clearTimeout(handle.current);
       }
     };
-  }, []);
+  }, [updateTimestamp]);
 
-  return timestamp.current;
+  return timestamp;
 }
 
 export default Clock;
