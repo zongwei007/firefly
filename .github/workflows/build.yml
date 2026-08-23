@@ -66,7 +66,7 @@ jobs:
         run: npm run build
 
       - name: Deploy to vercel
-        uses: amondnet/vercel-action@v25
+        uses: amondnet/vercel-action@v42
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-args: --prod
