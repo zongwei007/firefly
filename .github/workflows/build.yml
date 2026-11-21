@@ -1,10 +1,17 @@
 name: Build
 
 on:
-  - push
+  push:
+    branches:
+      - master
+
+# 连续推送时取消上一个还在跑的流水线，避免两个部署并发、最终线上版本取决于谁后完成
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  deploy-docker:
+  verify:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,11 +25,25 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
-      - name: Lint
-        run: |
-          npm ci
-          npm run lint
-          npm test
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 类型检查
+        run: npx tsc --noEmit
+
+      - name: 代码检查
+        run: npm run lint
+
+      - name: 单元测试
+        run: npm test
+
+  deploy-docker:
+    needs: verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -36,10 +57,15 @@ jobs:
       - name: Build and push Docker images
         uses: docker/build-push-action@v7
         with:
+          context: .
           push: true
           tags: knives/firefly:latest
-  
+          # Dockerfile 已把 npm ci 拆成独立的 deps 层，命中缓存后可以跳过整个依赖安装
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   deploy-vercel:
+    needs: verify
     runs-on: ubuntu-latest
 
     steps:
@@ -53,12 +79,11 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
-      - name: Lint
-        run: |
-          npm ci
-          npm run lint
-          npm test
+      - name: 安装依赖
+        run: npm ci
 
+      # vercel-action 会把源码上传后由 Vercel 侧构建，这一步是本地预检：
+      # 构建失败时立刻报错，不必等 Vercel 的构建队列
       - name: Build next.js
         env:
           FIREFLY_DISABLE_LOGIN: true
@@ -70,5 +95,5 @@ jobs:
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-args: --prod
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID}}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID}}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}

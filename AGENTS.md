@@ -115,7 +115,7 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 - `Dockerfile`：`node:26-alpine` 多阶段构建，用 `scripts/next.build.config.ts` 覆盖 `next.config.ts`，产物以 `node server.js` 运行；数据目录 `/app/data`，容器用户/组 `1001`。
 - 构建期必须提供 `FIREFLY_DISABLE_LOGIN=true` 与 `DISK_PATH`，否则配置校验/数据初始化会失败（Dockerfile 与 CI 已设置）。
 - Vercel 部署使用 Upstash Redis（集成注入 `KV_REST_API_URL/TOKEN`），Function Region 为 `hkg1`（香港）；Upstash 数据库应选东京 `ap-northeast-1`，与香港延迟约 30–50 ms。
-- GitHub Actions（每次 push）：`npm ci` + lint + test 后构建并推送 Docker Hub `knives/firefly:latest`；另一 job 构建 Next 并部署 Vercel。
+- GitHub Actions（仅 `master` 的 push，`.github/workflows/build.yml`）：先由 `verify` job 跑 `npm ci` + `tsc --noEmit` + lint + test，通过后并行执行两个部署 job——`deploy-docker` 构建并推送 Docker Hub `knives/firefly:latest`（层缓存走 GitHub Actions cache），`deploy-vercel` 本地构建预检后用 `amondnet/vercel-action` 部署生产。项目**没有**启用 Vercel 的 Git 集成，Actions 是唯一部署通道；`concurrency` 会让新推送取消上一次未完成的流水线。
 
 ## 注意事项 / 已知问题
 
