@@ -13,6 +13,7 @@ declare interface ICategory {
 declare interface IBookmark {
   name: string;
   link: string;
+  /** 自定义图标，格式为 `图标集:名称`，例如 `simple-icons:github`；为空时自动抓取网站图标 */
   icon?: string;
   desc?: string;
   category?: ICategory['id'];

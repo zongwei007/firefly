@@ -1,3 +1,18 @@
+/*
+ * 用 mask 着色：图标本体只作为形状，颜色由 background-color（currentColor）决定，
+ * 这样无需 filter 反色即可跟随文字颜色和暗色主题。
+ */
 .icon {
-  filter: var(--svg-icon-filter);
+  display: inline-block;
+  flex-shrink: 0;
+  vertical-align: middle;
+  background-color: currentColor;
+  mask-image: var(--icon);
+  mask-position: center;
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  -webkit-mask-image: var(--icon);
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
 }

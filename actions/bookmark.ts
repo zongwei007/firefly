@@ -16,7 +16,9 @@ const schema = Joi.object<IBookmarkConfiguration>({
       Joi.object({
         name: Joi.string().trim().required(),
         link: Joi.string().uri().required(),
-        icon: Joi.string().empty(''),
+        icon: Joi.string()
+          .pattern(/^simple-icons:[a-z0-9.\-_]+$/)
+          .empty(''),
         desc: Joi.string().trim().empty(''),
         category: Joi.string().empty(''),
         pined: Joi.boolean(),

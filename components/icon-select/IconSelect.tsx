@@ -14,11 +14,12 @@ import type { PopupProps } from 'reactjs-popup/dist/types';
 import useImmutableSWR from 'swr/immutable';
 import styles from './style.module.css';
 
+const ICON_SET = 'simple-icons';
+
 type IconData = {
-  id: string;
-  name: string;
-  aliases: Array<string>;
-  tags: Array<string>;
+  slug: string;
+  title: string;
+  hex: string;
 };
 
 type IconSelectProps = Omit<
@@ -38,7 +39,7 @@ function IconSelect({ onBlur, defaultOpen, defaultValue, column = 5, row = 5, ..
   const parentRef = useRef<HTMLDivElement>(null) as RefObject<HTMLDivElement>;
   const [filter, setFilter] = useState<string>();
   const [checked, setChecked] = useState(defaultValue);
-  const { data: allIcons } = useImmutableSWR<IconData[]>('/assets/icon-meta.json', request);
+  const { data: allIcons } = useImmutableSWR<IconData[]>('/assets/icons.json', request);
   const [data, setData] = useState<IconData[]>(allIcons || []);
 
   useDebounce(
@@ -61,7 +62,7 @@ function IconSelect({ onBlur, defaultOpen, defaultValue, column = 5, row = 5, ..
       return;
     }
 
-    const idx = allIcons.findIndex(ele => ele.name === defaultValue);
+    const idx = allIcons.findIndex(ele => toIconType(ele.slug) === defaultValue);
     const pos = Math.floor(idx / column);
 
     if (pos > row) {
@@ -94,21 +95,31 @@ function IconSelect({ onBlur, defaultOpen, defaultValue, column = 5, row = 5, ..
         style={{ width: innerSize * column + scrollWidth, height: row * innerSize }}>
         <div className={styles.container} style={{ height: virtual.getTotalSize() }}>
           {virtual.getVirtualItems().map(virtualRow => {
-            return data.slice(virtualRow.index * column, (virtualRow.index + 1) * column).map((ele, idx) => (
-              <a
-                key={ele.id}
-                onClick={() => setChecked(ele.name)}
-                title={ele.name}
-                className={classNames(styles.icon, { [styles.checked]: checked === ele.name })}
-                style={{
-                  left: innerSize * idx,
-                  width: innerSize,
-                  height: virtualRow.size,
-                  transform: `translateY(${virtualRow.start}px)`,
-                }}>
-                <RemoteIcon alt={ele.name} type={ele.name} width={innerSize} height={innerSize} />
-              </a>
-            ));
+            return data.slice(virtualRow.index * column, (virtualRow.index + 1) * column).map((ele, idx) => {
+              const type = toIconType(ele.slug);
+
+              return (
+                <a
+                  key={ele.slug}
+                  onClick={() => setChecked(type)}
+                  title={ele.title}
+                  className={classNames(styles.icon, { [styles.checked]: checked === type })}
+                  style={{
+                    left: innerSize * idx,
+                    width: innerSize,
+                    height: virtualRow.size,
+                    transform: `translateY(${virtualRow.start}px)`,
+                  }}>
+                  <RemoteIcon
+                    alt={ele.title}
+                    type={type}
+                    className={styles.preview}
+                    width={innerSize}
+                    height={innerSize}
+                  />
+                </a>
+              );
+            });
           })}
         </div>
       </div>
@@ -116,15 +127,18 @@ function IconSelect({ onBlur, defaultOpen, defaultValue, column = 5, row = 5, ..
   );
 }
 
+function toIconType(slug: string) {
+  return `${ICON_SET}:${slug}`;
+}
+
 function filterIcons(data: IconData[], filter?: string) {
-  if (!filter || !filter.trim().length) {
+  const keyword = filter?.trim().toLowerCase();
+
+  if (!keyword) {
     return data;
   }
 
-  return data.filter(
-    ele =>
-      ele.name.includes(filter) || ele.aliases.some(a => a.includes(filter)) || ele.tags.some(t => t.includes(filter))
-  );
+  return data.filter(ele => ele.slug.includes(keyword) || ele.title.toLowerCase().includes(keyword));
 }
 
 export default IconSelect;

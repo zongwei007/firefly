@@ -1,6 +1,6 @@
 # AGENTS.md
 
-自托管个人首页（Firefly）：把常用网站收录为书签集中展示，曲线解决跨浏览器书签同步。Next.js 16（App Router）+ React 19 + TypeScript，配置以 YAML 存储，支持本地磁盘与 WebDAV 两种后端。界面文案、日志、注释均为中文。
+自托管个人首页（Firefly）：把常用网站收录为书签集中展示，曲线解决跨浏览器书签同步。Next.js 16（App Router）+ React 19 + TypeScript，配置以 YAML 存储，支持 Upstash Redis、WebDAV 与本地磁盘三种后端。界面文案、日志、注释均为中文。
 
 ## 常用命令
 
@@ -8,14 +8,15 @@
 | -------- | ----------------------------------------------- | ----------------------------------------------------------------------- |
 | 安装依赖 | `npm install`                                   | 首次克隆或依赖变更后；CI 用 `npm ci`（需 lockfile 同步）                |
 | 开发     | `npm run dev`                                   | Next dev + Turbopack，默认 http://localhost:3000                        |
-| 构建     | `npm run build`                                 | 先 `npm run copy-icon` 生成图标，再 `next build`（standalone 产物）     |
+| 构建     | `npm run build`                                 | 先 `npm run gen-icons` 生成图标索引，再 `next build`（standalone 产物） |
 | 启动产物 | `npm start`                                     | 运行构建结果                                                            |
 | 测试     | `npm test`                                      | `node --test --experimental-strip-types`，直接执行 `*.test.ts`          |
 | 单测文件 | `node --test --experimental-strip-types <file>` | 例：`infrastructure/auth.test.ts`                                       |
 | 类型检查 | `npx tsc --noEmit`                              | strict 模式                                                             |
 | Lint     | `npm run lint`                                  | eslint flat config（eslint-config-next core-web-vitals + typescript）   |
 | 格式化   | `npx prettier --write <path>`                   | 配置见 `.prettierrc.js`（120 列、单引号、es5 尾逗号、单参箭头省略括号） |
-| 图标资源 | `npm run copy-icon`                             | 生成 `public/assets/{mdi,simple-icons,icon-meta.json}`（已 gitignore）  |
+| 图标索引 | `npm run gen-icons`                             | 生成 `public/assets/icons.json`（已 gitignore）                         |
+| 图标迁移 | `npm run migrate-icons -- <file> [out]`         | 纯文件转换书签 `icon` 字段，不改存储                                    |
 
 本地开发环境变量放在 `.env.local`（已存在、已 gitignore）：
 
@@ -36,14 +37,14 @@ app/                路由与页面
   Home.tsx          'use client' 首页壳：SettingProvider + SWR fallback
   login/            登录页（useActionState 提交 Server Action）
   settings/         设置页：bookmark、weather、search、ui、about
-  api/              仅 weather/ 与 favicon/ 两个 Route Handler
+  api/              weather/、favicon/、icon/ 三个 Route Handler
   components/       首页业务组件：bookmark、filter、clock、weather-icons
 actions/            服务端业务逻辑（bookmark/setting/weather/auth），Joi 校验 + storage 读写
 infrastructure/     configuration（环境变量校验）、auth（token）、storage（disk/webdav/upstash-redis）、request（SWR fetcher）
 hooks/              客户端 hooks（SWR 封装）与 SettingContext
 components/         通用 UI：Table、Affix、Button、Checkbox、Icon、IconSelect、Spinner（统一由 index.ts 导出）
 typings/            全局类型声明（*.d.ts）
-scripts/            图标复制脚本 + Docker 构建用的 next.config
+scripts/            图标索引生成、图标迁移脚本 + Docker 构建用的 next.config
 proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 ```
 
@@ -54,7 +55,7 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 - 读：RSC 页面直接调用 `actions/*`（`bookmark.list`、`setting.get`、`weather.fromSetting`），把结果作为 props 传给客户端组件。首页用 `SettingProvider` 下发设置，天气通过 `SWRConfig` 的 fallback 注入，随后由 `useWeather` 每小时刷新 `/api/weather`。
 - 写：没有 REST 写接口。设置页在 `page.tsx` 内定义 `'use server'` 函数（闭包捕获当前配置）作为 prop 传给表单，保存时整份配置覆盖写入 YAML。
 - 设置子页（`/settings/search`、`/settings/ui`、`/settings/weather`）声明了 `export const dynamic = 'force-dynamic'`，避免构建期读取存储后把配置固化进静态页；新增会读取存储的设置页时同样要加。
-- API 路由只有两个：`/api/weather`（读设置 → 查天气）和 `/api/favicon?host=<url>`（抓取站点 HTML 解析 `<link rel="icon">`，响应带一年缓存头）。
+- API 路由有三个：`/api/weather`（读设置 → 查天气）、`/api/favicon?host=<url>`（抓取站点 HTML 解析 `<link rel="icon">`，失败时返回地球图标）、`/api/icon/[set]/[name]`（按需输出 simple-icons 的 SVG，响应带一年强缓存）。
 
 ### 存储
 
@@ -97,7 +98,7 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 - 服务端逻辑放 `actions/`（Joi schema + storage）；需要浏览器交互的组件标 `'use client'`，页面本身保持 RSC。
 - 通用 UI 放 `components/` 并从 `components/index.ts` 统一导出；页面专属组件就近放在 `app/components/` 或 `app/settings/<模块>/`。
 - 样式一律 CSS Modules（`*.module.css`）+ `app/globals.css` 的全局工具类（`page-container`、`no-select`、`form-group`），不引入 UI 框架；表格用 `components/table`（封装 rc-table），提示用 react-toastify，类名合并用 classnames。
-- 依赖职责：`joi` 校验、`yaml` 序列化、`swr` 客户端取数、`date-fns`/`date-fns-tz` 时间处理、`webdav` 与 `@upstash/redis` 存储、`@mdi/react` 图标渲染、`node-html-parser` 解析 favicon。
+- 依赖职责：`joi` 校验、`yaml` 序列化、`swr` 客户端取数、`date-fns`/`date-fns-tz` 时间处理、`webdav` 与 `@upstash/redis` 存储、`@mdi/react` 渲染 UI 自身图标、`simple-icons` 提供书签图标、`node-html-parser` 解析 favicon。
 - 组件用函数组件，文件名与组件名一致；hooks 以 `use` 开头。
 - RSC 中直接调用 `Date.now()` / `new Date()` 会触发 `react-hooks/purity` 规则，按现有写法用 `// eslint-disable-next-line react-hooks/purity` 局部豁免，不要全局关闭规则（`react-hooks/immutability` 同理）。
 - 新增用户可见文案、日志与注释保持中文。
@@ -119,9 +120,9 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 
 ## 注意事项 / 已知问题
 
-- `public/assets/{mdi,simple-icons,icon-meta.json}` 由 `npm run copy-icon` 生成且被 gitignore。未执行该脚本时图标选择器（`IconSelect`）为空——首次开发或 `npm install` 后记得运行。
+- 书签图标分两种：`icon` 字段为空时走 `/api/favicon` 自动抓取站点图标；填写 `simple-icons:xxx` 时走 `/api/icon/simple-icons/xxx`。图标选择器的搜索索引 `public/assets/icons.json` 由 `npm run gen-icons` 生成且被 gitignore，未执行时选择器为空——首次开发或 `npm install` 后记得运行。
+- `/api/favicon` 已做防护：只允许 http/https、解析 DNS 后拒绝私有/回环网段、逐跳校验重定向、总超时 6 秒、HTML 与图标都有大小上限；抓取失败时返回地球图标而不是 404。修改时不要放宽这些限制。
 - 天气数据来自 `https://wis.qq.com/weather/common`，`location` 为空格分隔的「省 市 县」（如 `北京 北京市 昌平区`）。接口失败时 `actions/weather.ts` 直接抛错，而首页 `app/page.tsx` 未做兜底，会导致整页报错；改动时注意异常处理。
-- `/api/favicon` 接受任意 `host` 并在服务端发起请求，未做白名单/内网地址过滤（存在 SSRF 风险），修改时谨慎放开。
 - `typescript` 停在 **6.0.x**：TypeScript 7（`7.x`）改用 Go 原生编译器，`typescript` 包只导出 `version` 与 `unstable/*`，旧的 JS 编译器 API 已移除；而 `eslint-config-next` 依赖的 `typescript-eslint`（8.x）peer 要求 `typescript >=4.8.4 <6.1.0`。升到 7 会导致 `npm run lint` 无法解析类型，需等 typescript-eslint 支持后再升。
 - `eslint` 为 **10.x**，但 `eslint-config-next@16.4.x` 内部依赖的 `eslint-plugin-import` / `jsx-a11y` / `react` 的 peer 仍只声明到 `^9`，`npm install` / `npm ci` 会出现 `ERESOLVE overriding peer dependency` 警告（不阻断安装，实测 lint 正常）。若日后规则异常，可回退 `eslint@9.39.5`（npm 的 maintenance 分支）。
-- 依赖变更后需同步 `package-lock.json`（CI 用 `npm ci`），并重新执行 `npm run copy-icon`、`npm test`、`npm run lint`、`npx tsc --noEmit`。
+- 依赖变更后需同步 `package-lock.json`（CI 用 `npm ci`），并重新执行 `npm run gen-icons`、`npm test`、`npm run lint`、`npx tsc --noEmit`。

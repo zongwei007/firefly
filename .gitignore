@@ -41,9 +41,7 @@ yarn-error.log*
 .idea
 
 # icons
-public/assets/mdi
-public/assets/simple-icons
-public/assets/icon-meta.json
+public/assets/icons.json
 
 # test data folder
 .data

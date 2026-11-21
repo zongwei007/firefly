@@ -4,12 +4,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "npm run copy-icon && next build",
+    "dev": "npm run gen-icons && next dev --turbopack",
+    "build": "npm run gen-icons && next build",
     "start": "next start",
     "test": "node --test --experimental-strip-types",
     "lint": "eslint .",
-    "copy-icon": "node scripts/copy-icons.mjs"
+    "gen-icons": "node scripts/gen-icons.mjs",
+    "migrate-icons": "node scripts/migrate-icons.mjs"
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",
@@ -28,19 +29,18 @@
     "react-toastify": "^11.1.0",
     "react-use": "^17.6.1",
     "reactjs-popup": "^2.0.6",
+    "simple-icons": "^16.28.0",
     "swr": "^2.5.1",
     "webdav": "^5.10.0",
     "yaml": "^2.9.0"
   },
   "devDependencies": {
-    "@mdi/svg": "^7.4.47",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "eslint": "^10.15.0",
     "eslint-config-next": "^16.4.6",
     "prettier": "^3.9.6",
-    "simple-icons": "^16.28.0",
     "typescript": "^6.0.3",
     "webdav-server": "^2.6.3"
   }
