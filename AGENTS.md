@@ -29,6 +29,8 @@ DISK_PATH=./.data
 
 数据文件为 `./.data/bookmarks.yml` 与 `./.data/settings.yml`（`.data` 已 gitignore）。Node 版本：Docker 与 CI 使用 Node 26（`node:26-alpine` / `26.x`）。
 
+注意：若 `.env.local` 同时配置了 `UPSTASH_REDIS_REST_URL/TOKEN`（或 `KV_REST_API_*`），Redis 的优先级高于 `DISK_PATH`，本地改 `.data/*.yml` 不会影响页面渲染；需要走磁盘数据时临时移走相关变量。
+
 ## 目录结构
 
 ```
@@ -42,9 +44,9 @@ app/                路由与页面
 actions/            服务端业务逻辑（bookmark/setting/weather/auth），Joi 校验 + storage 读写
 infrastructure/     configuration（环境变量校验）、auth（token）、storage（disk/webdav/upstash-redis）、request（SWR fetcher）
 hooks/              客户端 hooks（SWR 封装）与 SettingContext
-components/         通用 UI：Table、Affix、Button、Checkbox、Icon、IconSelect、Spinner（统一由 index.ts 导出）
+components/         通用 UI：Table、Affix、Button、Checkbox、Spinner、RemoteIcon、FaviconIcon、IconSelect（统一由 index.ts 导出）
 typings/            全局类型声明（*.d.ts）
-scripts/            图标索引生成、图标迁移脚本 + Docker 构建用的 next.config
+scripts/            gen-icons（图标索引）、migrate-icons（图标格式迁移）、migrate-to-upstash-redis（存储迁移）、Docker 构建用的 next.build.config.ts
 proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 ```
 
@@ -55,7 +57,7 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 - 读：RSC 页面直接调用 `actions/*`（`bookmark.list`、`setting.get`、`weather.fromSetting`），把结果作为 props 传给客户端组件。首页用 `SettingProvider` 下发设置，天气通过 `SWRConfig` 的 fallback 注入，随后由 `useWeather` 每小时刷新 `/api/weather`。
 - 写：没有 REST 写接口。设置页在 `page.tsx` 内定义 `'use server'` 函数（闭包捕获当前配置）作为 prop 传给表单，保存时整份配置覆盖写入 YAML。
 - 设置子页（`/settings/search`、`/settings/ui`、`/settings/weather`）声明了 `export const dynamic = 'force-dynamic'`，避免构建期读取存储后把配置固化进静态页；新增会读取存储的设置页时同样要加。
-- API 路由有三个：`/api/weather`（读设置 → 查天气）、`/api/favicon?host=<url>`（抓取站点 HTML 解析 `<link rel="icon">`，失败时返回地球图标）、`/api/icon/[set]/[name]`（按需输出 simple-icons 的 SVG，响应带一年强缓存）。
+- API 路由有三个：`/api/weather`（读设置 → 查天气）、`/api/favicon?host=<url>`（favicon.im → 自抓 → 地球图标）、`/api/icon/[set]/[name]`（按需拼装 simple-icons 的 SVG，响应带一年强缓存，未知图标返回地球）。
 
 ### 存储
 
@@ -98,7 +100,7 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 - 服务端逻辑放 `actions/`（Joi schema + storage）；需要浏览器交互的组件标 `'use client'`，页面本身保持 RSC。
 - 通用 UI 放 `components/` 并从 `components/index.ts` 统一导出；页面专属组件就近放在 `app/components/` 或 `app/settings/<模块>/`。
 - 样式一律 CSS Modules（`*.module.css`）+ `app/globals.css` 的全局工具类（`page-container`、`no-select`、`form-group`），不引入 UI 框架；表格用 `components/table`（封装 rc-table），提示用 react-toastify，类名合并用 classnames。
-- 依赖职责：`joi` 校验、`yaml` 序列化、`swr` 客户端取数、`date-fns`/`date-fns-tz` 时间处理、`webdav` 与 `@upstash/redis` 存储、`@mdi/react` 渲染 UI 自身图标、`simple-icons` 提供书签图标、`node-html-parser` 解析 favicon。
+- 依赖职责：`joi` 校验、`yaml` 序列化、`swr` 客户端取数、`date-fns`/`date-fns-tz` 时间处理、`webdav` 与 `@upstash/redis` 存储、`@mdi/js` + `@mdi/react` 渲染界面自身的图标（**不要用于书签图标**）、`simple-icons` 提供书签品牌图标、`node-html-parser` 解析 favicon。
 - 组件用函数组件，文件名与组件名一致；hooks 以 `use` 开头。
 - RSC 中直接调用 `Date.now()` / `new Date()` 会触发 `react-hooks/purity` 规则，按现有写法用 `// eslint-disable-next-line react-hooks/purity` 局部豁免，不要全局关闭规则（`react-hooks/immutability` 同理）。
 - 新增用户可见文案、日志与注释保持中文。
@@ -120,7 +122,12 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 
 ## 注意事项 / 已知问题
 
-- 书签图标分两种：`icon` 字段为空时走 `/api/favicon` 自动抓取站点图标；填写 `simple-icons:xxx` 时走 `/api/icon/simple-icons/xxx`。图标选择器的搜索索引 `public/assets/icons.json` 由 `npm run gen-icons` 生成且被 gitignore，未执行时选择器为空——首次开发或 `npm install` 后记得运行。
+- 书签图标分两种，只有这两个来源：
+  - `icon` 为空：走 `/api/favicon` 自动抓取站点图标。
+  - `icon` 为 `simple-icons:<slug>`：走 `/api/icon/simple-icons/<slug>`。**格式固定为带图标集前缀**，Joi 校验规则在 `actions/bookmark.ts`；不要再引入 mdi 等其他图标集。
+  - 选择器的搜索索引 `public/assets/icons.json`（约 3470 条，180KB+，gzip 后约 50KB）由 `npm run gen-icons` 生成且被 gitignore，未执行时选择器为空——首次开发或 `npm install` 后记得运行；SVG 路径不落盘，由 `/api/icon` 按需返回。
+  - 图标统一用 mask + `currentColor` 渲染（`components/icon/RemoteIcon.tsx`），跟随文字颜色与暗色主题；不要再回到 `<img>` + `filter` 反色的方案。
+  - 历史数据迁移用 `scripts/migrate-icons.mjs`：纯文件 in/out，不连接存储，保留原文件。转换不了的图标一律清空（回退自动抓取），不做兼容层。
 - `/api/favicon` 的获取顺序是 **favicon.im → 直接抓取目标站 → 地球图标**。第三方返回 404 或默认「f」头像时回退自抓；内网地址不发起任何外部请求，直接返回地球。安全限制：只允许 http/https、解析 DNS 后拒绝私有/回环网段、逐跳校验重定向、第三方重定向只允许 `favicon.im` 域、两段超时分别为 3 秒和 5 秒、HTML 与图标都有大小上限。修改时不要放宽这些限制。
 - 天气数据来自 `https://wis.qq.com/weather/common`，`location` 为空格分隔的「省 市 县」（如 `北京 北京市 昌平区`）。接口失败时 `actions/weather.ts` 直接抛错，而首页 `app/page.tsx` 未做兜底，会导致整页报错；改动时注意异常处理。
 - `typescript` 停在 **6.0.x**：TypeScript 7（`7.x`）改用 Go 原生编译器，`typescript` 包只导出 `version` 与 `unstable/*`，旧的 JS 编译器 API 已移除；而 `eslint-config-next` 依赖的 `typescript-eslint`（8.x）peer 要求 `typescript >=4.8.4 <6.1.0`。升到 7 会导致 `npm run lint` 无法解析类型，需等 typescript-eslint 支持后再升。
