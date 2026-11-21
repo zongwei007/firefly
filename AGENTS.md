@@ -121,7 +121,7 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 ## 注意事项 / 已知问题
 
 - 书签图标分两种：`icon` 字段为空时走 `/api/favicon` 自动抓取站点图标；填写 `simple-icons:xxx` 时走 `/api/icon/simple-icons/xxx`。图标选择器的搜索索引 `public/assets/icons.json` 由 `npm run gen-icons` 生成且被 gitignore，未执行时选择器为空——首次开发或 `npm install` 后记得运行。
-- `/api/favicon` 已做防护：只允许 http/https、解析 DNS 后拒绝私有/回环网段、逐跳校验重定向、总超时 6 秒、HTML 与图标都有大小上限；抓取失败时返回地球图标而不是 404。修改时不要放宽这些限制。
+- `/api/favicon` 的获取顺序是 **favicon.im → 直接抓取目标站 → 地球图标**。第三方返回 404 或默认「f」头像时回退自抓；内网地址不发起任何外部请求，直接返回地球。安全限制：只允许 http/https、解析 DNS 后拒绝私有/回环网段、逐跳校验重定向、第三方重定向只允许 `favicon.im` 域、两段超时分别为 3 秒和 5 秒、HTML 与图标都有大小上限。修改时不要放宽这些限制。
 - 天气数据来自 `https://wis.qq.com/weather/common`，`location` 为空格分隔的「省 市 县」（如 `北京 北京市 昌平区`）。接口失败时 `actions/weather.ts` 直接抛错，而首页 `app/page.tsx` 未做兜底，会导致整页报错；改动时注意异常处理。
 - `typescript` 停在 **6.0.x**：TypeScript 7（`7.x`）改用 Go 原生编译器，`typescript` 包只导出 `version` 与 `unstable/*`，旧的 JS 编译器 API 已移除；而 `eslint-config-next` 依赖的 `typescript-eslint`（8.x）peer 要求 `typescript >=4.8.4 <6.1.0`。升到 7 会导致 `npm run lint` 无法解析类型，需等 typescript-eslint 支持后再升。
 - `eslint` 为 **10.x**，但 `eslint-config-next@16.4.x` 内部依赖的 `eslint-plugin-import` / `jsx-a11y` / `react` 的 peer 仍只声明到 `^9`，`npm install` / `npm ci` 会出现 `ERESOLVE overriding peer dependency` 警告（不阻断安装，实测 lint 正常）。若日后规则异常，可回退 `eslint@9.39.5`（npm 的 maintenance 分支）。

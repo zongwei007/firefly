@@ -6,8 +6,10 @@ import type { NextRequest } from 'next/server';
 
 export const runtime = 'nodejs';
 
-/** 单次抓取的总超时 */
-const TIMEOUT_MS = 6000;
+/** 第三方服务（favicon.im）的请求超时 */
+const THIRD_PARTY_TIMEOUT_MS = 3000;
+/** 自抓页面的请求超时，两段加起来留在函数时限以内 */
+const DIRECT_TIMEOUT_MS = 5000;
 /** HTML 与图标的大小上限 */
 const MAX_HTML_BYTES = 1024 * 1024;
 const MAX_ICON_BYTES = 512 * 1024;
@@ -18,6 +20,13 @@ const SUCCESS_CACHE = 'public, max-age=86400, s-maxage=2592000, stale-while-reva
 /** 兜底图标的缓存：短一些，让站点以后能自愈 */
 const FAILURE_CACHE = 'public, max-age=300, s-maxage=600';
 
+/**
+ * 图标获取顺序：
+ *   1. favicon.im（第三方 CDN，覆盖率高、响应快）
+ *   2. 直接抓取目标站点，解析 <link rel="icon">
+ *   3. 地球图标
+ * 内网、回环等非公网地址不发起任何外部请求，直接返回地球图标。
+ */
 export async function GET(request: NextRequest) {
   const target = parseTarget(request.nextUrl.searchParams.get('host'));
 
@@ -26,9 +35,20 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const icon = await fetchIcon(target);
+    // 内网地址既没有第三方收录，自抓也会被拦，直接兜底
+    if (!(await isPublicUrl(target))) {
+      return fallbackIcon();
+    }
 
-    return icon ?? fallbackIcon();
+    const remote = await fetchFromFaviconIm(target);
+
+    if (remote) {
+      return remote;
+    }
+
+    const direct = await fetchDirect(target);
+
+    return direct ?? fallbackIcon();
   } catch (error) {
     console.warn(`获取 ${target.origin} 的图标失败`, error);
 
@@ -50,8 +70,88 @@ function parseTarget(host: string | null): URL | null {
   }
 }
 
-async function fetchIcon(target: URL): Promise<Response | null> {
-  const signal = AbortSignal.timeout(TIMEOUT_MS);
+/** 向 favicon.im 取图标，未收录时它返回 404，据此交给自抓处理 */
+async function fetchFromFaviconIm(target: URL): Promise<Response | null> {
+  const signal = AbortSignal.timeout(THIRD_PARTY_TIMEOUT_MS);
+  const url = new URL(`https://favicon.im/${target.hostname}`);
+
+  url.searchParams.set('larger', 'true');
+  // 未找到时返回 404 而不是默认头像，方便判断是否需要回退
+  url.searchParams.set('throw-error-on-404', 'true');
+
+  let current = url;
+
+  // favicon.im 会 302 到 a.favicon.im，手动跟随并限制目标域名，避免被当成跳板
+  for (let hop = 0; hop < 2; hop++) {
+    const response = await fetch(current, {
+      redirect: 'manual',
+      signal,
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; FireflyFavicon/1.0)' },
+    });
+
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get('location');
+
+      if (!location) {
+        return null;
+      }
+
+      const next = new URL(location, current);
+
+      if (!/^https?:$/.test(next.protocol) || !isFaviconImHost(next.hostname)) {
+        return null;
+      }
+
+      current = next;
+
+      continue;
+    }
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const contentType = response.headers.get('content-type') ?? '';
+
+    if (!contentType.startsWith('image/')) {
+      return null;
+    }
+
+    const buffer = await readBuffer(response, MAX_ICON_BYTES);
+
+    // 站点存在但没有图标时，它仍可能返回默认的「f」头像，按失败处理
+    if (!buffer || isPlaceholderAvatar(buffer, contentType)) {
+      return null;
+    }
+
+    return new Response(new Uint8Array(buffer), {
+      headers: {
+        'Content-Type': contentType,
+        'Cache-Control': SUCCESS_CACHE,
+      },
+    });
+  }
+
+  return null;
+}
+
+function isFaviconImHost(hostname: string) {
+  return hostname === 'favicon.im' || hostname.endsWith('.favicon.im');
+}
+
+function isPlaceholderAvatar(buffer: Buffer, contentType: string): boolean {
+  if (!contentType.includes('svg')) {
+    return false;
+  }
+
+  const text = buffer.toString('utf8');
+
+  return text.includes('viewBox="0 0 100 100"') && text.includes('>f</text>');
+}
+
+/** 直接抓取目标站点，解析页面里的 <link rel="icon"> */
+async function fetchDirect(target: URL): Promise<Response | null> {
+  const signal = AbortSignal.timeout(DIRECT_TIMEOUT_MS);
 
   const pageResponse = await fetchWithRedirects(target, signal);
 
