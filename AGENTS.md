@@ -16,7 +16,6 @@
 | Lint     | `npm run lint`                                  | eslint flat config（eslint-config-next core-web-vitals + typescript）   |
 | 格式化   | `npx prettier --write <path>`                   | 配置见 `.prettierrc.js`（120 列、单引号、es5 尾逗号、单参箭头省略括号） |
 | 图标索引 | `npm run gen-icons`                             | 生成 `public/assets/icons.json`（已 gitignore）                         |
-| 图标迁移 | `npm run migrate-icons -- <file> [out]`         | 纯文件转换书签 `icon` 字段，不改存储                                    |
 
 本地开发环境变量放在 `.env.local`（已存在、已 gitignore）：
 
@@ -46,7 +45,7 @@ infrastructure/     configuration（环境变量校验）、auth（token）、st
 hooks/              客户端 hooks（SWR 封装）与 SettingContext
 components/         通用 UI：Table、Affix、Button、Checkbox、Spinner、RemoteIcon、FaviconIcon、IconSelect（统一由 index.ts 导出）
 typings/            全局类型声明（*.d.ts）
-scripts/            gen-icons（图标索引）、migrate-icons（图标格式迁移）、migrate-to-upstash-redis（存储迁移）、Docker 构建用的 next.build.config.ts
+scripts/            gen-icons（图标索引）、migrate-to-upstash-redis（存储迁移）、Docker 构建用的 next.build.config.ts
 proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 ```
 
@@ -127,7 +126,7 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
   - `icon` 为 `simple-icons:<slug>`：走 `/api/icon/simple-icons/<slug>`。**格式固定为带图标集前缀**，Joi 校验规则在 `actions/bookmark.ts`；不要再引入 mdi 等其他图标集。
   - 选择器的搜索索引 `public/assets/icons.json`（约 3470 条，180KB+，gzip 后约 50KB）由 `npm run gen-icons` 生成且被 gitignore，未执行时选择器为空——首次开发或 `npm install` 后记得运行；SVG 路径不落盘，由 `/api/icon` 按需返回。
   - 图标统一用 mask + `currentColor` 渲染（`components/icon/RemoteIcon.tsx`），跟随文字颜色与暗色主题；不要再回到 `<img>` + `filter` 反色的方案。
-  - 历史数据迁移用 `scripts/migrate-icons.mjs`：纯文件 in/out，不连接存储，保留原文件。转换不了的图标一律清空（回退自动抓取），不做兼容层。
+  - 图标格式迁移已完成，一次性脚本已删除；数据里出现无法识别的 `icon` 时直接清空即可，会回退到自动抓取。
 - `/api/favicon` 的获取顺序是 **favicon.im → 直接抓取目标站 → 地球图标**。第三方返回 404 或默认「f」头像时回退自抓；内网地址不发起任何外部请求，直接返回地球。安全限制：只允许 http/https、解析 DNS 后拒绝私有/回环网段、逐跳校验重定向、第三方重定向只允许 `favicon.im` 域、两段超时分别为 3 秒和 5 秒、HTML 与图标都有大小上限。修改时不要放宽这些限制。
 - 天气数据来自 `https://wis.qq.com/weather/common`，`location` 为空格分隔的「省 市 县」（如 `北京 北京市 昌平区`）。接口失败时 `actions/weather.ts` 直接抛错，而首页 `app/page.tsx` 未做兜底，会导致整页报错；改动时注意异常处理。
 - `typescript` 停在 **6.0.x**：TypeScript 7（`7.x`）改用 Go 原生编译器，`typescript` 包只导出 `version` 与 `unstable/*`，旧的 JS 编译器 API 已移除；而 `eslint-config-next` 依赖的 `typescript-eslint`（8.x）peer 要求 `typescript >=4.8.4 <6.1.0`。升到 7 会导致 `npm run lint` 无法解析类型，需等 typescript-eslint 支持后再升。

@@ -9,8 +9,7 @@
     "start": "next start",
     "test": "node --test --experimental-strip-types",
     "lint": "eslint .",
-    "gen-icons": "node scripts/gen-icons.mjs",
-    "migrate-icons": "node scripts/migrate-icons.mjs"
+    "gen-icons": "node scripts/gen-icons.mjs"
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",
