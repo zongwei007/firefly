@@ -1,6 +1,8 @@
 import * as settingService from '@/actions/setting';
 import Search from './Search';
 
+export const dynamic = 'force-dynamic';
+
 export default async function WeatherPage() {
   const settings = await settingService.get();
   async function handleChange(formData: FormData) {

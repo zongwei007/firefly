@@ -1,6 +1,8 @@
 import * as settingService from '@/actions/setting';
 import Weather from './Weather';
 
+export const dynamic = 'force-dynamic';
+
 export default async function WeatherPage() {
   const settings = await settingService.get();
 

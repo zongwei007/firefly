@@ -10,7 +10,7 @@ declare interface GlobalConfiguration {
     disableLogin: boolean;
     expire: number;
   };
-  storage: DiskStorageConfiguration | WebdavStorageConfiguration;
+  storage: DiskStorageConfiguration | WebdavStorageConfiguration | UpstashRedisStorageConfiguration;
 }
 
 interface DiskStorageConfiguration {
@@ -25,4 +25,11 @@ interface WebdavStorageConfiguration {
   password: string;
   authType: 'Digest' | 'Password';
   directory: string;
+}
+
+interface UpstashRedisStorageConfiguration {
+  mode: 'upstash-redis';
+  url: string;
+  token: string;
+  prefix: string;
 }

@@ -15,6 +15,7 @@
     "@mdi/js": "^7.4.47",
     "@mdi/react": "^1.6.1",
     "@tanstack/react-virtual": "^3.14.10",
+    "@upstash/redis": "^1.41.0",
     "classnames": "^2.5.1",
     "date-fns": "^4.4.0",
     "date-fns-tz": "^3.2.0",

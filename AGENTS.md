@@ -39,7 +39,7 @@ app/                路由与页面
   api/              仅 weather/ 与 favicon/ 两个 Route Handler
   components/       首页业务组件：bookmark、filter、clock、weather-icons
 actions/            服务端业务逻辑（bookmark/setting/weather/auth），Joi 校验 + storage 读写
-infrastructure/     configuration（环境变量校验）、auth（token）、storage（disk/webdav）、request（SWR fetcher）
+infrastructure/     configuration（环境变量校验）、auth（token）、storage（disk/webdav/upstash-redis）、request（SWR fetcher）
 hooks/              客户端 hooks（SWR 封装）与 SettingContext
 components/         通用 UI：Table、Affix、Button、Checkbox、Icon、IconSelect、Spinner（统一由 index.ts 导出）
 typings/            全局类型声明（*.d.ts）
@@ -53,14 +53,17 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 
 - 读：RSC 页面直接调用 `actions/*`（`bookmark.list`、`setting.get`、`weather.fromSetting`），把结果作为 props 传给客户端组件。首页用 `SettingProvider` 下发设置，天气通过 `SWRConfig` 的 fallback 注入，随后由 `useWeather` 每小时刷新 `/api/weather`。
 - 写：没有 REST 写接口。设置页在 `page.tsx` 内定义 `'use server'` 函数（闭包捕获当前配置）作为 prop 传给表单，保存时整份配置覆盖写入 YAML。
+- 设置子页（`/settings/search`、`/settings/ui`、`/settings/weather`）声明了 `export const dynamic = 'force-dynamic'`，避免构建期读取存储后把配置固化进静态页；新增会读取存储的设置页时同样要加。
 - API 路由只有两个：`/api/weather`（读设置 → 查天气）和 `/api/favicon?host=<url>`（抓取站点 HTML 解析 `<link rel="icon">`，响应带一年缓存头）。
 
 ### 存储
 
 - 接口 `SettingStorage`（`typings/storage.d.ts`）只有 `read` / `write`，数据格式固定为 YAML。
+- 后端选择顺序：`KV_REST_API_*`（Vercel 的 Upstash 集成）或 `UPSTASH_REDIS_REST_*` → `WEBDAV_HOST` → `DISK_PATH`，见 `configuration.ts` 的 `resolveStorage()`。
 - `infrastructure/storage/index.ts` 在**模块加载时**按配置创建单例：环境变量只在进程启动时读取一次，修改后必须重启；测试中请直接 `new DiskStorage(...)`，不要走单例。
 - 新增配置文件：先 Joi 校验，再 `storage.write('xxx.yml', value)`；读取时对 `null` 给默认值（参考 `actions/setting.ts` 的 `DEFAULTS` 与 `get()` 的浅合并）。
 - WebDAV 后端依据 404/409 判断文件或目录不存在，目录缺失时自动 `createDirectory` 后重试写入（见 `webdav.ts`）。
+- Upstash Redis 后端把每个 YAML 文件整体存成一个字符串键（`<prefix><name>`，默认前缀 `firefly:`），并关闭了 SDK 的自动 JSON 反序列化；从旧后端迁移用 `scripts/migrate-to-upstash-redis.ts`，只读源、只写目标，不删除源数据。
 
 ### 认证与访问控制
 
@@ -72,15 +75,18 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 
 ### 配置与环境变量
 
-| 变量                    | 说明                                                                                                                                               |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `FIREFLY_TITLE`         | 页面标题，默认 `Firefly`                                                                                                                           |
-| `FIREFLY_USERNAME`      | 登录用户名，未禁用登录时必填                                                                                                                       |
-| `FIREFLY_PASSWORD`      | 登录密码，同时作为 token 签名密钥来源，未禁用登录时必填                                                                                            |
-| `FIREFLY_DISABLE_LOGIN` | `true` 时关闭登录与私密书签（内网部署常用）                                                                                                        |
-| `FIREFLY_EXPIRE`        | 登录有效期（秒），默认 `864000`（10 天）                                                                                                           |
-| `DISK_PATH`             | 磁盘存储目录，Docker 镜像默认 `/app/data`                                                                                                          |
-| `WEBDAV_HOST` 等        | 设置 `WEBDAV_HOST` 即切换为 WebDAV 存储，配套 `WEBDAV_USERNAME` / `WEBDAV_PASSWORD` / `WEBDAV_AUTH_TYPE`（Digest 或 Password）/ `WEBDAV_DIRECTORY` |
+| 变量                                                  | 说明                                                                                                                                               |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `FIREFLY_TITLE`                                       | 页面标题，默认 `Firefly`                                                                                                                           |
+| `FIREFLY_USERNAME`                                    | 登录用户名，未禁用登录时必填                                                                                                                       |
+| `FIREFLY_PASSWORD`                                    | 登录密码，同时作为 token 签名密钥来源，未禁用登录时必填                                                                                            |
+| `FIREFLY_DISABLE_LOGIN`                               | `true` 时关闭登录与私密书签（内网部署常用）                                                                                                        |
+| `FIREFLY_EXPIRE`                                      | 登录有效期（秒），默认 `864000`（10 天）                                                                                                           |
+| `DISK_PATH`                                           | 磁盘存储目录，Docker 镜像默认 `/app/data`                                                                                                          |
+| `WEBDAV_HOST` 等                                      | 设置 `WEBDAV_HOST` 即切换为 WebDAV 存储，配套 `WEBDAV_USERNAME` / `WEBDAV_PASSWORD` / `WEBDAV_AUTH_TYPE`（Digest 或 Password）/ `WEBDAV_DIRECTORY` |
+| `KV_REST_API_URL` / `KV_REST_API_TOKEN`               | Vercel 的 Upstash 集成自动注入，存在时优先使用 Upstash Redis 存储                                                                                  |
+| `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` | 手动配置 Upstash（非 Vercel 集成）时使用；与上面的 `KV_*` 二选一                                                                                   |
+| `REDIS_KEY_PREFIX`                                    | Redis 键前缀，默认 `firefly:`（多个实例共用同一数据库时用来区分）                                                                                  |
 
 统一由 `infrastructure/configuration.ts` 用 Joi 校验并单例缓存，缺失必填项会直接抛错（构建期也需要可用的环境变量，见「构建与部署」）。
 
@@ -91,7 +97,7 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 - 服务端逻辑放 `actions/`（Joi schema + storage）；需要浏览器交互的组件标 `'use client'`，页面本身保持 RSC。
 - 通用 UI 放 `components/` 并从 `components/index.ts` 统一导出；页面专属组件就近放在 `app/components/` 或 `app/settings/<模块>/`。
 - 样式一律 CSS Modules（`*.module.css`）+ `app/globals.css` 的全局工具类（`page-container`、`no-select`、`form-group`），不引入 UI 框架；表格用 `components/table`（封装 rc-table），提示用 react-toastify，类名合并用 classnames。
-- 依赖职责：`joi` 校验、`yaml` 序列化、`swr` 客户端取数、`date-fns`/`date-fns-tz` 时间处理、`webdav` 存储、`@mdi/react` 图标渲染、`node-html-parser` 解析 favicon。
+- 依赖职责：`joi` 校验、`yaml` 序列化、`swr` 客户端取数、`date-fns`/`date-fns-tz` 时间处理、`webdav` 与 `@upstash/redis` 存储、`@mdi/react` 图标渲染、`node-html-parser` 解析 favicon。
 - 组件用函数组件，文件名与组件名一致；hooks 以 `use` 开头。
 - RSC 中直接调用 `Date.now()` / `new Date()` 会触发 `react-hooks/purity` 规则，按现有写法用 `// eslint-disable-next-line react-hooks/purity` 局部豁免，不要全局关闭规则（`react-hooks/immutability` 同理）。
 - 新增用户可见文案、日志与注释保持中文。
@@ -99,7 +105,7 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 ## 测试
 
 - 使用 `node:test` + `node:assert`，测试文件与源文件同目录，命名 `*.test.ts`，且 import 时带 `.ts` 后缀（`--experimental-strip-types` 直接执行 TS，无需编译）。
-- 现有测试：`infrastructure/auth.test.ts`（token 签发/校验）、`infrastructure/storage/storage.test.ts`（磁盘 + 进程内 `webdav-server`）、`actions/weather.test.ts`（**真实请求腾讯天气接口，需要外网**）。
+- 现有测试：`infrastructure/auth.test.ts`（token 签发/校验）、`infrastructure/storage/storage.test.ts`（磁盘 + 进程内 `webdav-server`）、`actions/weather.test.ts`（**真实请求腾讯天气接口，需要外网**）。Upstash Redis 后端没有自动化测试，避免依赖线上服务。
 - 测试会临时改写 `process.env`，请在 `before`/`after` 中恢复原值。
 - 提交前至少执行 `npm test`、`npm run lint`、`npx tsc --noEmit`。
 
@@ -108,6 +114,7 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 - `next.config.ts`：仅在非 Vercel 环境启用 `output: 'standalone'`（规避 Next 16.3 的 `nft.json` 构建回归）。
 - `Dockerfile`：`node:26-alpine` 多阶段构建，用 `scripts/next.build.config.ts` 覆盖 `next.config.ts`，产物以 `node server.js` 运行；数据目录 `/app/data`，容器用户/组 `1001`。
 - 构建期必须提供 `FIREFLY_DISABLE_LOGIN=true` 与 `DISK_PATH`，否则配置校验/数据初始化会失败（Dockerfile 与 CI 已设置）。
+- Vercel 部署使用 Upstash Redis（集成注入 `KV_REST_API_URL/TOKEN`），Function Region 为 `hkg1`（香港）；Upstash 数据库应选东京 `ap-northeast-1`，与香港延迟约 30–50 ms。
 - GitHub Actions（每次 push）：`npm ci` + lint + test 后构建并推送 Docker Hub `knives/firefly:latest`；另一 job 构建 Next 并部署 Vercel。
 
 ## 注意事项 / 已知问题

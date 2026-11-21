@@ -2,6 +2,8 @@ import * as settingService from '@/actions/setting';
 import UserInterface from './UserInterface';
 import { revalidatePath } from 'next/cache';
 
+export const dynamic = 'force-dynamic';
+
 export default async function WeatherPage() {
   const settings = await settingService.get();
 
