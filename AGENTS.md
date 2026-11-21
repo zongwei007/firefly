@@ -26,7 +26,7 @@ FIREFLY_PASSWORD=admin
 DISK_PATH=./.data
 ```
 
-数据文件为 `./.data/bookmarks.yml` 与 `./.data/settings.yml`（`.data` 已 gitignore）。Node 版本：Docker 与 CI 使用 Node 24（`node:24-alpine` / `24.x`）。
+数据文件为 `./.data/bookmarks.yml` 与 `./.data/settings.yml`（`.data` 已 gitignore）。Node 版本：Docker 与 CI 使用 Node 26（`node:26-alpine` / `26.x`）。
 
 ## 目录结构
 
@@ -106,7 +106,7 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 ## 构建与部署
 
 - `next.config.ts`：仅在非 Vercel 环境启用 `output: 'standalone'`（规避 Next 16.3 的 `nft.json` 构建回归）。
-- `Dockerfile`：`node:24-alpine` 多阶段构建，用 `scripts/next.build.config.ts` 覆盖 `next.config.ts`，产物以 `node server.js` 运行；数据目录 `/app/data`，容器用户/组 `1001`。
+- `Dockerfile`：`node:26-alpine` 多阶段构建，用 `scripts/next.build.config.ts` 覆盖 `next.config.ts`，产物以 `node server.js` 运行；数据目录 `/app/data`，容器用户/组 `1001`。
 - 构建期必须提供 `FIREFLY_DISABLE_LOGIN=true` 与 `DISK_PATH`，否则配置校验/数据初始化会失败（Dockerfile 与 CI 已设置）。
 - GitHub Actions（每次 push）：`npm ci` + lint + test 后构建并推送 Docker Hub `knives/firefly:latest`；另一 job 构建 Next 并部署 Vercel。
 
@@ -117,4 +117,6 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 - `/api/favicon` 接受任意 `host` 并在服务端发起请求，未做白名单/内网地址过滤（存在 SSRF 风险），修改时谨慎放开。
 - 设置页的「主题」标签在 `app/settings/layout.tsx` 中被注释掉，`app/settings/theme` 目前不可达，改动前先确认是否要恢复。
 - `hooks/bookmark.ts` 的 `useBookmarks` 指向并不存在的 `/api/bookmarks`，书签编辑已改为 Server Action，该 hook 无调用方，属遗留死代码——不要依赖，可安全删除。
+- `typescript` 停在 **6.0.x**：TypeScript 7（`7.x`）改用 Go 原生编译器，`typescript` 包只导出 `version` 与 `unstable/*`，旧的 JS 编译器 API 已移除；而 `eslint-config-next` 依赖的 `typescript-eslint`（8.x）peer 要求 `typescript >=4.8.4 <6.1.0`。升到 7 会导致 `npm run lint` 无法解析类型，需等 typescript-eslint 支持后再升。
+- `eslint` 为 **10.x**，但 `eslint-config-next@16.4.x` 内部依赖的 `eslint-plugin-import` / `jsx-a11y` / `react` 的 peer 仍只声明到 `^9`，`npm install` / `npm ci` 会出现 `ERESOLVE overriding peer dependency` 警告（不阻断安装，实测 lint 正常）。若日后规则异常，可回退 `eslint@9.39.5`（npm 的 maintenance 分支）。
 - 依赖变更后需同步 `package-lock.json`（CI 用 `npm ci`），并重新执行 `npm run copy-icon`、`npm test`、`npm run lint`、`npx tsc --noEmit`。
