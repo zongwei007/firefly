@@ -24,7 +24,6 @@ export default function SettingLayout({ children }: PropsWithChildren<unknown>) 
       label: '书签',
       defaultActive: true,
     },
-    /*{ id: 'theme', label: '主题', children: <Theme /> },*/
     {
       id: 'weather',
       label: '天气',

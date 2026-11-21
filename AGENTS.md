@@ -35,7 +35,7 @@ app/                路由与页面
   page.tsx          首页 RSC：取 setting/weather/bookmarks 后交给 Home.tsx
   Home.tsx          'use client' 首页壳：SettingProvider + SWR fallback
   login/            登录页（useActionState 提交 Server Action）
-  settings/         设置页：bookmark、weather、search、ui、about（theme 目前未挂载）
+  settings/         设置页：bookmark、weather、search、ui、about
   api/              仅 weather/ 与 favicon/ 两个 Route Handler
   components/       首页业务组件：bookmark、filter、clock、weather-icons
 actions/            服务端业务逻辑（bookmark/setting/weather/auth），Joi 校验 + storage 读写
@@ -115,8 +115,6 @@ proxy.ts            Next 16 的 middleware（拦截 /settings/:path*）
 - `public/assets/{mdi,simple-icons,icon-meta.json}` 由 `npm run copy-icon` 生成且被 gitignore。未执行该脚本时图标选择器（`IconSelect`）为空——首次开发或 `npm install` 后记得运行。
 - 天气数据来自 `https://wis.qq.com/weather/common`，`location` 为空格分隔的「省 市 县」（如 `北京 北京市 昌平区`）。接口失败时 `actions/weather.ts` 直接抛错，而首页 `app/page.tsx` 未做兜底，会导致整页报错；改动时注意异常处理。
 - `/api/favicon` 接受任意 `host` 并在服务端发起请求，未做白名单/内网地址过滤（存在 SSRF 风险），修改时谨慎放开。
-- 设置页的「主题」标签在 `app/settings/layout.tsx` 中被注释掉，`app/settings/theme` 目前不可达，改动前先确认是否要恢复。
-- `hooks/bookmark.ts` 的 `useBookmarks` 指向并不存在的 `/api/bookmarks`，书签编辑已改为 Server Action，该 hook 无调用方，属遗留死代码——不要依赖，可安全删除。
 - `typescript` 停在 **6.0.x**：TypeScript 7（`7.x`）改用 Go 原生编译器，`typescript` 包只导出 `version` 与 `unstable/*`，旧的 JS 编译器 API 已移除；而 `eslint-config-next` 依赖的 `typescript-eslint`（8.x）peer 要求 `typescript >=4.8.4 <6.1.0`。升到 7 会导致 `npm run lint` 无法解析类型，需等 typescript-eslint 支持后再升。
 - `eslint` 为 **10.x**，但 `eslint-config-next@16.4.x` 内部依赖的 `eslint-plugin-import` / `jsx-a11y` / `react` 的 peer 仍只声明到 `^9`，`npm install` / `npm ci` 会出现 `ERESOLVE overriding peer dependency` 警告（不阻断安装，实测 lint 正常）。若日后规则异常，可回退 `eslint@9.39.5`（npm 的 maintenance 分支）。
 - 依赖变更后需同步 `package-lock.json`（CI 用 `npm ci`），并重新执行 `npm run copy-icon`、`npm test`、`npm run lint`、`npx tsc --noEmit`。
