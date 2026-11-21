@@ -6,7 +6,7 @@ const config = {
   printWidth: 120,
   singleQuote: true,
   trailingComma: 'es5',
-  jsxBracketSameLine: true,
+  bracketSameLine: true,
   arrowParens: 'avoid',
 };
 
